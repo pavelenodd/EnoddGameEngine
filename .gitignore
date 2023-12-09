@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+#Directiries
+build
+.vscode
+bilding_binary
