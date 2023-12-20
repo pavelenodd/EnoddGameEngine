@@ -21,28 +21,36 @@ FetchContent_Declare(GLFW
     GIT_TAG 3.3.8)
 FetchContent_MakeAvailable(GLFW)
 
+# Загрузка и подключение GLAD
+add_subdirectory(src/Libs/glad)
+
+
+add_subdirectory(src/Libs/glm)
 # Добавление цели "GameEngine"
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    # ... другие файлы
 )
 
-# Указание компонентов SFML, которые вы используете
+# Связывание SFML с проектом
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
 
-# Указание компонентов GLFW, которые вы используете
+# Связывание GLFW с проектом
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
-if(WIN32)
-    add_custom_command(
-        TARGET ${PROJECT_NAME}
-        COMMENT "Copy OpenAL DLL"
-        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<BOOL:${ARCH_64BITS}>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:${PROJECT_NAME}>
-        VERBATIM)
-endif()
+# Связывание GLAD с проектом
+target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 
 # Добавление директорий с заголовочными файлами
 target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${GLAD_SOURCE_DIR}/include)
 
 # Установка директории для сборки проекта
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

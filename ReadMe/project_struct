@@ -1,0 +1,36 @@
+project_root/
+|-- src/
+|   |-- main.cpp                    // корень , линкует игровой движок с самой игрой 
+|   |-- GameEngine/                 //сам игровой движок 
+|       |-- Engine.cpp 
+|       |-- Engine.h
+|       |-- GraphicsManager/            //рендеры графики
+|           |-- 2DRenderer.cpp          //2d рендер
+|           |-- 2DRenderer.h
+|           |-- 3DRenderer.cpp          //3d ренлер
+|           |-- 3DRenderer.h
+|       |-- FileManager/                //менеджер работы с файлами 
+|           |-- FileManager.cpp
+|           |-- FileManager.h
+|           |-- Json_Parser/            //парсер json фалов
+|               |-- JsonParser.cpp
+|               |-- JsonParser.h
+|       |-- SoundManager/               //менеджер звука 
+|           |-- AudioManager.cpp
+|           |-- AudioManager.h
+|       |-- NetworkManager/             //менеджер сети 
+|           |-- NetworkManager.cpp
+|           |-- NetworkManager.h
+|       |--SettingsEngine/              //настройки игрового движка 
+|           |-- settings.json           
+|   |-- Libs/                           //библиотеки используемые в движке 
+|       |--boost/                      // заголовочные файлы от Boost
+|       |--
+|       |--glad/                     // заголовочные файлы от GLAD
+|       |--glm/                     // заголовочные файлы от GLM
+|       |--nlohmann/json/          // заголовочные файлы от nlohmann
+|   |-- Game/                       //файлы игры 
+|       |-- CMakeLists.txt         //Cmake файл дял сборки игры
+|       |--Assets                 // Ресурсы, такие как изображения, модели, звуки, и т. д.
+|-- CMakeLists.txt                  //Cmake файл дял сборки проекта 
+
