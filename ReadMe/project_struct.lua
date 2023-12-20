@@ -4,7 +4,7 @@ project_root/
 |   |-- GameEngine/                 //сам игровой движок 
 |       |-- Engine.cpp 
 |       |-- Engine.h
-|       |-- Graphics/                   //рендеры графики
+|       |-- GraphicsManager/            //рендеры графики
 |           |-- 2DRenderer.cpp          //2d рендер
 |           |-- 2DRenderer.h
 |           |-- 3DRenderer.cpp          //3d ренлер
@@ -21,11 +21,11 @@ project_root/
 |       |-- NetworkManager/             //менеджер сети 
 |           |-- NetworkManager.cpp
 |           |-- NetworkManager.h
-|       |--SettingsEngine/
-|           |-- settings.json           //настройки игрового движка 
+|       |--SettingsEngine/              //настройки игрового движка 
+|           |-- settings.json           
 |-- Libs/                           //библиотеки исполььзуемые в движке 
 |   |-- boost/                      // заголовочные файлы от Boost
-|   |-- Game/                       //файлы игры 
-|       |--Assets                   // Ресурсы, такие как изображения, модели, звуки, и т. д.
+|-- Game/                       //файлы игры 
+|   |--Assets                   // Ресурсы, такие как изображения, модели, звуки, и т. д.
 |-- CMakeLists.txt
 
