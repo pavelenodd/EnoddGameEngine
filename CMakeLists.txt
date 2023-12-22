@@ -51,6 +51,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLAD_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${GLM_SOURCE_DIR}/include)
 
 # Установка директории для сборки проекта
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
