@@ -24,8 +24,8 @@ GLfloat colors[] = {
     // синий цвет первой точки
 };
 
+// отрисовка треугольника
 const char* vertex_shader =
-    // отрисовка треугольника
     "#version 460\n"
     // макрос использования версии openGL
     "layout(location = 0) in vec3 vertex_position;"
@@ -34,17 +34,17 @@ const char* vertex_shader =
     "layout(location = 1) in vec3 vertex_color;"
     "out vec3 color;"
     "void main() {"
-    "   color = vertex_color;"
-    "   gl_Position = vec4(vertex_position, 1.0);"
+    "color = vertex_color;"
+    "gl_Position = vec4(vertex_position, 1.0);"
     "}";
 
+// раскраска треугольника
 const char* fragment_shader =
-    // раскраска треугольника
     "#version 460\n"
     "in vec3 color;"
     "out vec4 frag_color;"
     "void main() {"
-    "   frag_color = vec4(color, 1.0);"
+    "frag_color = vec4(color, 1.0);"
     "}";
 
 int window_size_x = 640;
