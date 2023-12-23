@@ -1,8 +1,8 @@
 {
     "windows_size": [
         {
-            "heith": 800,
-            "weith": 600
+            "height": 800,
+            "width": 600
         }
     ],
     "shaders": [

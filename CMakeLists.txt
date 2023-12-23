@@ -29,6 +29,10 @@ add_subdirectory(src/Libs/glm)
 # Добавление цели "GameEngine"
 add_executable(${PROJECT_NAME}
     src/main.cpp
+
+    #src/GameEngine/Engine.cpp
+    #src/GameEngine/Engine.h
+
     # ... другие файлы
 )
 
@@ -42,16 +46,19 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
-# Связывание GLAD с проектом
+# Связывание библиотек с проектом
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
+
+
 
 # Добавление директорий с заголовочными файлами
 target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLAD_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLM_SOURCE_DIR}/include)
+
 
 # Установка директории для сборки проекта
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
