@@ -1,0 +1,37 @@
+-- src/
+|   -- main.cpp 
+|   -- GameEngine/                 //сам игровой движок 
+|       |--AI/
+|       |   |--BehaviorTree.cpp
+|       |   |--BehaviorTree.h
+|       |-- FileManager/                //менеджер работы с файлами 
+|       |   |-- Json_Parser/            //парсер настроечных json фалов
+|       |   |   |-- JsonParser.cpp
+|       |   |   |-- JsonParser.h
+|       |   |-- FileManager.cpp
+|       |   |-- FileManager.h
+|       |-- GraphicsManager/            //рендеры графики
+|       |   |-- 2DRenderer.cpp          //2d рендер
+|       |   |-- 2DRenderer.h
+|       |   |-- 3DRenderer.cpp          //3d ренлер
+|       |   |-- 3DRenderer.h
+|       |-- NetworkManager/             //менеджер сети 
+|       |   |-- NetworkManager.cpp
+|       |   |-- NetworkManager.h
+|       |--SettingsEngine/              //настройки игрового движка 
+|       |   |-- settings.json    
+|       |-- SoundManager/               //менеджер звука 
+|       |   |-- AudioManager.cpp
+|       |   |-- AudioManager.h
+|       |-- Engine.cpp 
+|       |-- Engine.h
+|    -- Libs/                       //библиотеки используемые в движке 
+|       |--boost/                      // заголовочные файлы от Boost
+|       |--
+|       |--glad/                     // заголовочные файлы от GLAD
+|       |--glm/                     // заголовочные файлы от GLM
+|       |--nlohmann/json/          // заголовочные файлы от nlohmann
+--ReadMe/
+|       --project_struct.csv         //структура проекта 
+|       --README.md                 //ReadMe
+-- CMakeLists.txt                  //Cmake файл дял сборки проекта 
