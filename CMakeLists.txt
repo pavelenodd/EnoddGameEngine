@@ -21,6 +21,8 @@ FetchContent_Declare(GLFW
     GIT_TAG 3.3.8)
 FetchContent_MakeAvailable(GLFW)
 
+
+
 # Загрузка и подключение GLAD
 add_subdirectory(src/Libs/glad)
 
@@ -47,10 +49,14 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Связывание библиотек с проектом
+
+# подключение glad
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
-
+# подключение glm
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
-
+# подключение Open GL
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
 
 # Добавление директорий с заголовочными файлами

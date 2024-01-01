@@ -1,11 +1,27 @@
 {
-    "windows_size": [
+    "windows_size": {
+        "height": 768,
+        "width": 1024
+    },
+    "context_settings_OpenGL": [
         {
-            "height": 800,
-            "width": 600
+            "settings_2D": {
+                "depth_bits": 0,
+                "stencil_bits": 0,
+                "antialiasing_level": 4,
+                "major_version": 4,
+                "minor_version": 6
+            },
+            "settings_3D": {
+                "depth_bits": 24,
+                "stencil_bits": 8,
+                "antialiasing_level": 4,
+                "major_version": 4,
+                "minor_version": 6
+            }
         }
     ],
-    "shaders": [
+    "shaders_OpenGL": [
         {
             "vertex_shader": [
                 "#version 460\n",

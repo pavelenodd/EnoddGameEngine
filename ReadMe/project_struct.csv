@@ -11,6 +11,8 @@
 |       |   |-- FileManager.cpp
 |       |   |-- FileManager.h
 |       |-- GraphicsManager/            //рендеры графики
+|       |   |-- Render.cpp              //управляет рендером окна 
+|       |   |-- Render.h
 |       |   |-- 2DRenderer.cpp          //2d рендер
 |       |   |-- 2DRenderer.h
 |       |   |-- 3DRenderer.cpp          //3d ренлер
@@ -19,7 +21,7 @@
 |       |   |-- NetworkManager.cpp
 |       |   |-- NetworkManager.h
 |       |--SettingsEngine/              //настройки игрового движка 
-|       |   |-- settings.json    
+|       |   |-- render_settings.json    //настройки рендера
 |       |-- SoundManager/               //менеджер звука 
 |       |   |-- AudioManager.cpp
 |       |   |-- AudioManager.h
