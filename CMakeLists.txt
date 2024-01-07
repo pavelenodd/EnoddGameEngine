@@ -9,11 +9,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include(FetchContent)
 
-# Загрузка и подключение SFML
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.6.1)
-FetchContent_MakeAvailable(SFML)
 
 # Загрузка и подключение GLFW
 FetchContent_Declare(GLFW
@@ -22,6 +17,12 @@ FetchContent_Declare(GLFW
 FetchContent_MakeAvailable(GLFW)
 
 
+
+# Загрузка и подключение SFML
+FetchContent_Declare(SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 2.6.1)
+FetchContent_MakeAvailable(SFML)
 
 # Загрузка и подключение GLAD
 add_subdirectory(src/Libs/glad)

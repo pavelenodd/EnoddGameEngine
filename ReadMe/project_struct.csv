@@ -28,11 +28,12 @@
 |       |-- Engine.cpp 
 |       |-- Engine.h
 |    -- Libs/                       //библиотеки используемые в движке 
-|       |--boost/                      // заголовочные файлы от Boost
+|       |--boost/                  // заголовочные файлы от Boost
 |       |--
-|       |--glad/                     // заголовочные файлы от GLAD
-|       |--glm/                     // заголовочные файлы от GLM
-|       |--nlohmann/json/          // заголовочные файлы от nlohmann
+|       |--SFML/                   // заголовочные файлы от SFML
+|       |--glad/                  // заголовочные файлы от GLAD
+|       |--glm/                  // заголовочные файлы от GLM
+|       |--nlohmann/json/       // заголовочные файлы от nlohmann
 --ReadMe/
 |       --project_struct.csv         //структура проекта 
 |       --README.md                 //ReadMe
