@@ -17,6 +17,8 @@ FetchContent_Declare(GLFW
 FetchContent_MakeAvailable(GLFW)
 
 
+# Загрузка и подключение SFML
+add_subdirectory(src/Libs/SFML)
 
 # Загрузка и подключение SFML
 FetchContent_Declare(SFML
