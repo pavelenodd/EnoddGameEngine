@@ -16,10 +16,6 @@ FetchContent_Declare(GLFW
     GIT_TAG 3.3.8)
 FetchContent_MakeAvailable(GLFW)
 
-
-# Загрузка и подключение SFML
-add_subdirectory(src/Libs/SFML)
-
 # Загрузка и подключение SFML
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
