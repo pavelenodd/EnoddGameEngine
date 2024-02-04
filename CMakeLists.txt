@@ -22,6 +22,9 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.1)
 FetchContent_MakeAvailable(SFML)
 
+# Загрузка и подключение GLEW
+add_subdirectory(src/Libs/glew-2.2.0/build/cmake)
+
 # Загрузка и подключение GLAD
 add_subdirectory(src/Libs/glad)
 
@@ -45,14 +48,17 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Связывание библиотек с проектом
-
+# подключение glfw
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 # подключение glad
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 # подключение glm
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
+# подключкние glew
+
+target_link_libraries(${PROJECT_NAME} PRIVATE glew)
 # подключение Open GL
 find_package(OpenGL REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
