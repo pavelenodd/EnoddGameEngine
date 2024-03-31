@@ -34,5 +34,12 @@ target_link_libraries(${PROJECT_NAME} glm::glm)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
-# Скопировать папку "Data" в папку сборки 
-file(COPY ${CMAKE_SOURCE_DIR}/Src/Engine/Data DESTINATION ${CMAKE_BINARY_DIR})
+
+
+#удаление папки Data в корне сборки и копирование в него из проекта 
+add_custom_target(CleanData ALL COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/Data")
+
+add_custom_target(CopyData ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/Src/Engine/Data" "${CMAKE_BINARY_DIR}/Data"
+    DEPENDS CleanData)
+
+add_dependencies(${PROJECT_NAME} CopyData)

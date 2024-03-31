@@ -18,6 +18,9 @@ class JsonParser {
   JsonParser() = default;
 
   void ParseFile(const std::string &L_file_address) {
+    if (!data_.empty()) {
+      data_.clear();
+    }
     std::ifstream file_stream(L_file_address);
     if (file_stream.is_open()) {
       file_stream >> data_;
@@ -26,23 +29,39 @@ class JsonParser {
       std::cerr << "Unable to open file: " << L_file_address << std::endl;
     }
   }
-
-  // Метод для поиска значения по ключу в массиве объектов JSON
+  // Метод для поиска значения в структуре по имени массива и ключа
   template <typename T>
-  T GetParameterValue(const std::string &array_name,
-                      const std::string &key) const {
-    for (const auto &item : data_[array_name]) {
-      if (item.find(key) != item.end()) {
-        return item[key].get<T>();
+  T GetParameterValue(const std::string& structure_name,
+                      const std::string& array_name,
+                      const std::string& key_name) const {
+    if (data_.find(structure_name) != data_.end()) {
+      for (const auto& item : data_[structure_name]) {
+        if (item.find(array_name) != item.end()) {
+          for (const auto& arr_item : item[array_name]) {
+            if (arr_item.find(key_name) != arr_item.end()) {
+              return arr_item[key_name].get<T>();
+            }
+          }
+        }
+      }
+    }
+  }
+  // Метод для поиска значения по ключу в массиве JSON
+  template <typename T>
+  T GetParameterValue(const std::string& array_name,
+                      const std::string& key_name) const {
+    for (const auto& item : data_.at(array_name)) {
+      if (item.find(key_name) != item.end()) {
+        return item[key_name].get<T>();
       }
     }
   }
 
-  // Метод для получения значения параметра JSON-структуры
-  template <typename T>
-  T GetParameterValue(const std::string &parameter_name) const {
-    return data_[parameter_name].get<T>();
-  }
+    // Метод для получения значения параметра JSON
+    template <typename T>
+    T GetParameterValue(const std::string& key_name) const {
+      return data_.at(key_name).get<T>();
+    }
 };
 
 //\Data\engine_settings.json
