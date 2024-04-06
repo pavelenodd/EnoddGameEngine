@@ -38,7 +38,9 @@ include(CPack)
 
 
 #удаление папки Data в корне сборки и копирование в него из проекта 
-add_custom_target(CleanData ALL COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/Data")
+if(EXISTS "${CMAKE_BINARY_DIR}/Data")
+    add_custom_target(CleanData ALL COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/Data")
+endif()
 
 add_custom_target(CopyData ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/Src/Engine/Data" "${CMAKE_BINARY_DIR}/Data"
     DEPENDS CleanData)

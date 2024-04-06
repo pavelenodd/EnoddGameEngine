@@ -8,18 +8,29 @@
 
 class Engine {
  private:
-  JsonParser json_parser_;
+  // JsonParser json_parser_;
   Outputs outputs_;
   EngineSettings engine_settings_;
   bool is_main_loop_active_ = false;
   sf::Window* window_;
 
   //
-  void MainLoopStart() { is_main_loop_active_ = true; }
-  void MainLoopStop() { is_main_loop_active_ = false; }
+  void SaveEngineSettings() {
+    JsonParser json_parser_("Data/output.json");
+
+    json_parser_.SetParameterValue("ViewportSettings",
+                                   "ViewportSize",  //
+                                   "Height",
+                                   engine_settings_.vieport_size.height);
+
+    json_parser_.SetParameterValue("ViewportSettings",
+                                   "ViewportSize",  //
+                                   "Width",
+                                   engine_settings_.vieport_size.width);
+  };
   void DefiningOpenGLContextParameters() {
     // Определение параметров контекста OpenGL
-    json_parser_.ParseFile("Data/output.json");
+    JsonParser json_parser_("Data/output.json");
 
     engine_settings_.vieport_size.height =
         json_parser_.GetParameterValue<int>("ViewportSettings",
@@ -60,6 +71,8 @@ class Engine {
   }
 
  public:
+  void MainLoopStart() { is_main_loop_active_ = true; }
+  void MainLoopStop() { is_main_loop_active_ = false; }
   Engine() {
     DefiningOpenGLContextParameters();
     MainLoopStart();
@@ -68,20 +81,20 @@ class Engine {
 
     window_->setActive(true);
 
-    // load resources, initialize the OpenGL states, ...
-
-    // run the main loop
-    bool running = true;
-    while (running) {
+    while (is_main_loop_active_) {
       // handle events
       sf::Event event;
       while (window_->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
           // end the program
-          running = false;
+          MainLoopStop();
+          SaveEngineSettings();
         } else if (event.type == sf::Event::Resized) {
           // adjust the viewport when the window is resized
-          glViewport(0, 0, event.size.width, event.size.height);
+          glViewport(0, 0,
+                     engine_settings_.vieport_size.width = event.size.height,
+                     engine_settings_.vieport_size.height = event.size.width);
+          //^умышленно перепутано , проблема в SFML
         }
       }
 

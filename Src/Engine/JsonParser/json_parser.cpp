@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <string>
 
 #include "nlohmann/json.hpp"
@@ -13,11 +14,11 @@ using json = nlohmann::json;
 class JsonParser {
  private:
   json data_;
+  const std::string file_address_;
 
  public:
-  JsonParser() = default;
-
-  void ParseFile(const std::string &L_file_address) {
+  JsonParser(const std::string& L_file_address)
+      : file_address_(L_file_address) {
     if (!data_.empty()) {
       data_.clear();
     }
@@ -28,6 +29,13 @@ class JsonParser {
     } else {
       std::cerr << "Unable to open file: " << L_file_address << std::endl;
     }
+  }
+
+  void SaveToFile() {
+    std::ofstream file(file_address_);
+    file << data_.dump(
+        4);  // Форматируем с отступом в 4 пробела для лучшей читаемости
+    file.close();
   }
   // Метод для поиска значения в структуре по имени массива и ключа
   template <typename T>
@@ -61,6 +69,41 @@ class JsonParser {
     template <typename T>
     T GetParameterValue(const std::string& key_name) const {
       return data_.at(key_name).get<T>();
+    }
+    // Метод для установки нового значения параметра JSON
+    template <typename T>
+    void SetParameterValue(const std::string& key_name, const T& new_value) {
+      data_[key_name] = new_value;
+      SaveToFile();
+    }
+    template <typename T>
+    void SetParameterValue(const std::string& array_name,
+                           const std::string& key_name, const T& new_value) {
+      for (auto& item : data_.at(array_name)) {
+        if (item.find(key_name) != item.end()) {
+          item[key_name] = new_value;
+        }
+      }
+      SaveToFile();
+    }
+    // Метод для поиска значения в структуре по имени массива и ключа
+    template <typename T>
+    void SetParameterValue(const std::string& structure_name,
+                           const std::string& array_name,
+                           const std::string& key_name,  //
+                           const T& new_value) {
+      if (data_.find(structure_name) != data_.end()) {
+        for (auto& item : data_[structure_name]) {
+          if (item.find(array_name) != item.end()) {
+            for (auto& arr_item : item[array_name]) {
+              if (arr_item.find(key_name) != arr_item.end()) {
+                arr_item[key_name] = new_value;
+              }
+            }
+          }
+        }
+      }
+      SaveToFile();
     }
 };
 
