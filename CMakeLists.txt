@@ -24,6 +24,7 @@ Src/Engine/engine.h
 Src/Engine/JsonParser/json_parser.cpp
 Src/Engine/JsonParser/json_parser.h
 Src/Engine/InputsOutputs/input_output.cpp
+
 )
 
 # Связать ваш проект с библиотеками
