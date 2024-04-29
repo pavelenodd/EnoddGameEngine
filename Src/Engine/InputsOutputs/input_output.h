@@ -2,7 +2,7 @@
 #include <SFML/Window.hpp>
 #include <string>
 
-#include "../JsonParser/json_parser.cpp"
+#include "../JsonParser/json_parser.h"
 #include "../engine_data.h"
 class Inputs {
  private:

@@ -1,4 +1,4 @@
-#include "Engine/engine.cpp"
+#include"Engine/engine.h"
 
 int main() { Engine engine; }
 /*
@@ -12,7 +12,7 @@ sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Table");
 
 sf::Font font;
 if (!font.loadFromFile(
-"D:/Projects/Pets/EnoddGameEngine/Src/Engine/Data/font.ttf")) {
+"E:/Projects/Pets/EnoddGameEngine/build/Data/Fonts/font.ttf")) {
 // обработка ошибки
 return -1;
 }
