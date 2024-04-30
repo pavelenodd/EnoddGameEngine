@@ -1,5 +1,5 @@
 #include"Engine/engine.h"
-
+#include "Game/game.h"
 int main() { Engine engine; }
 /*
 //интересный пример отрисовки таблички

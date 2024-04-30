@@ -6,7 +6,7 @@
 #include "../engine_data.h"
 class Inputs {
  private:
-  // JsonParser parser_("Data/engine_settings.json");
+  InputSettings input_settings_;
 
  public:
 };
@@ -56,8 +56,6 @@ class Outputs {
   }
 
  public:
-  Outputs() {}
-  ~Outputs() {}
   sf::Window* CreateViewport(const EngineSettings& L_engine_settings) {
     PrintToLogWindowSettongs(L_engine_settings);
 

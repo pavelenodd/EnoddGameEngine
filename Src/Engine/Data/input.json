@@ -1,0 +1,19 @@
+{
+    "Keyboard_inputs": [
+        {
+            "UP": [
+                "W"
+            ],
+            "DOWN": [
+                "S"
+            ],
+            "LEFT": [
+                "A"
+            ],
+            "RHIGTH": [
+                "D"
+            ]
+        }
+    ],
+    "Mouse_inputs": []
+}

@@ -1,9 +1,22 @@
 #pragma once
-#include <SFML/OpenGL.hpp>
+#include <map>
 #include <string>
+
 struct VieportSize {
   int height;
   int width;
+};
+struct InputSettings {
+ private:
+  std::map<std::string, char> keyboard_input;
+  std::map<std::string, char> mouse_input;
+
+ public:
+  void Add_Keyboard_Input(const std::string &L_input_name, const char L_input) {
+  }
+  std::string Get_Keyboard_Input(const char L_input) const {
+    return std::to_string(L_input);
+  }
 };
 
 struct EngineSettings {
