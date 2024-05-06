@@ -1,18 +1,10 @@
 {
     "Keyboard_inputs": [
         {
-            "UP": [
-                "W"
-            ],
-            "DOWN": [
-                "S"
-            ],
-            "LEFT": [
-                "A"
-            ],
-            "RHIGTH": [
-                "D"
-            ]
+            "UP": "W",
+            "DOWN": "S",
+            "LEFT": "A",
+            "RIGHT": "D"
         }
     ],
     "Mouse_inputs": []

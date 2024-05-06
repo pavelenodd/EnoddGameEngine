@@ -8,7 +8,7 @@
 
 class Engine {
  private:
-  // JsonParser json_parser_;
+  Inputs inputs_;
   Outputs outputs_;
   EngineSettings engine_settings_;
   bool is_main_loop_active_ = false;

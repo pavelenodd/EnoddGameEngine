@@ -1,14 +1,32 @@
 #include <SFML/OpenGL.hpp>
+#include <SFML/System/InputStream.hpp>
 #include <SFML/Window.hpp>
+#include <map>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "../JsonParser/json_parser.h"
 #include "../engine_data.h"
+
 class Inputs {
  private:
   InputSettings input_settings_;
+  std::map<std::string, sf::Event::KeyEvent>
+      keyboard_inputs;  // инпуты клавиатуры
+  std::map<std::string, sf::Event::MouseButtonEvent>
+      mouse_inputs;  // инпуты мыши
 
  public:
+  InputSettings* Get_InputSettings() { return &input_settings_; }
+
+  Inputs() {
+    JsonParser json_parser("Data/input.json");
+
+    auto temp_map = json_parser.GetParameterValue<std::string, std::string>(
+        "Keyboard_inputs");
+  }
+  ~Inputs() {}
 };
 
 class Outputs {
