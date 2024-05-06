@@ -71,17 +71,9 @@ class JsonParser {
     T GetParameterValue(const std::string& key_name) const {
       return data_.at(key_name).get<T>();
     }
+
     /**
-     * Проверяет, является ли параметр с данным именем массивом.
-     * @param key_name Имя параметра для проверки.
-     *
-     * @return Возвращает true, если параметр является массивом.
-     */
-    bool IsParametrArray(const std::string& key_name) const {
-      return data_.at(key_name).is_array();
-    }
-    /**
-     * .получение пар "ключ-значение" из массива
+     * Получение пар "ключ-значение" из массива по имени
      * @param arr_name Имя массива
      * @return std::map<std::string, std::string>
      **/
@@ -97,6 +89,17 @@ class JsonParser {
       }
       return out;
     }
+
+    /**
+     * Проверяет, является ли параметр с данным именем массивом.
+     * @param key_name Имя параметра для проверки.
+     *
+     * @return Возвращает true, если параметр является массивом.
+     */
+    bool IsParametrArray(const std::string& key_name) const {
+      return data_.at(key_name).is_array();
+    }
+
     // Метод для установки нового значения параметра JSON
     template <typename T>
     void SetParameterValue(const std::string& key_name, const T& new_value) {
@@ -132,9 +135,53 @@ class JsonParser {
       }
       SaveToFile();
     }
-};
 
-//\Data\engine_settings.json
-//\json_parser\json_parser.cpp
+    /**
+     * Добавляет параметры в структуру JSON
+     * @param structure_name Имя структуры
+     * @param key_name Имя ключа
+     * @param value_name Имя значения
+     */
+    void Add_ParametresToStructure(std::string structure_name,
+                                   std::string key_name,
+                                   std::string value_name) {
+      //
+      if (!data_.contains(structure_name) && structure_name != "") {
+        data_[structure_name] = json::object();
+      }
+      if (structure_name != "") {
+        auto& L_structure = data_[structure_name];
+
+        if (L_structure.is_array()) {
+          if (!L_structure.contains(key_name)) {
+            json item = json::object();
+            auto cash = Get_ParameterValuesPairs(structure_name);
+            for (const auto& it : cash) {
+              item[it.first] = it.second;
+            }
+            item[key_name] = value_name;
+            L_structure = item;
+          } else if (L_structure.contains(key_name)) {
+            for (auto& item : L_structure) {
+              if (item.is_object() && item.contains(key_name)) {
+                item[key_name].push_back(value_name);
+                break;
+              }
+            }
+          }
+
+        } else {
+          L_structure[key_name] = value_name;
+        }
+      } else if (structure_name == "") {
+        /**
+         * надо исправить баг . при добавлении заменяет собою всё в массиве
+         */
+        json item = json::object();
+        item[key_name] = value_name;
+        data_.push_back(item);
+      }
+    }
+};
 
 #endif  // JSON_PARSER_H

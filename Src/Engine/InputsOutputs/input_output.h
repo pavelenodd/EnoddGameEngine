@@ -21,7 +21,9 @@ class Inputs {
 
   Inputs() {
     JsonParser parser("Data/input.json");
-    keyboard_inputs = parser.Get_ParameterValuesPairs("Keyboard_inputs");
+    // keyboard_inputs = parser.Get_ParameterValuesPairs("Keyboard_inputs");
+    parser.Add_ParametresToStructure("", "555", "DOWN3");
+    // parser.Add_ParametresToStructure("Keyboard_inputs", "DOWN2", "11111");
   }
   ~Inputs() {}
 };
