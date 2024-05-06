@@ -1,6 +1,7 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/System/InputStream.hpp>
 #include <SFML/Window.hpp>
+#include <initializer_list>
 #include <map>
 #include <string>
 #include <utility>
@@ -12,19 +13,15 @@
 class Inputs {
  private:
   InputSettings input_settings_;
-  std::map<std::string, sf::Event::KeyEvent>
-      keyboard_inputs;  // инпуты клавиатуры
-  std::map<std::string, sf::Event::MouseButtonEvent>
-      mouse_inputs;  // инпуты мыши
+  std::map<std::string, std::string> keyboard_inputs;  // инпуты клавиатуры
+  std::map<std::string, std::string> mouse_inputs;  // инпуты мыши
 
  public:
   InputSettings* Get_InputSettings() { return &input_settings_; }
 
   Inputs() {
-    JsonParser json_parser("Data/input.json");
-
-    auto temp_map = json_parser.GetParameterValue<std::string, std::string>(
-        "Keyboard_inputs");
+    JsonParser parser("Data/input.json");
+    keyboard_inputs = parser.Get_ParameterValuesPairs("Keyboard_inputs");
   }
   ~Inputs() {}
 };

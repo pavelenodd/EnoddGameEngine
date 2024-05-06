@@ -71,6 +71,32 @@ class JsonParser {
     T GetParameterValue(const std::string& key_name) const {
       return data_.at(key_name).get<T>();
     }
+    /**
+     * Проверяет, является ли параметр с данным именем массивом.
+     * @param key_name Имя параметра для проверки.
+     *
+     * @return Возвращает true, если параметр является массивом.
+     */
+    bool IsParametrArray(const std::string& key_name) const {
+      return data_.at(key_name).is_array();
+    }
+    /**
+     * .получение пар "ключ-значение" из массива
+     * @param arr_name Имя массива
+     * @return std::map<std::string, std::string>
+     **/
+    std::map<std::string, std::string> Get_ParameterValuesPairs(
+        const std::string& arr_name) {
+      std::map<std::string, std::string> out;
+      if (data_.at(arr_name).is_array()) {
+        for (const auto& item : data_.at(arr_name)) {
+          for (auto it = item.begin(); it != item.end(); ++it) {
+            out[it.key()] = it.value().get<std::string>();
+          }
+        }
+      }
+      return out;
+    }
     // Метод для установки нового значения параметра JSON
     template <typename T>
     void SetParameterValue(const std::string& key_name, const T& new_value) {
