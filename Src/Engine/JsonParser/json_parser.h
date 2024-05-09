@@ -138,13 +138,13 @@ class JsonParser {
 
     /**
      * Добавляет параметры в структуру JSON
-     * @param structure_name Имя структуры
-     * @param key_name Имя ключа
-     * @param value_name Имя значения
+     * @param structure_name Имя структуры  (необязательный параметр)
+     * @param key_name Имя ключа            (обязтельный параметр)
+     * @param value_name Имя значения       (обязательный параметр)
      */
-    void Add_ParametresToStructure(std::string structure_name,
-                                   std::string key_name,
-                                   std::string value_name) {
+    void Add_ParametresToStructure(const std::string& structure_name = "",
+                                   const std::string& key_name,
+                                   const std::string& value_name) {
       //
       if (!data_.contains(structure_name) && structure_name != "") {
         data_[structure_name] = json::object();
@@ -174,13 +174,9 @@ class JsonParser {
           L_structure[key_name] = value_name;
         }
       } else if (structure_name == "") {
-        /**
-         * надо исправить баг . при добавлении заменяет собою всё в массиве
-         */
-        json item = json::object();
-        item[key_name] = value_name;
-        data_.push_back(item);
+        data_[key_name] = value_name;
       }
+      SaveToFile();
     }
 };
 
