@@ -143,8 +143,8 @@ class JsonParser {
      * @param value_name Имя значения       (обязательный параметр)
      */
     void Add_ParametresToStructure(const std::string& structure_name = "",
-                                   const std::string& key_name,
-                                   const std::string& value_name) {
+                                   const std::string& key_name = "",
+                                   const std::string& value_name = "") {
       //
       if (!data_.contains(structure_name) && structure_name != "") {
         data_[structure_name] = json::object();

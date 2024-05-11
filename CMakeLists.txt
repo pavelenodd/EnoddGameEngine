@@ -17,12 +17,14 @@ find_package(SFML COMPONENTS graphics window system REQUIRED)
 # Подключить GLM
 find_package(glm REQUIRED)
 
+
 add_executable(${PROJECT_NAME} 
-Src/main.cpp
+Src/SnakeGame.cpp
+#Src/main.cpp
 #Src/Engine/engine.cpp
-Src/Engine/engine.h
+#Src/Engine/engine.h
 #Src/Engine/JsonParser/json_parser.cpp
-Src/Engine/JsonParser/json_parser.h
+#Src/Engine/JsonParser/json_parser.h
 #Src/Engine/InputsOutputs/input_output.cpp
 
 )
