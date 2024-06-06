@@ -9,11 +9,11 @@ enable_testing()
 add_executable(${PROJECT_NAME} 
 #Src/SnakeGame.cpp
 main.cpp
-#Src/Engine/engine.cpp
-#Src/Engine/engine.h
-#Src/Engine/JsonParser/json_parser.cpp
-#Src/Engine/JsonParser/json_parser.h
-#Src/Engine/InputsOutputs/input_output.cpp
+#engine.cpp
+#engine.h
+#JsonParser/json_parser.cpp
+#JsonParser/json_parser.h
+InputsOutputs/input_output.cpp
 
 )
 

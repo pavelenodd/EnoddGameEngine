@@ -8,62 +8,58 @@
 #include <vector>
 
 #include "../JsonParser/json_parser.h"
+#include "../Render/render.h"
 #include "../engine_data.h"
-
-class Inputs {
+#include "Inputs/keyboard_inputs.h"
+#include "Inputs/mouse_inputs.h"
+#include "Outputs/vieport.h"
+namespace edd {
+/**
+ * @brief Класс для работы с вводом из переферии
+ */
+class Inputs : protected edd::KeyboardInputs, protected edd::MouseInputs {
  private:
   InputSettings input_settings_;
-  std::map<std::string, std::string> keyboard_inputs;  // инпуты клавиатуры
-  std::map<std::string, std::string> mouse_inputs;  // инпуты мыши
 
  public:
   InputSettings* Get_InputSettings() { return &input_settings_; }
 
   Inputs() {
     JsonParser parser("Data/input.json");
-    // keyboard_inputs = parser.Get_ParameterValuesPairs("Keyboard_inputs");
-    parser.Add_ParametresToStructure("", "555", "DOWN3");
-    parser.Add_ParametresToStructure("Keyboard_inputs", "DOWN2", "11111");
+
   }
   ~Inputs() {}
 };
+}  // namespace edd
 
-class Outputs {
+namespace edd {
+
+/**
+ * @brief Класс для работы с вьюпортом, звуком, редером
+ */
+class Outputs : private edd::Vieport, protected edd::Render {
  private:
   EngineSettings engine_settings_;  // настройки рендера вьюпорта
 
+  /**
+   * @brief вывод консольной информации о рендере и настройках вьюпорта
+   * @param struct EngineSettings
+   */
   void PrintToLogWindowSettongs(const EngineSettings& L_engine_settings) {
-    // ^вывод консоьной информации о рендере и настройках вьюпорта
-
     // зона подключения модификаторов вывода
     // вывод true или false
     std::cerr << std::boolalpha;
     //
-    std::cerr << "\t"
-              << "\033[4m"
-              << "depth bits"
-              << "\033[0m"
-              << "\t\t" << L_engine_settings.depth_bits << "\n";
-    std::cerr << "\t"
-              << "\033[4m"
-              << "stencil bits"
-              << "\033[0m"
-              << "\t\t" << L_engine_settings.stencil_bits << "\n";
-    std::cerr << "\t"
-              << "\033[4m"
-              << "antialiasing level"
-              << "\033[0m"
-              << "\t" << L_engine_settings.antialiasing_level << "\n";
-    std::cerr << "\t"
-              << "\033[4m"
-              << "vertical sync"
-              << "\033[0m"
-              << "\t\t" << L_engine_settings.is_vertical_sync_enabled << "\n";
-    std::cerr << "\t"
-              << "\033[4m"
-              << "OpenGL version"
-              << "\033[0m"
-              << "\t\t" << L_engine_settings.major_version << "."
+    std::cerr << "\t" << "\033[4m" << "depth bits" << "\033[0m" << "\t\t"
+              << L_engine_settings.depth_bits << "\n";
+    std::cerr << "\t" << "\033[4m" << "stencil bits" << "\033[0m" << "\t\t"
+              << L_engine_settings.stencil_bits << "\n";
+    std::cerr << "\t" << "\033[4m" << "antialiasing level" << "\033[0m" << "\t"
+              << L_engine_settings.antialiasing_level << "\n";
+    std::cerr << "\t" << "\033[4m" << "vertical sync" << "\033[0m" << "\t\t"
+              << L_engine_settings.is_vertical_sync_enabled << "\n";
+    std::cerr << "\t" << "\033[4m" << "OpenGL version" << "\033[0m" << "\t\t"
+              << L_engine_settings.major_version << "."
               << L_engine_settings.minor_version << "\n";
     // зона отключения всех модификаторов
     std::cerr << std::noboolalpha;
@@ -73,15 +69,22 @@ class Outputs {
   }
 
  public:
+  /**
+   * @brief Создает новый объект вьюпорта sf::Window
+   * @param struct EngineSettings
+   * @return sf::Window* указатель на созданое окно вьюпорта
+   */
   sf::Window* CreateViewport(const EngineSettings& L_engine_settings) {
     PrintToLogWindowSettongs(L_engine_settings);
-
-    sf::Window* window =
-        new sf::Window(sf::VideoMode(L_engine_settings.vieport_size.height,
-                                     L_engine_settings.vieport_size.width),
-                       L_engine_settings.vieport_name,
-                       sf::Style::Default,  //
-                       L_engine_settings.Get_ContextSettings());
-    return window;
+    return Vieport::CreateViewport(L_engine_settings);
+  }
+  /**
+   * @brief Рендер вьюпорта
+   * @param sf::Window* вьюпорт для отрисовки
+   */
+  void RenderVieport(sf::Window* L_window) {
+    L_window->setActive(true);  // установка текущего вьюпорта как основного
+    edd::Render::DrawObjects();
   }
 };
+}  // namespace edd

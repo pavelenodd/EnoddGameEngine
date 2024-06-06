@@ -4,16 +4,15 @@
 
 #include "InputsOutputs/input_output.h"
 #include "JsonParser/json_parser.h"
+#include "Render/render.h"
 #include "engine_data.h"
 
-class Engine {
+class Engine : protected edd::Inputs, protected edd::Outputs {
  private:
-  Inputs inputs_;
-  Outputs outputs_;
   EngineSettings engine_settings_;
-  bool is_main_loop_active_ = false;
   sf::Window* window_;
 
+  bool is_main_loop_active_ = false;
   //
   void SaveEngineSettings() {
     JsonParser json_parser_("Data/output.json");
@@ -73,14 +72,15 @@ class Engine {
  public:
   void MainLoopStart() { is_main_loop_active_ = true; }
   void MainLoopStop() { is_main_loop_active_ = false; }
+
   Engine() {
     DefiningOpenGLContextParameters();
     MainLoopStart();
+    window_ = edd::Outputs::CreateViewport(engine_settings_);
 
-    window_ = outputs_.CreateViewport(engine_settings_);
+    // window_->setActive(true);
 
-    window_->setActive(true);
-
+    // Main Loop
     while (is_main_loop_active_) {
       // handle events
       sf::Event event;
@@ -98,10 +98,13 @@ class Engine {
         }
       }
 
-      // clear the buffers
+      // очистка буферов
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      // очистка цвета
+      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-      // draw...
+      // Рендеринг
+      edd::Outputs::RenderVieport(window_);
 
       // end the current frame (internally swaps the front and back buffers)
       window_->display();
