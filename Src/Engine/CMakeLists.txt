@@ -1,5 +1,3 @@
-
-
 project(${PROJECT_NAME} VERSION 0.0.01 LANGUAGES C CXX)
 
 

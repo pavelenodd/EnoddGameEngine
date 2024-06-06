@@ -1,8 +1,9 @@
-#include <GL/gl.h>
+#pragma once
 
 #include <SFML/Graphics/Image.hpp>
 #include <string>
-namespace {
+
+#include "../Render/render_data.h"
 
 /**
  * @brief координаты объекта
@@ -12,6 +13,7 @@ struct ObjCoord {
   float y;
   float z;
 };
+
 /**
  * @brief
  * class GameObject основной класс игровых объектов
@@ -25,15 +27,22 @@ struct ObjCoord {
 class GameObject {
  private:
  protected:
-  sf::Color color_;
+  edd::Color color_;
   sf::Image image_;
   std::string name_;
   ObjCoord obj_coord_;
+  edd::primitives::Circle circle_;
 
  public:
+  void Draw() {
+    color_ = edd::Colors::Red;
+    // Рисование квадрата
+
+    circle_.draw(color_, 1);
+  }
 };
 
-}  // end namespace
+namespace edd {
 
 /**
  * @brief
@@ -74,3 +83,5 @@ class GameWorldSpace {
   /* data */
  public:
 };
+
+}  // namespace edd

@@ -1,7 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <string>
-
+/**/
+#include "GameObjects/game_objects.h"
+/**/
 #include "InputsOutputs/input_output.h"
 #include "JsonParser/json_parser.h"
 #include "Render/render.h"
@@ -11,7 +13,9 @@ class Engine : protected edd::Inputs, protected edd::Outputs {
  private:
   EngineSettings engine_settings_;
   sf::Window* window_;
-
+  /**/
+  std::vector<GameObject*> game_objects_;
+  /**/
   bool is_main_loop_active_ = false;
   //
   void SaveEngineSettings() {
@@ -74,6 +78,8 @@ class Engine : protected edd::Inputs, protected edd::Outputs {
   void MainLoopStop() { is_main_loop_active_ = false; }
 
   Engine() {
+    game_objects_.push_back(new GameObject);
+    std::cerr << "Game Objects size: " << game_objects_.size() << std::endl;
     DefiningOpenGLContextParameters();
     MainLoopStart();
     window_ = edd::Outputs::CreateViewport(engine_settings_);
@@ -104,7 +110,7 @@ class Engine : protected edd::Inputs, protected edd::Outputs {
       glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
       // Рендеринг
-      edd::Outputs::RenderVieport(window_);
+      edd::Outputs::RenderVieport(window_, game_objects_);
 
       // end the current frame (internally swaps the front and back buffers)
       window_->display();

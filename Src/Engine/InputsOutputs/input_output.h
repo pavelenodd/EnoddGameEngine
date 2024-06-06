@@ -1,7 +1,6 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/System/InputStream.hpp>
 #include <SFML/Window.hpp>
-#include <initializer_list>
 #include <map>
 #include <string>
 #include <utility>
@@ -81,10 +80,11 @@ class Outputs : private edd::Vieport, protected edd::Render {
   /**
    * @brief Рендер вьюпорта
    * @param sf::Window* вьюпорт для отрисовки
+   * @param std::vector<GameObject*> объекты для отрисовки
    */
-  void RenderVieport(sf::Window* L_window) {
+  void RenderVieport(sf::Window* L_window, std::vector<GameObject*> objects) {
     L_window->setActive(true);  // установка текущего вьюпорта как основного
-    edd::Render::DrawObjects();
+    edd::Render::DrawObjects(objects);
   }
 };
 }  // namespace edd
