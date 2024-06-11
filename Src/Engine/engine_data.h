@@ -2,10 +2,13 @@
 #include <map>
 #include <string>
 
+namespace edd {
 struct VieportSize {
   int height;
   int width;
 };
+namespace settings {
+
 struct InputSettings {
  private:
   std::map<std::string, char> keyboard_input;
@@ -19,7 +22,7 @@ struct InputSettings {
   }
 };
 
-struct EngineSettings {
+struct Engine {
   VieportSize vieport_size;  //<
   int depth_bits;            //< Bits of the depth buffer
   int stencil_bits;          //< Bits of the stencil buffer
@@ -29,7 +32,9 @@ struct EngineSettings {
   int attribute_flags;       //< The attribute flags to create the context with
   bool sRGB_capable;         //< Whether the context framebuffer is sRGB capable
   bool is_vertical_sync_enabled = false;  //<
-  std::string vieport_name = "Viewport";  //<
+  const char *vieport_name = "Viewport";  //<
+
+  bool is_opengl_debug_on = true;
 
   sf::ContextSettings Get_ContextSettings() const {
     sf::ContextSettings L_const_settings;
@@ -43,3 +48,5 @@ struct EngineSettings {
     return L_const_settings;
   }
 };
+}  // namespace settings
+}  // namespace edd

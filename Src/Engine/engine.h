@@ -1,5 +1,3 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
 #include <string>
 /**/
 #include "GameObjects/game_objects.h"
@@ -9,15 +7,17 @@
 #include "Render/render.h"
 #include "engine_data.h"
 
+namespace edd {
+
 class Engine : protected edd::Inputs, protected edd::Outputs {
  private:
-  EngineSettings engine_settings_;
-  sf::Window* window_;
-  /**/
-  std::vector<GameObject*> game_objects_;
-  /**/
+  edd::settings::Engine engine_settings_;
+  GLFWwindow* game_vieport_ = nullptr;
   bool is_main_loop_active_ = false;
-  //
+  //^ переменные для работы с вьюпортом
+  std::vector<GameObject*> game_objects_;
+  //^ список игровых объектов
+
   void SaveEngineSettings() {
     JsonParser json_parser_("Data/output.json");
 
@@ -43,20 +43,6 @@ class Engine : protected edd::Inputs, protected edd::Outputs {
         json_parser_.GetParameterValue<int>("ViewportSettings",
                                             "ViewportSize",  //
                                             "Width");
-    engine_settings_.depth_bits =
-        json_parser_.GetParameterValue<int>("ViewportSettings",
-                                            "WindowSettings",  //
-                                            "DepthBits");
-
-    engine_settings_.stencil_bits =
-        json_parser_.GetParameterValue<int>("ViewportSettings",
-                                            "WindowSettings",  //
-                                            "StencilBits");
-
-    engine_settings_.antialiasing_level =
-        json_parser_.GetParameterValue<int>("ViewportSettings",
-                                            "WindowSettings",  //
-                                            "AntialiasingLevel");
 
     engine_settings_.major_version =
         json_parser_.GetParameterValue<int>("ViewportSettings",
@@ -67,10 +53,6 @@ class Engine : protected edd::Inputs, protected edd::Outputs {
         json_parser_.GetParameterValue<int>("ViewportSettings",
                                             "WindowSettings",  //
                                             "OpenGl_MinorVersion");
-    engine_settings_.is_vertical_sync_enabled =
-        json_parser_.GetParameterValue<bool>("ViewportSettings",
-                                             "WindowSettings",  //
-                                             "IsVerticalSyncEnabled");
   }
 
  public:
@@ -78,44 +60,23 @@ class Engine : protected edd::Inputs, protected edd::Outputs {
   void MainLoopStop() { is_main_loop_active_ = false; }
 
   Engine() {
+    /**/
     game_objects_.push_back(new GameObject);
     std::cerr << "Game Objects size: " << game_objects_.size() << std::endl;
+
+    /*надо потом удалить*/
+
     DefiningOpenGLContextParameters();
     MainLoopStart();
-    window_ = edd::Outputs::CreateViewport(engine_settings_);
 
-    // window_->setActive(true);
+    game_vieport_ = edd::Outputs::CreateViewport(engine_settings_);
 
     // Main Loop
-    while (is_main_loop_active_) {
-      // handle events
-      sf::Event event;
-      while (window_->pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-          // end the program
-          MainLoopStop();
-          SaveEngineSettings();
-        } else if (event.type == sf::Event::Resized) {
-          // adjust the viewport when the window is resized
-          glViewport(0, 0,
-                     engine_settings_.vieport_size.width = event.size.height,
-                     engine_settings_.vieport_size.height = event.size.width);
-          //^умышленно перепутано , проблема в SFML
-        }
-      }
-
-      // очистка буферов
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      // очистка цвета
-      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-      // Рендеринг
-      edd::Outputs::RenderVieport(window_, game_objects_);
-
-      // end the current frame (internally swaps the front and back buffers)
-      window_->display();
+    while (!glfwWindowShouldClose(game_vieport_) && is_main_loop_active_) {
+      glfwSwapBuffers(game_vieport_);
+      glfwPollEvents();
     }
   }
-
-  ~Engine() {}
 };
+
+}  // namespace edd

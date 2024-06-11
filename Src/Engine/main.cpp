@@ -3,6 +3,6 @@
 
 
 int main(){
-Engine engine;
+edd::Engine engine;
 engine.MainLoopStart();
 }

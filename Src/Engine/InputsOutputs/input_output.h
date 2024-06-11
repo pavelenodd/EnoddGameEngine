@@ -1,3 +1,5 @@
+#include <GLFW/glfw3.h>
+
 #include <SFML/OpenGL.hpp>
 #include <SFML/System/InputStream.hpp>
 #include <SFML/Window.hpp>
@@ -18,10 +20,10 @@ namespace edd {
  */
 class Inputs : protected edd::KeyboardInputs, protected edd::MouseInputs {
  private:
-  InputSettings input_settings_;
+  edd::settings::InputSettings input_settings_;
 
  public:
-  InputSettings* Get_InputSettings() { return &input_settings_; }
+  edd::settings::InputSettings* Get_InputSettings() { return &input_settings_; }
 
   Inputs() {
     JsonParser parser("Data/input.json");
@@ -38,13 +40,14 @@ namespace edd {
  */
 class Outputs : private edd::Vieport, protected edd::Render {
  private:
-  EngineSettings engine_settings_;  // настройки рендера вьюпорта
+  edd::settings::Engine engine_settings_;  // настройки рендера вьюпорта
 
   /**
    * @brief вывод консольной информации о рендере и настройках вьюпорта
    * @param struct EngineSettings
    */
-  void PrintToLogWindowSettongs(const EngineSettings& L_engine_settings) {
+  void PrintToLogWindowSettongs(
+      const edd::settings::Engine& L_engine_settings) {
     // зона подключения модификаторов вывода
     // вывод true или false
     std::cerr << std::boolalpha;
@@ -69,21 +72,28 @@ class Outputs : private edd::Vieport, protected edd::Render {
 
  public:
   /**
-   * @brief Создает новый объект вьюпорта sf::Window
+   * @brief Создает новый объект вьюпорта GLFWwindow*
    * @param struct EngineSettings
-   * @return sf::Window* указатель на созданое окно вьюпорта
+   * @return GLFWwindow* указатель на созданое окно вьюпорта
    */
-  sf::Window* CreateViewport(const EngineSettings& L_engine_settings) {
+  GLFWwindow* CreateViewport(const edd::settings::Engine& L_engine_settings) {
     PrintToLogWindowSettongs(L_engine_settings);
     return Vieport::CreateViewport(L_engine_settings);
   }
+  void SetVieportContextSettings(
+      const edd::settings::Engine& L_engine_settings) {
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, L_engine_settings.major_version);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, L_engine_settings.minor_version);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, L_engine_settings.TYPE_PROFILE);
+  }
   /**
    * @brief Рендер вьюпорта
-   * @param sf::Window* вьюпорт для отрисовки
+   * @param GLFWwindow* вьюпорт для отрисовки
    * @param std::vector<GameObject*> объекты для отрисовки
    */
-  void RenderVieport(sf::Window* L_window, std::vector<GameObject*> objects) {
-    L_window->setActive(true);  // установка текущего вьюпорта как основного
+  void RenderVieport(GLFWwindow* L_window, std::vector<GameObject*> objects) {
+    // L_window->setActive(true);  // установка текущего вьюпорта как
+    // основного
     edd::Render::DrawObjects(objects);
   }
 };
