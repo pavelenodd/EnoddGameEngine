@@ -4,14 +4,15 @@
 #include <string>
 
 #include "../Render/render_data.h"
+#include "../Render/shape.h"
 
 /**
  * @brief координаты объекта
  */
 struct ObjCoord {
-  float x;
-  float y;
-  float z;
+  double x;
+  double y;
+  double z;
 };
 
 /**
