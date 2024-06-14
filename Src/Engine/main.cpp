@@ -1,8 +1,7 @@
-#include"engine.h"
-
-
+#include "engine.h"
 
 int main(){
 edd::Engine engine;
-engine.MainLoopStart();
+engine.GameLoopStart();
+engine.GameLoopStop();
 }

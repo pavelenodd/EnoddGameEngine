@@ -7,6 +7,11 @@ struct VieportSize {
   int height;
   int width;
 };
+enum CoreProfile {
+  ANY_PROFILE = 0,
+  CORE_PROFILE = 204801,
+  COMPAT_PROFILE = 204802
+};
 namespace settings {
 
 struct InputSettings {
@@ -23,16 +28,18 @@ struct InputSettings {
 };
 
 struct Engine {
-  VieportSize vieport_size;  //<
-  int depth_bits;            //< Bits of the depth buffer
-  int stencil_bits;          //< Bits of the stencil buffer
-  int antialiasing_level;    //< Level of antialiasing
-  int major_version;         //< Major number of the context version to create
-  int minor_version;         //< Minor number of the context version to create
-  int attribute_flags;       //< The attribute flags to create the context with
-  bool sRGB_capable;         //< Whether the context framebuffer is sRGB capable
-  bool is_vertical_sync_enabled = false;  //<
-  const char *vieport_name = "Viewport";  //<
+  VieportSize vieport_size;
+  int core_profile = 204801;
+  int depth_bits = 0;
+  bool debug_mode = true;
+  int stencil_bits = 0;
+  int antialiasing_level = 0;
+  int major_version = 0;
+  int minor_version = 0;
+  int attribute_flags = 0;
+  bool sRGB_capable = false;
+  bool is_vertical_sync_enabled = false;
+  const char *vieport_name = "Viewport";
 
   bool is_opengl_debug_on = true;
 

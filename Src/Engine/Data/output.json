@@ -1,0 +1,57 @@
+{
+    "ViewportSettings": [
+        {
+            "ViewportSize": [
+                {
+                    "Height": 800
+                },
+                {
+                    "Width": 600
+                }
+            ]
+        },
+        {
+            "IsViewportFullscreen": false
+        },
+        {
+            "WindowSettings": [
+                {
+                    "DepthBits": 24
+                },
+                {
+                    "StencilBits": 8
+                },
+                {
+                    "AntialiasingLevel": 4
+                },
+                {
+                    "OpenGL_MajorVersion": 4
+                },
+                {
+                    "OpenGL_MinorVersion": 6
+                },
+                {
+                    "IsVerticalSyncEnabled": true
+                }
+            ],
+            "OpenGL_Settings": [
+                {
+                    "OpenGL_DebugMode": true
+                },
+                {
+                    "OpenGL_ContextRobustness": true
+                },
+                {
+                    "OpenGL_Profile": {
+                        "ANY_PROFILE": false,
+                        "ANY_PROFILE_CODE": 0,
+                        "CORE_PROFILE": true,
+                        "CORE_PROFILE_CODE": 204801,
+                        "COMPAT_PROFILE": false,
+                        "COMPAT_PROFILE_CODE": 204802
+                    }
+                }
+            ]
+        }
+    ]
+}

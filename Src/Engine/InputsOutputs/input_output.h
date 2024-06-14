@@ -50,6 +50,7 @@ class Outputs : private edd::Vieport, protected edd::Render {
       const edd::settings::Engine& L_engine_settings) {
     // зона подключения модификаторов вывода
     // вывод true или false
+
     std::cerr << std::boolalpha;
     //
     std::cerr << "\t" << "\033[4m" << "depth bits" << "\033[0m" << "\t\t"
@@ -63,6 +64,25 @@ class Outputs : private edd::Vieport, protected edd::Render {
     std::cerr << "\t" << "\033[4m" << "OpenGL version" << "\033[0m" << "\t\t"
               << L_engine_settings.major_version << "."
               << L_engine_settings.minor_version << "\n";
+    //
+    switch (L_engine_settings.core_profile) {
+      case edd::CoreProfile::ANY_PROFILE:
+        std::cerr << "\t" << "\033[4m" << "ANY_PROFILE OpenGL" << '\n';
+        break;
+      case edd::CoreProfile::COMPAT_PROFILE:
+        std::cerr << "\t" << "\033[4m" << "COMPAT_PROFILE OpenGL" << '\n';
+        break;
+      case edd::CoreProfile::CORE_PROFILE:
+        std::cerr << "\t" << "\033[4m" << "CORE_PROFILE OpenGL" << '\n';
+        break;
+      default:
+        std::cerr << "Ошибка открытия профиля ядра OpenGL" << '\n';
+        abort();
+    }
+    //
+    std::cerr << "\t" << "\033[4m" << "OpenGL Debug Mode :" << "\033[0m" << "\t"
+              << L_engine_settings.debug_mode << '\n';
+
     // зона отключения всех модификаторов
     std::cerr << std::noboolalpha;
 
@@ -82,9 +102,10 @@ class Outputs : private edd::Vieport, protected edd::Render {
   }
   void SetVieportContextSettings(
       const edd::settings::Engine& L_engine_settings) {
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, L_engine_settings.major_version);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, L_engine_settings.minor_version);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, L_engine_settings.TYPE_PROFILE);
+    SetContextSettings(L_engine_settings);
+  }
+  void SetVieportActive(GLFWwindow* L_window) {
+    glfwMakeContextCurrent(L_window);
   }
   /**
    * @brief Рендер вьюпорта

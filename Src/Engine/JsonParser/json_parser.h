@@ -38,6 +38,28 @@ class JsonParser {
         4);  // Форматируем с отступом в 4 пробела для лучшей читаемости
     file.close();
   }
+
+  template <typename T>
+  T GetParameterValue(const std::string& main_structure_name,
+                      const std::string& structure_name,
+                      const std::string& array_name,
+                      const std::string& key_name) const {
+    if (data_.find(main_structure_name) != data_.end()) {
+      if (data_.find(structure_name) != data_.end()) {
+        for (const auto& item : data_[structure_name]) {
+          if (item.find(array_name) != item.end()) {
+            for (const auto& arr_item : item[array_name]) {
+              if (arr_item.find(key_name) != arr_item.end()) {
+                return arr_item[key_name].get<T>();
+              }
+            }
+          }
+        }
+      }
+    }
+    return 0;
+  }
+
   // Метод для поиска значения в структуре по имени массива и ключа
   template <typename T>
   T GetParameterValue(const std::string& structure_name,
@@ -54,6 +76,7 @@ class JsonParser {
         }
       }
     }
+    return 0;
   }
   // Метод для поиска значения по ключу в массиве JSON
   template <typename T>

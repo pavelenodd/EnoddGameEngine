@@ -35,16 +35,15 @@ find_package(SFML COMPONENTS graphics window system REQUIRED)
 find_package(glm REQUIRED)
 # Подключить GLEW
 find_package(GLEW REQUIRED)
-
 find_package(glfw3  REQUIRED)
 
 # Подключить SOIL
-FetchContent_Declare(
-  SOIL
-  GIT_REPOSITORY https://github.com/littlstar/soil.git
-  GIT_TAG        master  
-)
-FetchContent_MakeAvailable(SOIL)
+#FetchContent_Declare(
+#  SOIL
+#  GIT_REPOSITORY https://github.com/littlstar/soil.git
+#  GIT_TAG        master  
+#)
+#FetchContent_MakeAvailable(SOIL)
 
 
 

@@ -28,19 +28,14 @@ struct ObjCoord {
 class GameObject {
  private:
  protected:
-  edd::Color color_;
+  edd::Color color_ = edd::Colors::Red;
   sf::Image image_;
-  std::string name_;
+  std::string name_ = "test shape";
   ObjCoord obj_coord_;
-  edd::primitives::Circle circle_;
+  edd::primitives::Circle shape_;
 
  public:
-  void Draw() {
-    color_ = edd::Colors::Red;
-    // Рисование квадрата
-
-    circle_.draw(color_, 1);
-  }
+  void Draw() { this->shape_.draw(color_, 1); }
 };
 
 namespace edd {
