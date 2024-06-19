@@ -18,20 +18,18 @@ namespace edd {
 class MainLoop : edd::Render {
  private:
   bool is_main_loop_active_ = false;
-
+  void FramebufferSizeCallback(GLFWwindow* window,
+                               edd::settings::Engine engine_settings_) {
+    glViewport(0, 0,
+               engine_settings_.vieport_size.width,  //
+               engine_settings_.vieport_size.height);
+  }
   void GameLoop(GLFWwindow* vieport, std::vector<GameObject*> game_objects) {
     while (is_main_loop_active_) {
-      /*
-
-      обработка эвентов ввода
-
-
-      */
-
+      glfwPollEvents();
       while (!glfwWindowShouldClose(vieport)) {
         edd::Render::DrawObjects(game_objects);
         glfwSwapBuffers(vieport);
-        glfwPollEvents();
       }
       if (glfwWindowShouldClose(vieport)) {
         MainLoopStop(vieport);
@@ -149,6 +147,12 @@ class Engine : private edd::Inputs, private edd::Outputs {
   }
 
  public:
+  void key_callback(GLFWwindow* window, int key, int scancode, int action,
+                    int mods) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+      glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+
   Engine() {
     DefiningOpenGLContextParameters();
     game_vieport_ = Outputs::CreateViewport(engine_settings_);
@@ -159,6 +163,7 @@ class Engine : private edd::Inputs, private edd::Outputs {
   }
   ~Engine() { SaveEngineSettings(); }
   void GameLoopStart() {
+    glfwSetKeyCallback(game_vieport_, key_callback);
     game_loop.MainLoopStart(game_vieport_,  //
                             game_objects_);
   }
