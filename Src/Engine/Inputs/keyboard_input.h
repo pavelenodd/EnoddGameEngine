@@ -6,5 +6,7 @@ class KeyboardInpit : public Inputs {
  private:
   /* data */
  public:
+  KeyboardInpit() {}
+  ~KeyboardInpit() {}
   void InputEvent(ObserverObject* object) {}
 };

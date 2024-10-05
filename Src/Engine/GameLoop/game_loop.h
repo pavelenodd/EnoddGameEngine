@@ -1,14 +1,28 @@
 #pragma once
 #include <vector>
+#include "../EngineEntity/Window/vieport.h"
+#include "../EngineEntity/Window/window.h"
+#include "../EngineEntity/engine_entity.h"
 #include "../GameEntity/game_entity.h"
 #include "../Render/render.h"
 
 class GameLoop {
  private:
   bool is_running_ = false;
+  GameVieport* vieport_;  // объект окна
 
  public:
+  GameLoop() { vieport_ = new GameVieport(); }
+  ~GameLoop() { delete vieport_; }
+
+  /**
+   * \brief Запуск цикла игрового движка
+   */
   void Start();
+
+  /**
+   * \brief Остановка цикла игрового движка
+   */
   void Stop();
   /**
    * \brief Цикл игрового движка
@@ -34,6 +48,8 @@ void GameLoop::Loop(std::vector<GameEntity*> entities, Render* render) {
         render->UpdateGameEntity(entity);  // Обновляем рендер сущности
       }
     }
+
+    vieport_->Update();
     is_running_ = false;
   }
 }
