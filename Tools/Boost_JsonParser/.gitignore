@@ -1,0 +1,10 @@
+#folders
+build
+out
+test
+.vscode
+#files
+*.dll
+src/main.cpp
+*.txt
+

@@ -1,0 +1,4 @@
+[submodule "Boost_JsonParser"]
+	path = Tools/Boost_JsonParser
+	url = https://github.com/pavelenodd/Boost_JsonParser.git
+	branch = main
