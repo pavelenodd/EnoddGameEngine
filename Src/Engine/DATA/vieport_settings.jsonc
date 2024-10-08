@@ -1,0 +1,14 @@
+{
+    "VieportSettings": {
+        //режим отображения окна
+        "IsWindowed": true, //в окне
+        "IsBorderless": false, //без рамки
+        "IsFullScreen": false, //в полноэкранном режиме
+        "VieportName": "VieportName",
+        //размер окна
+        "VieportSize": {
+            "Width": 1920,
+            "Height": 1080
+        }
+    }
+}

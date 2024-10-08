@@ -10,9 +10,15 @@ class GameLoop {
  private:
   bool is_running_ = false;
   GameVieport* vieport_;  // объект окна
+  WindowSettings settings_;
 
  public:
-  GameLoop() { vieport_ = new GameVieport(); }
+  GameLoop() {
+    settings_.height = 800;
+    settings_.width = 600;
+    settings_.window_name_ = "GameLoop";
+    vieport_ = new GameVieport(settings_);
+  }
   ~GameLoop() { delete vieport_; }
 
   /**
@@ -42,6 +48,7 @@ void GameLoop::Stop() {
 
 void GameLoop::Loop(std::vector<GameEntity*> entities, Render* render) {
   while (is_running_) {
+    render->UpdateRender();
     if (!entities.empty()) {
       for (auto entity : entities) {
         entity->UpdateEvent();  // Обновляем логику сущности

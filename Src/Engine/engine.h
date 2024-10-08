@@ -2,6 +2,7 @@
 #include <cassert>
 #include <vector>
 
+#include "EngineEntity/Window/vieport_manager.h"
 #include "GameEntity/game_entity.h"
 #include "GameLoop/game_loop.h"
 #include "Inputs/keyboard_input.h"
@@ -14,6 +15,7 @@ class Engine {
   Render* render_;        // объект рендера
   Inputs* keyboard_inp_;  // объект ввода с клавиатуры
   Inputs* mouse_inp_;     // объект ввода с мыши
+
                           //
   std::vector<GameEntity*> game_entities_;  // Список игровых сущностей
  public:
@@ -62,14 +64,7 @@ class Engine {
     render_ = new Render();
     mouse_inp_ = new MouseInpit();
     keyboard_inp_ = new KeyboardInpit();
-
-    // *DEBUG удалить потом
-    for (int i = 0; i < 10; i++) {
-      GameEntity* L_GameEntity = new GameEntity();
-      game_entities_.push_back(L_GameEntity);
     }
-    // *DEBUG ^
-  }
   /**
    * \brief Запуск игрового цикла и запуск движка
    */

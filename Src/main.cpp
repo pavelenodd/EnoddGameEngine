@@ -1,3 +1,4 @@
+#include <GLFW/glfw3.h>
 #include "Engine/engine.h"
 
 int main() {
