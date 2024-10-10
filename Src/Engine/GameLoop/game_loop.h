@@ -1,25 +1,18 @@
 #pragma once
 #include <vector>
-#include "../EngineEntity/Window/vieport.h"
-#include "../EngineEntity/Window/window.h"
-#include "../EngineEntity/engine_entity.h"
+#include "../GameEntity/EngineEntity/engine_entity.h"
 #include "../GameEntity/game_entity.h"
 #include "../Render/render.h"
 
 class GameLoop {
  private:
   bool is_running_ = false;
-  GameVieport* vieport_;  // объект окна
-  WindowSettings settings_;
 
  public:
   GameLoop() {
-    settings_.height = 800;
-    settings_.width = 600;
-    settings_.window_name_ = "GameLoop";
-    vieport_ = new GameVieport(settings_);
+
   }
-  ~GameLoop() { delete vieport_; }
+  ~GameLoop() {}
 
   /**
    * \brief Запуск цикла игрового движка
@@ -52,11 +45,13 @@ void GameLoop::Loop(std::vector<GameEntity*> entities, Render* render) {
     if (!entities.empty()) {
       for (auto entity : entities) {
         entity->UpdateEvent();  // Обновляем логику сущности
-        render->UpdateGameEntity(entity);  // Обновляем рендер сущности
+        render->UpdateGameEntity(
+            entity);  // Уведоляем сущность об обновлении рендера
       }
     }
+    render->UpdateRender();  // Обновляем рендер
 
-    vieport_->Update();
+    // Обновляем вьюпорт
     is_running_ = false;
   }
 }

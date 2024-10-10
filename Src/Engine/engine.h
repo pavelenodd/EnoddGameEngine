@@ -2,12 +2,12 @@
 #include <cassert>
 #include <vector>
 
-#include "EngineEntity/Window/vieport_manager.h"
 #include "GameEntity/game_entity.h"
 #include "GameLoop/game_loop.h"
-#include "Inputs/keyboard_input.h"
-#include "Inputs/mouse_inputs.h"
+#include "Inputs/KeyboardInputs/keyboard_input.h"
+#include "Inputs/MouseInputs/mouse_inputs.h"
 #include "Render/render.h"
+#include "VieportManager/vieport_manager.h"
 
 class Engine {
  private:

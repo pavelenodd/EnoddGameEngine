@@ -1,6 +1,6 @@
 #pragma once
 
-#include "inputs.h"
+#include "../inputs.h"
 
 class MouseInpit : public Inputs {
  private:

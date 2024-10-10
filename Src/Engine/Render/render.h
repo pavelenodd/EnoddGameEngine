@@ -1,8 +1,9 @@
 #pragma once
+
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <vector>
-#include "../EngineEntity/engine_entity.h"
+#include "../GameEntity/EngineEntity/engine_entity.h"
 
 class Render {
  private:
@@ -13,7 +14,7 @@ class Render {
   // Метод для удаления наблюдателя
   void Detach(GameEntity* observer);
 
-  // Уведомляет наблюдателей об обовлении рендера
+  // Уведомляет наблюдателей о будующем обновлении рендера
   void UpdateGameEntity(GameEntity* observer);
 
   // Обновдение рендера
@@ -21,7 +22,7 @@ class Render {
 };
 
 void Render::UpdateGameEntity(GameEntity* observer) {
-  observer->UpdateRender();
+
 }
 
 void Render::UpdateRender() {

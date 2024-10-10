@@ -3,8 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <vector>
-#include "vieport.h"
-#include "window.h"
+#include "Vieport/Window/window.h"
+#include "Vieport/vieport.h"
 /**
  * \brief Класс для управления окнами
  */

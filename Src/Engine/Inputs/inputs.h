@@ -1,5 +1,5 @@
 #pragma once
-#include "../EngineEntity/engine_entity.h"
+#include "../GameEntity/EngineEntity/engine_entity.h"
 /**
  * \brief Виртуальный метод для обработки событий ввода
  */
