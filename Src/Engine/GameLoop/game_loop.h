@@ -3,6 +3,7 @@
 #include "../GameEntity/EngineEntity/engine_entity.h"
 #include "../GameEntity/game_entity.h"
 #include "../Render/render.h"
+#include "../VieportManager/vieport_manager.h"
 
 class GameLoop {
  private:
@@ -27,8 +28,11 @@ class GameLoop {
    * \brief Цикл игрового движка
    * \param entities Список сущностей для обновления
    * \param render Объект рендера
+   * \param vieport_manager Объект менеджкра вьюпорта
    */
-  void Loop(std::vector<GameEntity*> entities, Render* render);
+  void Loop(std::vector<GameEntity*> entities,
+            Render* render,
+            VieportManager* vieport_manager);
 };
 
 void GameLoop::Start() {
@@ -39,7 +43,9 @@ void GameLoop::Stop() {
   is_running_ = false;
 }
 
-void GameLoop::Loop(std::vector<GameEntity*> entities, Render* render) {
+void GameLoop::Loop(std::vector<GameEntity*> entities,
+                    Render* render,
+                    VieportManager* vieport) {
   while (is_running_) {
     render->UpdateRender();
     if (!entities.empty()) {
@@ -50,6 +56,7 @@ void GameLoop::Loop(std::vector<GameEntity*> entities, Render* render) {
       }
     }
     render->UpdateRender();  // Обновляем рендер
+    // vieport_manager->UpdateVieport();
 
     // Обновляем вьюпорт
     is_running_ = false;

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <algorithm>
-#include <vector>
+
 #include "Vieport/Window/window.h"
 #include "Vieport/vieport.h"
 /**
@@ -10,7 +9,7 @@
  */
 class VieportManager {
  private:
-  std::vector<GameVieport*> vieports_;
+  GameVieport* curr_vieport_;
   /* data */
  public:
   VieportManager() {
@@ -19,25 +18,31 @@ class VieportManager {
     }
   }
   ~VieportManager() {}
-
+  /**
+   * \brief Создает новый вьюпорт
+   */
   void CreateVieport(const WindowSettings& L_winow_settings);
-
-  void DestroyVieport(GameVieport* L_curr_vieport);
+  /**
+   * \brief Уничтожает текущий вьюпорт
+   */
+  void DestroyVieport();
 
   void UpdateVieport();
+
+  /**
+   * \brief Возвращает текущий вьюпорт
+   */
+  GameVieport* Get_CurrVieport();
 };
 
 void VieportManager::CreateVieport(const WindowSettings& L_winow_settings) {
-  vieports_.push_back(new GameVieport(L_winow_settings));
+  curr_vieport_ = new GameVieport(L_winow_settings);
 }
 
-void VieportManager::DestroyVieport(GameVieport* L_curr_vieport) {
-  if (L_curr_vieport != nullptr && !vieports_.empty()) {
-    auto it = std::remove(vieports_.begin(), vieports_.end(), L_curr_vieport);
+void VieportManager::DestroyVieport() {
+  delete this->curr_vieport_;
+}
 
-    (*it)->~GameVieport();
-    if (it != vieports_.end()) {
-      vieports_.erase(it, vieports_.end());
-    }
-  }
+GameVieport* VieportManager::Get_CurrVieport() {
+  return this->curr_vieport_;
 }
