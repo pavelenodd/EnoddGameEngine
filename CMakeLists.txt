@@ -6,9 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-# Укажите путь к vcpkg toolchain
-set(CMAKE_TOOLCHAIN_FILE "D:/CppLibs/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
-
 # Подключаем библиотеки и компоненты
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)

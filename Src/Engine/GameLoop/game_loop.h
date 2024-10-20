@@ -26,9 +26,9 @@ class GameLoop {
   void Stop();
   /**
    * \brief Цикл игрового движка
-   * \param entities Список сущностей для обновления
-   * \param render Объект рендера
-   * \param vieport_manager Объект менеджкра вьюпорта
+   * \param L_entities Список сущностей для обновления
+   * \param L_render Объект рендера
+   * \param L_vieport_manager Объект менеджера вьюпорта
    */
   void Loop(std::vector<GameEntity*> entities,
             Render* render,
@@ -43,22 +43,25 @@ void GameLoop::Stop() {
   is_running_ = false;
 }
 
-void GameLoop::Loop(std::vector<GameEntity*> entities,
-                    Render* render,
-                    VieportManager* vieport) {
+void GameLoop::Loop(std::vector<GameEntity*> L_entities,
+                    Render* L_render,
+                    VieportManager* L_vieport_manager) {
   while (is_running_) {
-    render->UpdateRender();
-    if (!entities.empty()) {
-      for (auto entity : entities) {
+    glfwPollEvents();
+
+    // Обновление рендера
+    L_render->UpdateRender();
+    if (!L_entities.empty()) {
+      for (auto entity : L_entities) {
         entity->UpdateEvent();  // Обновляем логику сущности
-        render->UpdateGameEntity(
+        L_render->UpdateGameEntity(
             entity);  // Уведоляем сущность об обновлении рендера
       }
+      // Обновляем рендер второй раз после обновления сущностей
+      L_render->UpdateRender();
     }
-    render->UpdateRender();  // Обновляем рендер
-    // vieport_manager->UpdateVieport();
-
     // Обновляем вьюпорт
-    is_running_ = false;
+    L_vieport_manager->UpdateVieport();
   }
+  is_running_ = false;
 }

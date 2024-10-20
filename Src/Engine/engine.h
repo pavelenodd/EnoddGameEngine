@@ -13,8 +13,8 @@ class Engine {
  private:
   GameLoop* game_loop_;   //< цикл игрового движка
   Render* render_;        //< объект рендера
-  Inputs* keyboard_inp_;  //< объект ввода с клавиатуры
-  Inputs* mouse_inp_;     //< объект ввода с мыши
+  KeyboardInpit* keyboard_inp_;  //< объект ввода с клавиатуры
+  MouseInpit* mouse_inp_;        //< объект ввода с мыши
   VieportManager* vieport_manager_;  //< менеджер вьюпортов
 
   //
@@ -51,8 +51,21 @@ class Engine {
 
  public:
   ~Engine() {
-    delete game_loop_;
-    delete render_;
+    if (game_loop_) {
+      delete game_loop_;
+    }
+    if (render_) {
+      delete render_;
+    }
+    if (mouse_inp_) {
+      delete mouse_inp_;
+    }
+    if (keyboard_inp_) {
+      delete keyboard_inp_;
+    }
+    if (vieport_manager_) {
+      delete vieport_manager_;
+    }
   }
 
   /**
@@ -77,7 +90,7 @@ class Engine {
     game_loop_->Start();
     game_loop_->Loop(game_entities_,  //
                      render_,         //
-                     vieport_manager_->Get_CurrVieport());
+                     vieport_manager_);
   }
   /**
    * \brief Остановка цикла и движка

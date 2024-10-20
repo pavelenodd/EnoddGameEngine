@@ -12,12 +12,14 @@ class VieportManager {
   GameVieport* curr_vieport_;
   /* data */
  public:
+  /*Зона конструкторов ========================================= */
   VieportManager() {
     if (!glfwInit()) {
       return;
     }
   }
-  ~VieportManager() {}
+  ~VieportManager() { glfwTerminate(); }
+  /*==========================================================*/
   /**
    * \brief Создает новый вьюпорт
    */
@@ -33,6 +35,7 @@ class VieportManager {
    * \brief Возвращает текущий вьюпорт
    */
   GameVieport* Get_CurrVieport();
+  GLFWwindow* Get_CurrWindow();
 };
 
 void VieportManager::CreateVieport(const WindowSettings& L_winow_settings) {
@@ -41,8 +44,15 @@ void VieportManager::CreateVieport(const WindowSettings& L_winow_settings) {
 
 void VieportManager::DestroyVieport() {
   delete this->curr_vieport_;
+  this->curr_vieport_ = nullptr;
 }
 
 GameVieport* VieportManager::Get_CurrVieport() {
   return this->curr_vieport_;
 }
+
+GLFWwindow* VieportManager::Get_CurrWindow() {
+  return this->curr_vieport_->Get_Window();
+}
+
+void VieportManager::UpdateVieport() {}
