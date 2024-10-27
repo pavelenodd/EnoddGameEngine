@@ -6,8 +6,18 @@ class MouseInpit : public Inputs {
  private:
   /* data */
  public:
-  MouseInpit(/* args */) {}
+  MouseInpit() {}
   ~MouseInpit() {}
 
-  void InputEvent(ObserverObject* object) {}
+  void HandlingInputs(GLFWwindow* L_window,
+                      int key,
+                      int scancode,
+                      int action,
+                      int mods) override;
 };
+
+void MouseInpit::HandlingInputs(GLFWwindow* L_window,
+                                int key,
+                                int scancode,
+                                int action,
+                                int mods) {}

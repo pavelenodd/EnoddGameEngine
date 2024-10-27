@@ -13,9 +13,10 @@ class Engine {
  private:
   GameLoop* game_loop_;   //< цикл игрового движка
   Render* render_;        //< объект рендера
+  VieportManager* vieport_manager_;  //< менеджер вьюпортов
+
   KeyboardInpit* keyboard_inp_;  //< объект ввода с клавиатуры
   MouseInpit* mouse_inp_;        //< объект ввода с мыши
-  VieportManager* vieport_manager_;  //< менеджер вьюпортов
 
   //
   std::vector<GameEntity*> game_entities_;  //< Список игровых сущностей
@@ -73,12 +74,14 @@ class Engine {
    */
   void Init() {
     assert(GetEngineSettings());
+    // TODO ^ сделать получение объектами настроек
 
     game_loop_ = new GameLoop();
     render_ = new Render();
+    vieport_manager_ = new VieportManager();
+
     mouse_inp_ = new MouseInpit();
     keyboard_inp_ = new KeyboardInpit();
-    vieport_manager_ = new VieportManager();
   }
   /**
    * \brief Запуск игрового цикла и запуск движка
@@ -88,9 +91,11 @@ class Engine {
     //^получить переменную из GetEngineSettings и передать её в CreateVieport
 
     game_loop_->Start();
-    game_loop_->Loop(game_entities_,  //
-                     render_,         //
-                     vieport_manager_);
+    game_loop_->Loop(game_entities_,    //
+                     render_,           //
+                     vieport_manager_,  //
+                     keyboard_inp_,     //
+                     mouse_inp_);
   }
   /**
    * \brief Остановка цикла и движка
@@ -98,5 +103,6 @@ class Engine {
   void Stop() {
     game_loop_->Stop();
     assert(SetEngineSettings());
+    // TODO ^ сделать заппись объектами настроек в файл
   }
 };
