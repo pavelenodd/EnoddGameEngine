@@ -2,25 +2,27 @@
 
 #include "../../GameEntity/EngineEntity/engine_entity.h"
 #include "../inputs.h"
-class KeyboardInpit : public Inputs {
+class KeyboardInput : public Inputs {
  private:
   public:
-  KeyboardInpit() {}
-  ~KeyboardInpit() {}
+   KeyboardInput() {}
+   ~KeyboardInput() {}
 
-  void HandlingInputs(GLFWwindow* L_window,
-                      int key,
-                      int scancode,
-                      int action,
-                      int mods) override;
+   void HandlingInputs(GLFWwindow* L_window,
+                       const int& L_key,
+                       const int& L_scancode,
+                       const int& L_action,
+                       const int& L_mods) override;
 };
 
-void KeyboardInpit::HandlingInputs(GLFWwindow* L_window,
-                                   int key,
-                                   int scancode,
-                                   int action,
-                                   int mods) {
-  if (inputs_key_map_.at(key) == "Exit" && action == GLFW_PRESS) {
-    std::cout << "Exit" << std::endl;
+void KeyboardInput::HandlingInputs(GLFWwindow* L_window,
+                                   const int& L_key,
+                                   const int& L_scancode,
+                                   const int& L_action,
+                                   const int& L_mods) {
+  if (L_action == GLFW_PRESS) {
+    if (inputs_key_map_.find(L_key) != inputs_key_map_.end()) {
+      std::cout << inputs_key_map_[L_key] << std::endl;
+    }
   }
 }

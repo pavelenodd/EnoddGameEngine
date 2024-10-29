@@ -10,14 +10,14 @@ class MouseInpit : public Inputs {
   ~MouseInpit() {}
 
   void HandlingInputs(GLFWwindow* L_window,
-                      int key,
-                      int scancode,
-                      int action,
-                      int mods) override;
+                      const int& L_key,
+                      const int& L_scancode,
+                      const int& L_action,
+                      const int& L_mods) override;
 };
 
 void MouseInpit::HandlingInputs(GLFWwindow* L_window,
-                                int key,
-                                int scancode,
-                                int action,
-                                int mods) {}
+                                const int& L_key,
+                                const int& L_scancode,
+                                const int& L_action,
+                                const int& L_mods) {}

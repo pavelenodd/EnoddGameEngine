@@ -4,6 +4,7 @@
 
 #include "GameEntity/game_entity.h"
 #include "GameLoop/game_loop.h"
+
 #include "Inputs/KeyboardInputs/keyboard_input.h"
 #include "Inputs/MouseInputs/mouse_inputs.h"
 #include "Render/render.h"
@@ -11,11 +12,11 @@
 
 class Engine {
  private:
-  GameLoop* game_loop_;   //< цикл игрового движка
-  Render* render_;        //< объект рендера
+  GameLoop* game_loop_;              //< цикл игрового движка
+  Render* render_;                   //< объект рендера
   VieportManager* vieport_manager_;  //< менеджер вьюпортов
 
-  KeyboardInpit* keyboard_inp_;  //< объект ввода с клавиатуры
+  KeyboardInput* keyboard_inp_;  //< объект ввода с клавиатуры
   MouseInpit* mouse_inp_;        //< объект ввода с мыши
 
   //
@@ -81,7 +82,7 @@ class Engine {
     vieport_manager_ = new VieportManager();
 
     mouse_inp_ = new MouseInpit();
-    keyboard_inp_ = new KeyboardInpit();
+    keyboard_inp_ = new KeyboardInput();
   }
   /**
    * \brief Запуск игрового цикла и запуск движка
