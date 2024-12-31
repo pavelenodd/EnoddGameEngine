@@ -1,17 +1,15 @@
-//Managers/manager_inputs.h
+// Managers/manager_inputs.h
 
-#pragma once 
+#pragma once
 
-#include "manager.h"
+#include "manager_base.h"
 
-class ManagerInputs : protected ManagerBase{
-private:
+class ManagerInputs : public ManagerBase {
+ private:
+ public:
+  ManagerInputs() {}
+  ~ManagerInputs() {}
 
-public:
-    ManagerInputs(){}
-    ~ManagerInputs(){}
-
-
-    public:
-        virtual void Update() override{}
+ public:
+  virtual void Update() override {}
 };

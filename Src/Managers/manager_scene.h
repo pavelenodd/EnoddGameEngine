@@ -1,17 +1,15 @@
-//Managers/manager_scene.h
+// Managers/manager_scene.h
 
-#pragma once 
+#pragma once
 
-#include "manager.h"
+#include "manager_base.h"
 
-class ManagerScene : protected ManagerBase{
-private:
+class ManagerScene : public ManagerBase {
+ private:
+ public:
+  ManagerScene() {}
+  ~ManagerScene() {}
 
-public:
-    ManagerScene(){}
-    ~ManagerScene(){}
-
-
-    public:
-        virtual void Update() override{}
+ public:
+  virtual void Update() override {}
 };

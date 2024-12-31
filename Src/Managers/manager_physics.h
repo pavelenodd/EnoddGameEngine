@@ -1,17 +1,15 @@
-//Managers/manager_physics.h
+// Managers/manager_physics.h
 
-#pragma once 
+#pragma once
 
-#include "manager.h"
+#include "manager_base.h"
 
-class ManagerPhysics : protected ManagerBase{
-private:
+class ManagerPhysics : public ManagerBase {
+ private:
+ public:
+  ManagerPhysics() {}
+  ~ManagerPhysics() {}
 
-public:
-    ManagerPhysics(){}
-    ~ManagerPhysics(){}
-
-
-    public:
-        virtual void Update() override{}
+ public:
+  virtual void Update() override {}
 };

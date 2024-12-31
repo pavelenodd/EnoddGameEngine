@@ -1,16 +1,16 @@
-//Managers/manager_resourse.h
+// Managers/manager_resourse.h
 #pragma once
 
-#include "manager.h"
+#include "manager_base.h"
 /**
  * @brief Класс менеджера ресурсов
- * 
+ *
  */
-class ManagerResourse : protected ManagerBase {
-    public:
-    ManagerResourse(){}
-    ~ManagerResourse(){}
+class ManagerResourse : public ManagerBase {
+ public:
+  ManagerResourse() {}
+  ~ManagerResourse() {}
 
-public:
-    virtual void Update() override{}
-}
+ public:
+  virtual void Update() override {}
+};
