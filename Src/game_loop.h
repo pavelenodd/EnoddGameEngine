@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 
+#include "EngineError/engine_error.h"
 #include "Managers/manager_inputs.h"
 #include "Managers/manager_physics.h"
 #include "Managers/manager_resourse.h"
@@ -15,14 +16,28 @@ class GameLoop {
 
  public:
   GameLoop() {
-    managers_.push_back(new ManagerInputs());
-    managers_.push_back(new ManagerPhysics());
-    managers_.push_back(new ManagerResourse());
-    managers_.push_back(new ManagerScene());
+    if (!InitLoop()) {
+      std::cerr << "Error: game loop initialization failed" << std::endl;
+      return;
+    }
   }
   ~GameLoop() {}
 
  private:
+  bool InitLoop() {
+    // инициализация менеджеров
+    managers_.push_back(new ManagerInputs());
+    managers_.push_back(new ManagerPhysics());
+    managers_.push_back(new ManagerResourse());
+    managers_.push_back(new ManagerScene());
+
+    if (managers_.empty()) {
+      std::cerr << "Error: managers list is empty" << std::endl;
+      return false;
+    }
+    // TODO ввести проверку на успешную инициализацию
+    return true;
+  }
   void EngineLoop() {
     while (is_gameloop_enabled_) {
       // обновление всех менеджеров
