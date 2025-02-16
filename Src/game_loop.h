@@ -16,7 +16,7 @@ class GameLoop {
 
  public:
   GameLoop() {
-    if (!InitLoop()) {
+    if (!Init()) {
       std::cerr << "Error: game loop initialization failed" << std::endl;
       return;
     }
@@ -24,16 +24,21 @@ class GameLoop {
   ~GameLoop() {}
 
  private:
-  bool InitLoop() {
+  bool Init() {
     // инициализация менеджеров
     managers_.push_back(new ManagerInputs());
     managers_.push_back(new ManagerPhysics());
     managers_.push_back(new ManagerResourse());
-    managers_.push_back(new ManagerScene());
+    managers_.push_back(new EDD::ManagerScene());
 
     if (managers_.empty()) {
       std::cerr << "Error: managers list is empty" << std::endl;
+      EDD::errors.push_back(EDD::EngineErrorNS::code1);
       return false;
+    }
+
+    for (auto& manager : managers_) {
+      manager->Init();
     }
     // TODO ввести проверку на успешную инициализацию
     return true;
@@ -41,13 +46,31 @@ class GameLoop {
   void EngineLoop() {
     while (is_gameloop_enabled_) {
       // обновление всех менеджеров
-      for (auto& manager : managers_) {
+      {
+        // TODO пока однопоточное , потом сделать параллельное переходящее в
+        // однопоточное , но обрабатывающее только изменённые данные
+      }
+      for (auto&& manager : managers_) {
         manager->Update();
+        //! для тестов
+        if (typeid(*manager) == typeid(EDD::ManagerScene)) {
+          EDD::ManagerScene* scene = dynamic_cast<EDD::ManagerScene*>(manager);
+          sf::Event event;
+          if (scene->GetWindowRef()->pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+              is_gameloop_enabled_ = false;
+            }
+          }
+        }
+        //!
       }
     }
   }
 
  public:
-  void StartLoop() { is_gameloop_enabled_ = true; }
+  void StartLoop() {
+    is_gameloop_enabled_ = true;
+    EngineLoop();
+  }
   void StopLoop() { is_gameloop_enabled_ = false; }
 };

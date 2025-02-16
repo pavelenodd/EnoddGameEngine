@@ -3,7 +3,8 @@
 
 #include "manager_base.h"
 /**
- * @brief Класс менеджера ресурсов
+ * @brief Менеджер отвечающий за обработку ресурсов (текстуры , аудио, локальные
+ * файлы, ...)
  *
  */
 class ManagerResourse : public ManagerBase {
@@ -13,4 +14,8 @@ class ManagerResourse : public ManagerBase {
 
  public:
   virtual void Update() override {}
+
+ private:
+  virtual void Init() override {}
+  virtual void FreeResources() override {}
 };

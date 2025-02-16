@@ -3,7 +3,10 @@
 #pragma once
 
 #include "manager_base.h"
-
+/**
+ * @brief Менеджер отвечающий за обработку ввода
+ *
+ */
 class ManagerInputs : public ManagerBase {
  private:
  public:
@@ -12,4 +15,6 @@ class ManagerInputs : public ManagerBase {
 
  public:
   virtual void Update() override {}
+  virtual void Init() override {}
+  virtual void FreeResources() override {}
 };
