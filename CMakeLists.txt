@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 3.28.0 FATAL_ERROR)
-set(CMAKE_CXX_STANDARD 20)
+cmake_minimum_required(VERSION 3.30.0 FATAL_ERROR)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_NAME EnoddGameEngine)
 
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
-find_library(SFML sfml-graphics sfml-window sfml-system)
+find_library(SFML sfml-Graphics sfml-Window sfml-System)
 find_library(Boost boost_system boost_log)
 
 
@@ -18,7 +18,7 @@ add_executable(${PROJECT_NAME}
 
 
     Src/game_loop.h
-    #менеджеры 
+
     Src/Managers/manager_base.h
     Src/Managers/manager_inputs.h
     Src/Managers/manager_physics.h
