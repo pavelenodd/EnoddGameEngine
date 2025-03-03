@@ -29,7 +29,7 @@ class GameLoop {
     managers_.push_back(new ManagerInputs());
     managers_.push_back(new ManagerPhysics());
     managers_.push_back(new ManagerResourse());
-    managers_.push_back(new EDD::ManagerScene());
+    managers_.push_back(new ManagerScene());
 
     if (managers_.empty()) {
       std::cerr << "Error: managers list is empty" << std::endl;
@@ -52,17 +52,6 @@ class GameLoop {
       }
       for (auto&& manager : managers_) {
         manager->Update();
-        //! для тестов
-        if (typeid(*manager) == typeid(EDD::ManagerScene)) {
-          EDD::ManagerScene* scene = dynamic_cast<EDD::ManagerScene*>(manager);
-          sf::Event event;
-          if (scene->GetWindowRef()->pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-              is_gameloop_enabled_ = false;
-            }
-          }
-        }
-        //!
       }
     }
   }
