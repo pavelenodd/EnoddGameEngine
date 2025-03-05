@@ -20,14 +20,14 @@ add_executable(${PROJECT_NAME}
 
     Src/game_loop.h
 
-    # Src/Managers/manager_base.h
-    # Src/Managers/manager_inputs.h
-    # Src/Managers/manager_physics.h
-    # Src/Managers/manager_resourse.h
-    # Src/Managers/manager_scene.h
+    Src/Managers/manager_base.h
+    Src/Managers/manager_inputs.h
+    Src/Managers/manager_physics.h
+    Src/Managers/manager_resourse.h
+    Src/Managers/manager_scene.h
     
-    # Src/EngineError/engine_error.h
-    # Src/EngineError/engine_logging.h
+    Src/EngineError/engine_error.h
+    Src/EngineError/engine_logging.h
     )
 
     target_include_directories(${PROJECT_NAME} PRIVATE  
@@ -40,8 +40,8 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} 
         PRIVATE 
 
-    boost_system
-    boost_log
+    Boost::system
+    Boost::log
     )
 
 include(CTest)
