@@ -3,6 +3,9 @@
 #include <iostream>
 #include <vector>
 
+#include "EngineData/engine_data.h"
+
+// managers
 #include "EngineError/engine_error.h"
 #include "Managers/manager_inputs.h"
 #include "Managers/manager_physics.h"
@@ -25,11 +28,13 @@ class GameLoop {
 
  private:
   bool Init() {
+    SDL_Init(SDL_INIT_VIDEO);
+
     // инициализация менеджеров
     managers_.push_back(new ManagerInputs());
     managers_.push_back(new ManagerPhysics());
     managers_.push_back(new ManagerResourse());
-    managers_.push_back(new ManagerScene());
+    managers_.push_back(new ManagerScene(EDD::ViewportData{"main", 800, 600}));
 
     if (managers_.empty()) {
       std::cerr << "Error: managers list is empty" << std::endl;
