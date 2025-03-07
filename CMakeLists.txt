@@ -15,15 +15,20 @@ add_executable(${PROJECT_NAME}
     Src/main.cpp
 
     Src/game_loop.h
-
+# Managers
     Src/Managers/manager_base.h
     Src/Managers/manager_inputs.h
     Src/Managers/manager_physics.h
     Src/Managers/manager_resourse.h
     Src/Managers/manager_scene.h
-    
+# EngineLogging
     Src/EngineError/engine_error.h
     Src/EngineError/engine_logging.h
+# DATA
+    Src/EngineData/engine_data.h
+# Tools
+    Src/Tools/delegate.h 
+    Src/Tools/interface.h
     )
 
     target_include_directories(${PROJECT_NAME} PRIVATE  

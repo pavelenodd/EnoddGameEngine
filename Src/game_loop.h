@@ -51,10 +51,10 @@ class GameLoop {
   void EngineLoop() {
     while (is_gameloop_enabled_) {
       // обновление всех менеджеров
-      {
+
         // TODO пока однопоточное , потом сделать параллельное переходящее в
         // однопоточное , но обрабатывающее только изменённые данные
-      }
+
       for (auto&& manager : managers_) {
         manager->Update();
       }
