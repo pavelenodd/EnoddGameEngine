@@ -13,16 +13,25 @@
  * @brief Менеджер отвечающий за создание и обновление сцены
  *
  */
-class ManagerScene : public ManagerBase {
+namespace EDD::Managers {
+
+class Scene : public Managers::Base {
  private:
   SDL_Window* window_ = nullptr;
   SDL_Renderer* renderer_ = nullptr;
-  EDD::ViewportData viewport_data_;
+  Data::Viewport viewport_data_;
+  bool* is_gameloop_enabled_;
+  const Tools::Interface<SDL_Event>*
+      event_provider_;  // указатель на интерфейс Inputs
 
  public:
-  ManagerScene(EDD::ViewportData viewport_data)
-      : viewport_data_(viewport_data) {}
-  ~ManagerScene() {}
+  Scene(Data::Viewport viewport_data,
+        const Tools::Interface<SDL_Event>* event_provider,
+        bool* is_gameloop_enabled)
+      : viewport_data_(viewport_data),
+        event_provider_(event_provider),
+        is_gameloop_enabled_(is_gameloop_enabled) {}
+  ~Scene() {}
 
  public:
   /**
@@ -38,15 +47,23 @@ class ManagerScene : public ManagerBase {
 
     // TODO: здесь будут вызовы функций отрисовки объектов сцены
 
-    // Отображаем на экране то, что отрисовали
+    // Обработка событий ввода (нажатие клавиш)
+    if (auto event = event_provider_->Send()) {
+      // Если нажата клавиша ESC, то выходим из игрового цикла
+      if (event->key.key == SDLK_ESCAPE) {
+        *is_gameloop_enabled_ = false;
+            }
+    }
+
     SDL_RenderPresent(renderer_);
-  }
+    }
 
  private:
   /**
    * @brief Инициализация окна и рендерера.
    */
   virtual void Init() override { CreateScene(); }
+
   /**
    * @brief Освобождаем ресурсы SDL.
    */
@@ -71,7 +88,7 @@ class ManagerScene : public ManagerBase {
     // Создание окна
     window_ =
         SDL_CreateWindow(viewport_data_.viewport_name.c_str(),  // имя окна
-                         viewport_data_.w,                      //
+                         viewport_data_.w,                      // размеры окна
                          viewport_data_.h,
                          SDL_WINDOW_VULKAN  // флаги окна
         );
@@ -94,3 +111,4 @@ class ManagerScene : public ManagerBase {
     return true;
   }
 };
+}  // namespace EDD::Managers

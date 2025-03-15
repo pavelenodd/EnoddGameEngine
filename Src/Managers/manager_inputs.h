@@ -8,13 +8,15 @@
  * @brief Менеджер отвечающий за обработку ввода
  *
  */
-class ManagerInputs : public ManagerBase {
+namespace EDD::Managers {
+
+class Inputs : public Managers::Base, public Tools::Interface<SDL_Event> {
  private:
-  std::list<int> events_;
+  std::list<SDL_Event> events_;
 
  public:
-  ManagerInputs() {}
-  ~ManagerInputs() {}
+  Inputs() {}
+  ~Inputs() {}
 
  public:
   /**
@@ -24,11 +26,21 @@ class ManagerInputs : public ManagerBase {
   virtual void Update() override {
     SDL_Event L_event;
     while (SDL_PollEvent(&L_event)) {
-      events_.push_back(L_event.type);
+      events_.push_front(L_event);
     }
   }
-  virtual void Init() override {}
+  // Реализация метода интерфейса
+  virtual std::optional<SDL_Event> Send() const override {
+    if (!events_.empty()) {
+      return events_.front();
+    }
+    return std::nullopt;
+  }
+
+    virtual void Init() override {}
   virtual void FreeResources() override {}
 
  private:
 };
+
+}  // namespace EDD

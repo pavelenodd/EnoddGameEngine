@@ -11,11 +11,11 @@
 #include "Managers/manager_physics.h"
 #include "Managers/manager_resourse.h"
 #include "Managers/manager_scene.h"
-
+namespace EDD {
 class GameLoop {
  public:
   bool is_gameloop_enabled_ = false;    // флаг активности игрового цикла
-  std::vector<ManagerBase*> managers_;  // спиок менеджеров
+  std::vector<Managers::Base*> managers_;  // спиок менеджеров
 
  public:
   GameLoop() {
@@ -31,10 +31,13 @@ class GameLoop {
     SDL_Init(SDL_INIT_VIDEO);
 
     // инициализация менеджеров
-    managers_.push_back(new ManagerInputs());
-    managers_.push_back(new ManagerPhysics());
-    managers_.push_back(new ManagerResourse());
-    managers_.push_back(new ManagerScene(EDD::ViewportData{"main", 800, 600}));
+    managers_.push_back(new Managers::Inputs());
+    managers_.push_back(new Managers::Physics());
+    managers_.push_back(new Managers::Resourse());
+    managers_.push_back(
+        new Managers::Scene(Data::Viewport{"main", 800, 600},
+                            dynamic_cast<Managers::Inputs*>(managers_[0]),  //
+                            &is_gameloop_enabled_));
 
     if (managers_.empty()) {
       std::cerr << "Error: managers list is empty" << std::endl;
@@ -52,12 +55,18 @@ class GameLoop {
     while (is_gameloop_enabled_) {
       // обновление всех менеджеров
 
-        // TODO пока однопоточное , потом сделать параллельное переходящее в
-        // однопоточное , но обрабатывающее только изменённые данные
+      // TODO пока однопоточное , потом сделать параллельное переходящее в
+      // однопоточное , но обрабатывающее только изменённые данные
 
       for (auto&& manager : managers_) {
         manager->Update();
       }
+    }
+    for (auto& manager : managers_) {
+      manager->FreeResources();
+    }
+    for (int i = 0; i < managers_.size(); ++i) {
+      delete managers_[i];
     }
   }
 
@@ -68,3 +77,4 @@ class GameLoop {
   }
   void StopLoop() { is_gameloop_enabled_ = false; }
 };
+}  // namespace EDD

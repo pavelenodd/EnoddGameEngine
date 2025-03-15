@@ -3,15 +3,17 @@
 #pragma once
 
 #include "manager_base.h"
+namespace EDD::Managers {
+
 /**
  * @brief Менеджер отвечающий за обработку физики
  *
  */
-class ManagerPhysics : public ManagerBase {
+class Physics : public Managers::Base {
  private:
  public:
-  ManagerPhysics() {}
-  ~ManagerPhysics() {}
+  Physics() {}
+  ~Physics() {}
 
  public:
   virtual void Update() override {}
@@ -19,3 +21,5 @@ class ManagerPhysics : public ManagerBase {
   virtual void Init() override {}
   virtual void FreeResources() override {}
 };
+
+}  // namespace EDD

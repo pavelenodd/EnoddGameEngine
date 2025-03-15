@@ -2,15 +2,17 @@
 #pragma once
 
 #include "manager_base.h"
+namespace EDD::Managers {
+
 /**
  * @brief Менеджер отвечающий за обработку ресурсов (текстуры , аудио, локальные
  * файлы, ...)
  *
  */
-class ManagerResourse : public ManagerBase {
+class Resourse : public Managers::Base {
  public:
-  ManagerResourse() {}
-  ~ManagerResourse() {}
+  Resourse() {}
+  ~Resourse() {}
 
  public:
   virtual void Update() override {}
@@ -19,3 +21,5 @@ class ManagerResourse : public ManagerBase {
   virtual void Init() override {}
   virtual void FreeResources() override {}
 };
+
+}  // namespace EDD

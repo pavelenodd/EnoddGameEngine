@@ -5,7 +5,7 @@
 #include "game_loop.h"
 
 int main(int, char**) {
-  GameLoop game_loop;
+  EDD::GameLoop game_loop;
   game_loop.StartLoop();
 
   return 0;

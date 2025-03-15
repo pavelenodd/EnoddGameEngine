@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
-namespace EDD {
+namespace EDD::Data {
 
 /**
  * @brief Структура данных о вьюпорте
  *
  */
-struct ViewportData {
+struct Viewport {
   std::string viewport_name;  // имя вьюпорта
   int w;                      // ширина
   int h;                      // высота
