@@ -9,6 +9,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
 find_package(SDL3  REQUIRED)
+find_package(SDL3_image REQUIRED)
+
 find_package(Boost REQUIRED system log)
 
 add_executable(${PROJECT_NAME} 
@@ -16,11 +18,20 @@ add_executable(${PROJECT_NAME}
 
     Src/game_loop.h
 # Managers
-    Src/Managers/manager_base.h
+    Src/Managers/manager_base.h 
+
     Src/Managers/manager_inputs.h
+
     Src/Managers/manager_physics.h
+
     Src/Managers/manager_resourse.h
+        Src/Managers/Items/audio.h
+        Src/Managers/Items/font.h
+        Src/Managers/Items/model.h
+        Src/Managers/Items/texture.h
+
     Src/Managers/manager_scene.h
+    Src/Managers/manager_render.h
 # EngineLogging
     Src/EngineError/engine_error.h
     Src/EngineError/engine_logging.h

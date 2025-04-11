@@ -65,9 +65,6 @@ class GameLoop {
     for (auto& manager : managers_) {
       manager->FreeResources();
     }
-    for (int i = 0; i < managers_.size(); ++i) {
-      delete managers_[i];
-    }
   }
 
  public:
