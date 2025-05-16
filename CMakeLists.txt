@@ -15,6 +15,7 @@ find_package(Boost REQUIRED system log)
 
 add_executable(${PROJECT_NAME} 
     Src/main.cpp
+    
 
     Src/game_loop.h
 # Managers
