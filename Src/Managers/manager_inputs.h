@@ -1,46 +1,48 @@
-// Managers/manager_inputs.h
-
 #pragma once
-#include <SDL3/SDL_events.h>
-#include <list>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <optional>
+
+#include "../Tools/interface.h"
 #include "manager_base.h"
-/**
- * @brief Менеджер отвечающий за обработку ввода
- *
- */
+
 namespace EDD::Managers {
-
-class Inputs : public Managers::Base, public Tools::Interface<SDL_Event> {
+class Inputs : public Base, public Tools::Interface<sf::Event> {
  private:
-  std::list<SDL_Event> events_;
+  sf::Event event_;
+  bool has_event_ = false;
+  sf::RenderWindow* window_ = nullptr;  // Ссылка на окно SFML
 
  public:
-  Inputs() {}
-  ~Inputs() {}
-
- public:
-  /**
-   * @brief Отслеживание нажатий клавиш
-   *
-   */
-  virtual void Update() override {
-    SDL_Event L_event;
-    while (SDL_PollEvent(&L_event)) {
-      events_.push_front(L_event);
-    }
+  // Метод для установки указателя на окно
+  void SetWindow(sf::RenderWindow* window) {
+    window_ = window;
   }
-  // Реализация метода интерфейса
-  virtual std::optional<SDL_Event> Send() const override {
-    if (!events_.empty()) {
-      return events_.front();
+
+  // Реализация интерфейса (исправлен тип возвращаемого значения)
+  virtual std::optional<sf::Event> Send() const override {
+    if (has_event_) {
+      return event_;
     }
     return std::nullopt;
   }
 
-    virtual void Init() override {}
-  virtual void FreeResources() override {}
+  virtual void Update() override {
+    has_event_ = false;
+    // Обработка всех событий в очереди
+    if (window_) {
+      has_event_ = window_->pollEvent(event_);
+    }
+  }
 
  private:
-};
+  virtual void Init() override {
+    // Инициализация обработчика ввода
+  }
 
-}  // namespace EDD
+  virtual void FreeResources() override {
+    // Освобождение ресурсов
+    window_ = nullptr;
+  }
+};
+}  // namespace EDD::Managers

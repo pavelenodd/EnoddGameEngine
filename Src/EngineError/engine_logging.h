@@ -8,7 +8,6 @@
 #include <iostream>
 #include <string>
 
-
 namespace EDD {
 namespace LOG {
 
@@ -38,24 +37,24 @@ inline void InitLogging() {
 
 // Функторы для логирования
 inline auto Info = [](const std::string &message) {
-  InitLogging(); // Инициализация логгера
+  InitLogging();  // Инициализация логгера
   BOOST_LOG_TRIVIAL(info) << message;
 };
 
 inline auto Debug = [](const std::string &message) {
-  InitLogging(); // Инициализация логгера
+  InitLogging();  // Инициализация логгера
   BOOST_LOG_TRIVIAL(debug) << message;
 };
 
 inline auto Warning = [](const std::string &message) {
-  InitLogging(); // Инициализация логгера
+  InitLogging();  // Инициализация логгера
   BOOST_LOG_TRIVIAL(warning) << message;
 };
 
-inline auto Critical = [](const std::string &message) {
-  InitLogging(); // Инициализация логгера
-  BOOST_LOG_TRIVIAL(critical) << message;
+inline auto Fatal = [](const std::string &message) {
+  InitLogging();  // Инициализация логгера
+  BOOST_LOG_TRIVIAL(fatal) << message;
 };
 
-} // namespace LOG
-} // namespace EDD
+}  // namespace LOG
+}  // namespace EDD

@@ -13,11 +13,11 @@
 #include "Managers/manager_scene.h"
 namespace EDD {
 class GameLoop {
-public:
-  bool is_gameloop_enabled_ = false;       // флаг активности игрового цикла
-  std::vector<Managers::Base *> managers_; // спиок менеджеров
+ public:
+  bool is_gameloop_enabled_ = false;        // флаг активности игрового цикла
+  std::vector<Managers::Base *> managers_;  // спиок менеджеров
 
-public:
+ public:
   GameLoop() {
     if (!Init()) {
       std::cerr << "Error: game loop initialization failed" << std::endl;
@@ -26,24 +26,22 @@ public:
   }
   ~GameLoop() {}
 
-private:
+ private:
   bool Init() {
-    SDL_Init(SDL_INIT_VIDEO);
-
     // инициализация менеджеров
     managers_.push_back(new Managers::Inputs());
     managers_.push_back(new Managers::Physics());
     managers_.push_back(new Managers::Resourse());
     managers_.push_back(
         new Managers::Scene(Data::Viewport{"main", 800, 600},
-                            dynamic_cast<Managers::Inputs *>(managers_[0]), //
+                            dynamic_cast<Managers::Inputs *>(managers_[0]),  //
                             &is_gameloop_enabled_));
 
     if (managers_.empty()) {
-       LOG::Critical("managers list is empty");
+      LOG::Fatal("managers list is empty");
       return false;
     }
-    LOG::Critical("managers list is empty");
+
     for (auto &manager : managers_) {
       manager->Init();
     }
@@ -68,11 +66,11 @@ private:
     }
   }
 
-public:
+ public:
   void StartLoop() {
     is_gameloop_enabled_ = true;
     EngineLoop();
   }
   void StopLoop() { is_gameloop_enabled_ = false; }
 };
-} // namespace EDD
+}  // namespace EDD

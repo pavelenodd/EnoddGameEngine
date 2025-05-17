@@ -8,10 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
-find_package(SDL3  REQUIRED)
-find_package(SDL3_image REQUIRED)
+find_library(SFML sfml-Graphics sfml-Window sfml-System)
+find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
 
-find_package(Boost REQUIRED system log)
 
 add_executable(${PROJECT_NAME} 
     Src/main.cpp
@@ -50,13 +49,14 @@ add_executable(${PROJECT_NAME}
 )
 
 
-target_link_libraries(${PROJECT_NAME} 
-        PRIVATE 
-
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    sfml-graphics 
+    sfml-window 
+    sfml-system
     Boost::system
     Boost::log
-    SDL3::SDL3
-
+    Boost::thread
+    Boost::filesystem
     )
 
 include(CTest)
