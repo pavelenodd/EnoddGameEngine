@@ -11,7 +11,7 @@ class Inputs : public Base, public Tools::Interface<sf::Event> {
  private:
   sf::Event event_;
   bool has_event_ = false;
-  sf::RenderWindow* window_ = nullptr;  // Ссылка на окно SFML
+  sf::RenderWindow* window_ = nullptr;  
 
  public:
   // Метод для установки указателя на окно

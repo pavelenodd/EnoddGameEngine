@@ -28,9 +28,7 @@ struct TrackedResource {
 };
 
 /**
- * @brief Менеджер отвечающий за обработку ресурсов (текстуры , аудио, локальные
- * файлы, ...)
- *
+ * @brief Менеджер отвечающий за обработку ресурсов (текстуры , аудио, локальные файлы, ...)
  */
 class Resourse : public Managers::Base {
  public:
@@ -190,14 +188,12 @@ class Resourse : public Managers::Base {
   }
 
  private:
-  bool LoadUnit(const std::string& path,
-                ResourceType resourese_type,
+  bool LoadUnit(const std::string& path, ResourceType resourese_type,
                 bool is_cold) {
     return true;
   }
 
-  bool LoadFolder(const std::string& path,
-                  const ResourceType resourese_type,
+  bool LoadFolder(const std::string& path, const ResourceType resourese_type,
                   bool is_cold) {
     for (const auto& L_entry : std::filesystem::directory_iterator(path)) {
       std::string L_full_path = L_entry.path().string();
