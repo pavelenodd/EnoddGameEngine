@@ -1,0 +1,159 @@
+TODO-лист для создания игры "Змейка" на основе движка EnoddGameEngine<br><br>
+
+<ul>
+    <li>1. Подготовка проекта<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Создать новую ветку в репозитории для разработки игры "Змейка".</li>
+            <li><input disabled="" type="checkbox"> Добавить папку Src/Game/Snake для хранения файлов, связанных с
+                игрой.</li>
+        </ul>
+    </li>
+
+    <li>2. Создание менеджера игры<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Создать класс SnakeManager в папке Src/Game/Snake.</li>
+            <li><input disabled="" type="checkbox"> Реализовать управление змейкой:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Хранить координаты сегментов змейки.</li>
+                <li><input disabled="" type="checkbox"> Добавить логику движения.</li>
+                <li><input disabled="" type="checkbox"> Реализовать добавление сегментов при съедении еды.</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Реализовать управление едой:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Генерация случайного положения еды.</li>
+                <li><input disabled="" type="checkbox"> Проверка на съедение еды.</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Добавить проверку столкновений:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Столкновение с границами игрового поля.</li>
+                <li><input disabled="" type="checkbox"> Столкновение с самой собой.</li>
+            </ul>
+        </ul>
+    </li>
+
+    <li>3. Интеграция с игровым циклом<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Добавить SnakeManager в список менеджеров в классе GameLoop.</li>
+            <li><input disabled="" type="checkbox"> Вызвать методы Update и FreeResources для SnakeManager в игровом
+                цикле.</li>
+        </ul>
+    </li>
+
+    <li>4. Обработка ввода<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Использовать ManagerInputs для обработки ввода от пользователя
+                (стрелки для управления направлением змейки).</li>
+            <li><input disabled="" type="checkbox"> Передавать данные о вводе в SnakeManager.</li>
+        </ul>
+    </li>
+
+    <li>5. Рендеринг<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Реализовать базовый рендеринг окна:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Добавить поддержку 2D-рендеринга для отображения игрового поля,
+                    змейки и еды.</li>
+                <li><input disabled="" type="checkbox"> Добавить поддержку 3D-рендеринга (опционально, для будущих
+                    эффектов).</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Использовать ManagerScene для обновления визуального состояния игры.
+            </li>
+        </ul>
+    </li>
+
+    <li>6. Игровая механика<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Добавить логику начала игры:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Инициализация положения змейки и еды.</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Реализовать завершение игры:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Отображение результата (например, длины змейки).</li>
+                <li><input disabled="" type="checkbox"> Перезапуск игры.</li>
+            </ul>
+        </ul>
+    </li>
+
+    <li>7. Базовые элементы игры<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Создать систему пешек (Pawn) для управления игровыми объектами.</li>
+            <li><input disabled="" type="checkbox"> Создать систему акторов (Actor) для взаимодействия объектов друг с
+                другом.</li>
+            <li><input disabled="" type="checkbox"> Добавить базовые классы для управления игровыми элементами.</li>
+        </ul>
+    </li>
+
+    <li>8. Система звуков<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Реализовать базовую систему звуков:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Добавить поддержку воспроизведения звуковых эффектов (например,
+                    звук съедения еды).</li>
+                <li><input disabled="" type="checkbox"> Добавить поддержку фоновой музыки.</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Использовать библиотеку OpenAL или аналогичную для реализации
+                звуков.</li>
+        </ul>
+    </li>
+
+    <li>9. Система эффектов<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Реализовать систему визуальных эффектов:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Добавить эффекты при съедении еды.</li>
+                <li><input disabled="" type="checkbox"> Добавить эффекты при завершении игры.</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Реализовать поддержку анимаций для игровых объектов.</li>
+        </ul>
+    </li>
+
+    <li>10. Тестирование<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Написать модульные тесты для SnakeManager:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Проверка движения змейки.</li>
+                <li><input disabled="" type="checkbox"> Проверка генерации еды.</li>
+                <li><input disabled="" type="checkbox"> Проверка столкновений.</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Провести интеграционное тестирование игрового цикла.</li>
+        </ul>
+    </li>
+
+    <li>11. Оптимизация<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Добавить многопоточность для обработки обновлений менеджеров (если
+                требуется).</li>
+            <li><input disabled="" type="checkbox"> Оптимизировать игровой цикл для обработки только измененных данных.
+            </li>
+        </ul>
+    </li>
+
+    <li>12. Дополнительные функции<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Реализовать сохранение рекордов.</li>
+            <li><input disabled="" type="checkbox"> Добавить настройки игры:</li>
+            <ul>
+                <li><input disabled="" type="checkbox"> Размер игрового поля.</li>
+                <li><input disabled="" type="checkbox"> Скорость змейки.</li>
+            </ul>
+            <li><input disabled="" type="checkbox"> Добавить звуковые эффекты с использованием OpenAL.</li>
+        </ul>
+    </li>
+
+    <li>13. Документация<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Обновить технический документ Doc/teh_doc.md с описанием игры
+                "Змейка".</li>
+            <li><input disabled="" type="checkbox"> Добавить инструкции по запуску игры в файл README.md.</li>
+        </ul>
+    </li>
+
+    <li>14. Завершение<br>
+        <ul>
+            <li><input disabled="" type="checkbox"> Провести финальное тестирование.</li>
+            <li><input disabled="" type="checkbox"> Слить ветку разработки в основную ветку.</li>
+            <li><input disabled="" type="checkbox"> Создать релиз игры.</li>
+        </ul>
+    </li>
+</ul>
