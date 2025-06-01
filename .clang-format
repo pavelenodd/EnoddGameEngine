@@ -1,0 +1,139 @@
+# .clang-format
+
+
+
+# Базовый стиль форматирования
+
+BasedOnStyle: Google  # Использовать стиль Google как основу; отдельные параметры обновлены (C++20, ColumnLimit 120 и др.)
+
+
+
+# ───────────────────────────────────────────────
+
+# Общие параметры
+
+ColumnLimit: 180          # Максимальная длина строки (ограничено для авто‑переноса)
+
+IndentWidth: 2            # Размер отступа в пробелах
+ContinuationIndentWidth: 4  # Размер отступа при переносе строк
+
+UseTab: Always            # Использовать табуляцию вместо пробелов
+
+PointerAlignment: Left    # Выравнивание указателей влево (*int)
+
+
+
+# ───────────────────────────────────────────────
+
+# Выравнивание / перенос
+
+AlignConsecutiveDeclarations: false    # Не выравнивать последовательные объявления
+
+AlignConsecutiveAssignments: false      # Выравнивать последовательные присваивания
+
+BinPackArguments: false                # Не группировать аргументы в одну строку
+
+BinPackParameters: false               # Не группировать параметры в одну строку
+
+BreakBeforeComma: false                # Не переносить запятые на новую строку
+
+AlignAfterOpenBracket: Align           # Выравнивать после открывающей скобки
+
+AllowAllArgumentsOnASingleLine: false  # Не разрешать все аргументы в одной строке
+
+AllowAllArgumentsOnNextLine: false     # Не разрешать все аргументы на следующей строке
+
+AllowAllParametersOfDeclarationOnNextLine: false  # Не разрешать все параметры на следующей строке
+
+AlignOperands: Align                   # Выравнивать операнды при переносе
+PenaltyBreakAssignment: 100            # Большой штраф за перенос после '='
+PenaltyBreakBeforeFirstCallParameter: 0  # Штраф за перенос перед первым параметром
+
+
+
+# ───────────────────────────────────────────────
+
+# include и препроцессор
+
+SortIncludes: true        # Сортировать #include директивы
+IncludeBlocks: Merge      # Объединять блоки #include
+
+
+
+# ───────────────────────────────────────────────
+
+# Разное
+
+AlignConsecutiveDeclarations: true # Выравнивать последовательные объявления
+IndentCaseLabels: true    # Отступ для меток case
+AllowShortFunctionsOnASingleLine: Empty  # Разрешать короткие функции в одну строку
+AllowShortIfStatementsOnASingleLine: true  # Разрешать короткие if в одну строку
+AllowShortLoopsOnASingleLine: true     # Разрешать короткие циклы в одну строку
+SpaceAfterCStyleCast: true             # Пробел после C-стиля приведения типов
+SpaceBeforeCpp11BracedList: true       # Пробел перед списком инициализации C++11
+SpaceBeforeCtorInitializerColon: true  # Пробел перед двоеточием в списке инициализации
+
+
+
+AccessModifierOffset: -1               # Отступ для модификаторов доступа
+BreakBeforeBraces: Attach              # Прикреплять фигурные скобки к предыдущей строке
+BreakBeforeElse: false                 # Не переносить else на новую строку
+AlwaysBreakAfterReturnType: None       # Не переносить после типа возврата
+AlwaysBreakTemplateDeclarations: true  # Всегда переносить объявления шаблонов
+MaxEmptyLinesToKeep: 1                 # Максимальное количество пустых строк
+
+
+
+# ───────────────────────────────────────────────
+
+# Лямбды
+
+AllowShortLambdasOnASingleLine: None   # Не разрешать короткие лямбды в одну строку
+
+LambdaBodyIndentation: OuterScope      # Отступ тела лямбды как внешней области
+
+BraceWrapping:
+
+  AfterLambdaIntroducer: false         # Не переносить после введения лямбды
+
+  BeforeLambdaBody: true               # Переносить перед телом лямбды
+
+  SplitEmptyFunction: true             # Разделять пустые функции
+
+
+
+# ───────────────────────────────────────────────
+
+# Язык и стандарт
+
+Language: Cpp           # Язык - C++
+
+Standard: c++20
+
+
+
+# ───────────────────────────────────────────────
+
+# Классы и структуры
+
+ClassDeclSpacing: true    # Добавлять пробелы между объявлениями классов
+
+ClassTypeDefinitions: true  # Добавлять пробелы между определениями классов
+
+
+
+# ───────────────────────────────────────────────
+
+# Пространства имен
+
+NamespaceIndentation: All  # Выравнивать все пространства имен
+
+
+
+# ───────────────────────────────────────────────
+
+
+
+# ───────────────────────────────────────────────
+
+# Проверка на ошибки

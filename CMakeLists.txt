@@ -10,10 +10,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
+# If using CMake, add this to your CMakeLists.txt to link the package:
+
+
+
+
+
 find_package(Vulkan REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
+find_package(nlohmann_json CONFIG REQUIRED)
 find_library(SFML sfml-Graphics sfml-Window sfml-System)
-find_package(nlohmann_json REQUIRED)
 
 FetchContent_Declare(
     bgfx
