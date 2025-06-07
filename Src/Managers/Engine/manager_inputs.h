@@ -3,7 +3,7 @@
 #include <SFML/Window.hpp>
 #include <optional>
 
-#include "../Tools/interface.h"
+#include "Engine/interface.h"
 #include "manager_base.h"
 
 namespace EDD::Managers {

@@ -1,7 +1,7 @@
 // Managers/manager.h
 #pragma once
-#include "../Tools/delegate.h"
-#include "../Tools/interface.h"
+#include "Engine/delegate.h"
+#include "Engine/interface.h"
 namespace EDD::Managers {
 /**
  * @brief Базовый класс менеджеров

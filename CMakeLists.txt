@@ -60,6 +60,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/Managers
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineError
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/Tools
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineData
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -82,24 +84,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 # --------------------------------------------------------------------
-# Post-build: копируем исполняемый файл в Engine/Libs
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory
-    ${CMAKE_SOURCE_DIR}/Engine/Libs
-    COMMAND ${CMAKE_COMMAND} -E copy
-    $<TARGET_FILE:${PROJECT_NAME}>
-    ${CMAKE_SOURCE_DIR}/Engine/Libs
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/build/Engine
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/build/Engine
+    
 )
 
-# Post-build: копируем всю папку Src/Settings в Engine/Settings
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/Src/Settings
-    ${CMAKE_SOURCE_DIR}/Engine/Settings
+    ${CMAKE_SOURCE_DIR}/build/Engine/Settings
 )
 
 # --------------------------------------------------------------------

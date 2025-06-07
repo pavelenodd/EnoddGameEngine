@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang='ru'>
+
+<head>
+    <meta charset='UTF-8'>
+    <title>TODO List - EnoddGameEngine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+        }
+
+        h2 {
+            margin-top: 1em;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin: 4px 0;
+        }
+
+        label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>EnoddGameEngine TODO List</h1>
+
+    <h2>Развитие ядра движка</h2>
+
+    <h3>Этап 1: Минимальный MVP ядра</h3>
+    <ul>
+        <li><label><input type='checkbox'> Инициализировать окно и рендерер с помощью SFML</label></li>
+        <li><label><input type='checkbox'> Реализовать базовый цикл рендеринга (clear / draw / display)</label></li>
+        <li><label><input type='checkbox'> Реализовать ядро ECS: сущности, компоненты, системы</label></li>
+        <li><label><input type='checkbox'> Добавить систему рендеринга спрайтов/примитивов</label></li>
+        <li><label><input type='checkbox'> Реализовать игровой цикл и базовую обработку событий SFML</label></li>
+        <li><label><input type='checkbox'> Тестовая сцена: движущийся объект для проверки</label></li>
+    </ul>
+
+    <h3>Этап 2: Система ввода</h3>
+    <ul>
+        <li><label><input type='checkbox'> Обработать клавиатуру и мышь через SFML</label></li>
+        <li><label><input type='checkbox'> Создать InputManager с абстракцией действий</label></li>
+        <li><label><input type='checkbox'> (Опционально) Добавить поддержку геймпада</label></li>
+        <li><label><input type='checkbox'> Добавить конфигурируемые клавиши управления</label></li>
+        <li><label><input type='checkbox'> Вывести отладочные сообщения для тестирования ввода</label></li>
+    </ul>
+
+    <h3>Этап 3: Аудиоподсистема</h3>
+    <ul>
+        <li><label><input type='checkbox'> Выбрать библиотеку аудио (SFML Audio / OpenAL)</label></li>
+        <li><label><input type='checkbox'> Реализовать AudioManager для загрузки и воспроизведения</label></li>
+        <li><label><input type='checkbox'> Добавить управление громкостью и выключение звука</label></li>
+        <li><label><input type='checkbox'> Тест: воспроизвести звук по событию</label></li>
+    </ul>
+
+    <h3>Этап 4: Физика и коллизии</h3>
+    <ul>
+        <li><label><input type='checkbox'> Выбрать библиотеку физики (Bullet / Box2D)</label></li>
+        <li><label><input type='checkbox'> Интегрировать физику в ECS (компонент Physics, система PhysicsSystem)</label>
+        </li>
+        <li><label><input type='checkbox'> Обрабатывать события коллизий</label></li>
+        <li><label><input type='checkbox'> Создать демо сцену для теста (падающий шарик)</label></li>
+    </ul>
+
+    <h3>Этап 5: Система UI</h3>
+    <ul>
+        <li><label><input type='checkbox'> Реализовать вывод текста и графических элементов UI</label></li>
+        <li><label><input type='checkbox'> Создать UISystem, рендерить поверх игрового мира</label></li>
+        <li><label><input type='checkbox'> Добавить базовые элементы интерфейса (счет, здоровье)</label></li>
+        <li><label><input type='checkbox'> Тест: вывести счет игры</label></li>
+    </ul>
+
+    <h3>Этап 6: Сериализация и ресурсы</h3>
+    <ul>
+        <li><label><input type='checkbox'> Реализовать ResourceManager с кэшированием</label></li>
+        <li><label><input type='checkbox'> Выбрать формат JSON/YAML для данных</label></li>
+        <li><label><input type='checkbox'> Реализовать сохранение/загрузка состояния игры</label></li>
+        <li><label><input type='checkbox'> Тест: сохранить и загрузить конфигурацию</label></li>
+    </ul>
+
+    <h3>Этап 7: Тестирование и отладка</h3>
+    <ul>
+        <li><label><input type='checkbox'> Создать unit-тесты для основных модулей</label></li>
+        <li><label><input type='checkbox'> Добавить регрессионное тестирование через мини-игры</label></li>
+        <li><label><input type='checkbox'> Профилирование производительности (FPS)</label></li>
+        <li><label><input type='checkbox'> Документировать архитектуру</label></li>
+        <li><label><input type='checkbox'> Реализовать отладочные визуализации</label></li>
+    </ul>
+
+    <h3>Этап 8: Логирование и диагностика</h3>
+    <ul>
+        <li><label><input type='checkbox'> Интегрировать Logger с уровнями логирования</label></li>
+        <li><label><input type='checkbox'> Логировать ключевые события (создание сущностей, коллизии)</label></li>
+        <li><label><input type='checkbox'> Добавить вывод FPS и статистики</label></li>
+        <li><label><input type='checkbox'> Тест: проверка логов при ошибках ресурсов</label></li>
+    </ul>
+
+    <h2>Учебные мини-игры</h2>
+
+    <h3>Игра «Змейка»</h3>
+    <ul>
+        <li><label><input type='checkbox'> Создать игровое поле 20x20</label></li>
+        <li><label><input type='checkbox'> Реализовать сущности змеи и еды</label></li>
+        <li><label><input type='checkbox'> Система движения змеи и обработка ввода</label></li>
+        <li><label><input type='checkbox'> Логика роста змеи при еде</label></li>
+        <li><label><input type='checkbox'> Проверка столкновений с границами и телом</label></li>
+        <li><label><input type='checkbox'> Отрисовка сегментов и еды</label></li>
+        <li><label><input type='checkbox'> Настроить дискретный таймер движения</label></li>
+        <li><label><input type='checkbox'> Тестирование и логирование</label></li>
+    </ul>
+
+    <h3>Tetris</h3>
+    <ul>
+        <li><label><input type='checkbox'> Реализовать сетку 10x20 и представление поля</label></li>
+        <li><label><input type='checkbox'> Добавить спрайты тетромино</label></li>
+        <li><label><input type='checkbox'> Логика падения, фиксации и создания фигур</label></li>
+        <li><label><input type='checkbox'> Управление фигурой (движение, вращение)</label></li>
+        <li><label><input type='checkbox'> Удаление линий, подсчет очков</label></li>
+        <li><label><input type='checkbox'> Воспроизвести звуки линий и фон</label></li>
+        <li><label><input type='checkbox'> Ускорение падения при удержании вниз</label></li>
+        <li><label><input type='checkbox'> (Опционально) Сериализация фигур в JSON</label></li>
+        <li><label><input type='checkbox'> Полное тестирование геймплея</label></li>
+    </ul>
+
+    <h3>2D-платформер</h3>
+    <ul>
+        <li><label><input type='checkbox'> Загрузка уровня из файла</label></li>
+        <li><label><input type='checkbox'> Создать персонажа с анимацией и физикой</label></li>
+        <li><label><input type='checkbox'> Реализовать гравитацию и столкновения с платформами</label></li>
+        <li><label><input type='checkbox'> Управление персонажем (ходьба, прыжок)</label></li>
+        <li><label><input type='checkbox'> Добавить врагов с простым AI</label></li>
+        <li><label><input type='checkbox'> Звуки прыжка, урона, фоновая музыка</label></li>
+        <li><label><input type='checkbox'> UI HUD: здоровье, очки, меню паузы</label></li>
+        <li><label><input type='checkbox'> Реализовать условия победы и поражения</label></li>
+        <li><label><input type='checkbox'> Полное тестирование и оптимизация</label></li>
+    </ul>
+
+    <h2>3D Подсистема</h2>
+
+    <h3>9-A: 3D рендер-ядро</h3>
+    <ul>
+        <li><label><input type='checkbox'> Абстрагировать слой рендеринга</label></li>
+        <li><label><input type='checkbox'> Создать Renderer3D (Vulkan/OpenGL)</label></li>
+        <li><label><input type='checkbox'> Написать базовые шейдеры</label></li>
+        <li><label><input type='checkbox'> Импортировать меши glTF</label></li>
+        <li><label><input type='checkbox'> ECS компоненты Mesh и Transform3D</label></li>
+    </ul>
+
+    <h3>9-B: Камера Top-Down ⇄ OTS</h3>
+    <ul>
+        <li><label><input type='checkbox'> Реализовать CameraSystem3D с режимами</label></li>
+        <li><label><input type='checkbox'> Настроить плавный LERP FOV и позиция</label></li>
+        <li><label><input type='checkbox'> Управление курсором при приближении</label></li>
+    </ul>
+
+    <h3>9-C: 3D физика</h3>
+    <ul>
+        <li><label><input type='checkbox'> Подключить Bullet 3D</label></li>
+        <li><label><input type='checkbox'> Создать компонент RigidBody3D</label></li>
+        <li><label><input type='checkbox'> Обработать события OnCollision3D</label></li>
+    </ul>
+
+    <h3>9-D: Освещение и материалы</h3>
+    <ul>
+        <li><label><input type='checkbox'> Directional light + ambient</label></li>
+        <li><label><input type='checkbox'> Модель материала Lambert</label></li>
+    </ul>
+
+    <h3>9-E: Контент-поток</h3>
+    <ul>
+        <li><label><input type='checkbox'> Скрипт конвертации glTF → cache</label></li>
+        <li><label><input type='checkbox'> Проверка количества треугольников

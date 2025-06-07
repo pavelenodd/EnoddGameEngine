@@ -7,10 +7,10 @@
 #include "EngineError/engine_logging.h"
 
 // managers
-#include "Managers/manager_inputs.h"
-#include "Managers/manager_physics.h"
-#include "Managers/manager_resourse.h"
-#include "Managers/manager_scene.h"
+#include "Managers/Engine/manager_inputs.h"
+#include "Managers/Engine/manager_physics.h"
+#include "Managers/Engine/manager_resourse.h"
+#include "Managers/Engine/manager_scene.h"
 namespace EDD {
 class GameLoop {
  public:
