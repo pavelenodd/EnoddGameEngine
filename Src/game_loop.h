@@ -30,7 +30,7 @@ class GameLoop {
   bool Init() {
     // инициализация менеджеров
     managers_.push_back(new Managers::Inputs());
-    managers_.push_back(new Managers::Physics());
+    managers_.push_back(new Managers::Entity());
     managers_.push_back(new Managers::Resourse());
     managers_.push_back(
         new Managers::Scene(Data::Viewport{"main", 800, 600},

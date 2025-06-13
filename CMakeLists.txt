@@ -84,21 +84,21 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 # --------------------------------------------------------------------
-add_custom_command( # переместить исполняемый файл в папку build/Engine
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/build/Engine
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/build/Engine
-    COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE:${PROJECT_NAME}>
-)
+# add_custom_command( # переместить исполняемый файл в папку build/Engine
+#     TARGET ${PROJECT_NAME}
+#     POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/build/Engine
+#     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/build/Engine
+#     COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE:${PROJECT_NAME}>
+# )
 
-add_custom_command( # копировать `Src/Settings` в папку build/Engine
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/Src/Settings
-    ${CMAKE_SOURCE_DIR}/build/Engine/Settings
-)
+# add_custom_command( # копировать `Src/Settings` в папку build/Engine
+#     TARGET ${PROJECT_NAME}
+#     POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#     ${CMAKE_SOURCE_DIR}/Src/Settings
+#     ${CMAKE_SOURCE_DIR}/build/Engine/Settings
+# )
 
 # --------------------------------------------------------------------
 include(CTest)

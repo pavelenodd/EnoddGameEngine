@@ -2,7 +2,12 @@
 
 #pragma once
 
+#include "ECS/component_pool.h"
+#include "ECS/entity_base.h"
+#include "ECS/entity_registr.h"
+//
 #include "manager_base.h"
+
 namespace EDD::Managers {
 
 /**
@@ -11,6 +16,8 @@ namespace EDD::Managers {
  */
 class Entity : public Managers::Base {
  private:
+  EDD::ECS::EntityRegistr entity_registr_;        ///< Регистратор сущностей
+  EDD::ECS::ComponentStorage component_storage_;  ///< Хранилище компонентов
  public:
   Entity() {}
   ~Entity() {}
@@ -22,4 +29,4 @@ class Entity : public Managers::Base {
   virtual void FreeResources() override {}
 };
 
-}  // namespace EDD
+}  // namespace EDD::Managers
