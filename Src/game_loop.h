@@ -12,14 +12,18 @@
 #include "Managers/Engine/manager_render.h"
 #include "Managers/Engine/manager_resourse.h"
 #include "Managers/Engine/manager_scene.h"
+#include "Managers/Engine/manager_settings.h"
+
 namespace EDD {
+  //
 class GameLoop {
  public:
   bool is_gameloop_enabled_ = false;        // флаг активности игрового цикла
   std::vector<Managers::Base *> managers_;  // спиок менеджеров
+  ManagerSettings *manager_settings_;       // менеджер настроек
 
  public:
-  GameLoop() {
+  explicit GameLoop() {
     if (!Init()) {
       std::cerr << "Error: game loop initialization failed" << std::endl;
       return;
@@ -27,8 +31,27 @@ class GameLoop {
   }
   ~GameLoop() {}
 
+  // Удаление конструкторов копирования, присваивания и перемещения
+  GameLoop(const GameLoop &) = delete;
+  GameLoop(GameLoop &&) = delete;
+  GameLoop &operator=(const GameLoop &) = delete;
+  GameLoop &operator=(GameLoop &&) = delete;
+
  private:
   bool Init() {
+    //
+    manager_settings_ = new ManagerSettings();
+    // INFO загрузка настроек движка
+    if (!manager_settings_) {
+      LOG::Fatal("manager_settings_ is null");
+      return false;
+      if (IsLoadViewportSettings() && IsLoadAudioSettings() &&
+          IsLoadGraphicsSettings() && IsLoadInputSettings()) {
+        LOG::Fatal("Failed to load settings");
+        return false;
+      }
+    }
+
     // инициализация менеджеров
     managers_.push_back(new Managers::Inputs());
     managers_.push_back(new Managers::Entity());
@@ -44,9 +67,15 @@ class GameLoop {
       return false;
     }
 
+    if (!manager_settings_) {
+      LOG::Fatal("manager_settings_ is null");
+      return false;
+    }
+
     for (auto &manager : managers_) {
       manager->Init();
     }
+
     // TODO ввести проверку на успешную инициализацию
     return true;
   }
@@ -54,10 +83,8 @@ class GameLoop {
     while (is_gameloop_enabled_) {
       // обновление всех менеджеров
 
-      /*
-      TODO пока однопоточное , потом сделать параллельное переходящее в
-       однопоточное , но обрабатывающее только изменённые данные
-      */
+      // TODO пока однопоточное , потом сделать параллельное переходящее в
+      // однопоточное , но обрабатывающее только изменённые данные
 
       for (auto &&manager : managers_) {
         manager->Update();
@@ -67,6 +94,31 @@ class GameLoop {
       manager->FreeResources();
     }
   }
+  // INFO методы для загрузки и сохранения настроек
+  bool IsLoadViewportSettings() {
+    return manager_settings_->LoadSettings("Init/viewport_settings.json");
+  }
+  bool IsSaveViewportSettings() {
+    return manager_settings_->SaveSettings("Init/viewport_settings.json");
+  }
+  bool IsLoadAudioSettings() {
+    return manager_settings_->LoadSettings("Init/audio_settings.json");
+  }
+  bool IsSaveAudioSettings() {
+    return manager_settings_->SaveSettings("Init/audio_settings.json");
+  }
+  bool IsLoadGraphicsSettings() {
+    return manager_settings_->LoadSettings("Init/graphics_settings.json");
+  }
+  bool IsSaveGraphicsSettings() {
+    return manager_settings_->SaveSettings("Init/graphics_settings.json");
+  }
+  bool IsLoadInputSettings() {
+    return manager_settings_->LoadSettings("Init/input_settings.json");
+  }
+  bool IsSaveInputSettings() {
+    return manager_settings_->SaveSettings("Init/input_settings.json");
+  }
 
  public:
   void StartLoop() {
@@ -74,5 +126,7 @@ class GameLoop {
     EngineLoop();
   }
   void StopLoop() { is_gameloop_enabled_ = false; }
+
+  void LoadSettings() {}
 };
 }  // namespace EDD

@@ -48,8 +48,12 @@ class ManagerSettings : public Managers::Base {
  public:
   ManagerSettings() {}
   ~ManagerSettings() {}
-  void LoadSettings(const std::string& file_path) {}
-  void SaveSettings(const std::string& file_path) {}
+  bool LoadSettings(const std::string& file_path) {}
+  bool SaveSettings(const std::string& file_path) {}
+
+  void Update() override {}
+  void Init() override {}
+  void FreeResources() override {}
 };
 
 }  // namespace EDD

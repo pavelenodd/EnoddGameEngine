@@ -11,11 +11,11 @@ namespace EDD::Managers {
 
 class Scene : public Managers::Base {
  private:
-  sf::RenderWindow* window_ = nullptr;
-  Data::Viewport viewport_data_;
-  bool* is_gameloop_enabled_;
-  const Tools::Interface<sf::Event>* event_provider_;
-  Inputs* input_manager_ = nullptr;
+  sf::RenderWindow* window_ = nullptr;  // Указатель на окно
+  Data::Viewport viewport_data_;        // Данные о вьюпорте
+  bool* is_gameloop_enabled_;  // Указатель на флаг активности игрового цикла
+  const Tools::Interface<sf::Event>* event_provider_;  // Обработчик событий
+  Inputs* input_manager_ = nullptr;  // Указатель на менеджер ввода
 
  public:
   /**
@@ -42,12 +42,11 @@ class Scene : public Managers::Base {
    *
    */
   void Update() override {
-    // Проверяем, что окно существует
     if (!window_ || !window_->isOpen()) {
       return;
     }
 
-    // Обработка событий ввода
+    // INFO Обработка событий ввода
     // TODO Обработка событий ввода надо сделать через интерфейс
     if (auto event = event_provider_->Send()) {
       if (event->type == sf::Event::Closed) {
@@ -80,9 +79,9 @@ class Scene : public Managers::Base {
   }
 
   bool CreateScene() {
-    window_ =
-        new sf::RenderWindow(sf::VideoMode(viewport_data_.w, viewport_data_.h),
+    window_ = new sf::RenderWindow(sf::VideoMode(viewport_data_.w, viewport_data_.h),
                              viewport_data_.viewport_name, sf::Style::Default);
+                             
     if (!window_ || !window_->isOpen()) {
       return false;
     }
