@@ -9,6 +9,7 @@
 // managers
 #include "Managers/Engine/manager_inputs.h"
 #include "Managers/Engine/manager_physics.h"
+#include "Managers/Engine/manager_render.h"
 #include "Managers/Engine/manager_resourse.h"
 #include "Managers/Engine/manager_scene.h"
 namespace EDD {
@@ -32,6 +33,7 @@ class GameLoop {
     managers_.push_back(new Managers::Inputs());
     managers_.push_back(new Managers::Entity());
     managers_.push_back(new Managers::Resourse());
+    managers_.push_back(new Managers::ManagerRender());
     managers_.push_back(
         new Managers::Scene(Data::Viewport{"main", 800, 600},
                             dynamic_cast<Managers::Inputs *>(managers_[0]),  //

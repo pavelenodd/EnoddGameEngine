@@ -25,5 +25,7 @@ class Base {
    * @brief Освобождение ресурсов
    */
   virtual void FreeResources() = 0;
+
+  virtual ~Base() {};
 };
 }  // namespace EDD::Managers

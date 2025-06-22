@@ -1,4 +1,5 @@
 #pragma once
+// менеджер созданя сцены и управлении окнами
 #include <SFML/Graphics.hpp>
 #include <string>
 
@@ -17,6 +18,13 @@ class Scene : public Managers::Base {
   Inputs* input_manager_ = nullptr;
 
  public:
+  /**
+   * @brief Construct a new Scene object
+   *
+   * @param viewport_data // Настройки окна
+   * @param event_provider // обработчик событий
+   * @param is_gameloop_enabled // указатель на флаг, игрового цикла
+   */
   Scene(Data::Viewport viewport_data,
         const Tools::Interface<sf::Event>* event_provider,
         bool* is_gameloop_enabled)
@@ -29,6 +37,10 @@ class Scene : public Managers::Base {
 
   ~Scene() { FreeResources(); }
 
+  /**
+   * @brief Update the scene
+   *
+   */
   void Update() override {
     // Проверяем, что окно существует
     if (!window_ || !window_->isOpen()) {
@@ -36,6 +48,7 @@ class Scene : public Managers::Base {
     }
 
     // Обработка событий ввода
+    // TODO Обработка событий ввода надо сделать через интерфейс
     if (auto event = event_provider_->Send()) {
       if (event->type == sf::Event::Closed) {
         *is_gameloop_enabled_ = false;
@@ -47,7 +60,7 @@ class Scene : public Managers::Base {
     }
 
     window_->clear(sf::Color::Black);
-    // TODO: отрисовка объектов сцены
+    // INFO : отрисовка объектов сцены
     window_->display();
   }
 
