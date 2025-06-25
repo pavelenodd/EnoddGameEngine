@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 3.30.0 FATAL_ERROR)
 
-include(FetchContent)
-
 set(PROJECT_NAME EnoddGameEngine)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/Engine)
 
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
 find_package(Vulkan REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(entt REQUIRED)
 find_library(SFML sfml-Graphics sfml-Window sfml-System)
 
 add_executable(${PROJECT_NAME}
@@ -26,7 +26,7 @@ add_executable(${PROJECT_NAME}
 
     Src/Managers/Engine/manager_physics.h
 
-    Src/Managers/Engine/manager_resourse.h
+    Src/Managers/Engine/manager_resource.h
     Src/Managers/Engine/Items/audio.h
     Src/Managers/Engine/Items/font.h
     Src/Managers/Engine/Items/model.h
@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME}
 
     Src/Managers/Engine/manager_scene.h
     Src/Managers/Engine/manager_render.h
+    Src/Managers/Engine/manager_entity.h
 
     # EngineLogging
     Src/EngineError/engine_error.h
@@ -69,25 +70,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::filesystem
 
     nlohmann_json::nlohmann_json
-)
 
-# --------------------------------------------------------------------
-add_custom_command( # переместить исполняемый файл в папку build/Engine
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/build/Engine
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/build/Engine
-    COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE:${PROJECT_NAME}>
+    EnTT::EnTT
 )
-
+# === Копирование файлов в папку build/Engine ================================
 add_custom_command( # копировать `Src/Settings` в папку build/Engine
     TARGET ${PROJECT_NAME}
     POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/build/Engine/Settings
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/Src/Settings
     ${CMAKE_SOURCE_DIR}/build/Engine/Settings
 )
 
-# --------------------------------------------------------------------
-include(CTest)
-enable_testing()

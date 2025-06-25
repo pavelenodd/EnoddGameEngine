@@ -48,8 +48,8 @@ class ManagerSettings : public Managers::Base {
  public:
   ManagerSettings() {}
   ~ManagerSettings() {}
-  bool LoadSettings(const std::string& file_path) {}
-  bool SaveSettings(const std::string& file_path) {}
+  bool LoadSettings(const std::string& file_path) {return true;}
+  bool SaveSettings(const std::string& file_path) {return true;}
 
   void Update() override {}
   void Init() override {}

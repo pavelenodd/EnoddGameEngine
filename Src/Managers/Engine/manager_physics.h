@@ -9,11 +9,11 @@ namespace EDD::Managers {
  * @brief Менеджер отвечающий за обработку физики
  *
  */
-class Entity : public Managers::Base {
+class Physics : public Managers::Base {
  private:
  public:
-  Entity() {}
-  ~Entity() {}
+  Physics() {}
+  ~Physics() {}
 
  public:
   virtual void Update() override {}

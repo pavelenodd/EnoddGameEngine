@@ -28,9 +28,10 @@ struct TrackedResource {
 };
 
 /**
- * @brief Менеджер отвечающий за обработку ресурсов (текстуры , аудио, локальные файлы, ...)
+ * @brief Менеджер отвечающий за обработку ресурсов (текстуры , аудио, локальные
+ * файлы, ...)
  */
-class Resourse : public Managers::Base {
+class Resource : public Managers::Base {
  public:
  private:
   std::string resourse_path_;
@@ -55,8 +56,8 @@ class Resourse : public Managers::Base {
   std::map<std::string, TrackedResource<Model>> hot_Models_;
 
  public:
-  Resourse() {}
-  ~Resourse() {}
+  Resource() {}
+  ~Resource() {}
   virtual void Update() override {}
 
   /**
