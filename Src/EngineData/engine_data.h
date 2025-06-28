@@ -12,4 +12,5 @@ struct Viewport {
   int w;                      // ширина
   int h;                      // высота
 };
+
 }  // namespace EDD::Data

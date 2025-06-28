@@ -1,7 +1,11 @@
 #pragma once
 // Менеджер рендера игровых объектов в сцене
+#include <SFML/Graphics.hpp>
+#include <vector>
+
 #include "Engine/delegate.h"
 #include "Engine/interface.h"
+#include "EngineData/engine_entity.h"
 //
 
 #include "manager_base.h"
@@ -9,16 +13,25 @@ namespace EDD::Managers {
 
 class ManagerRender : public Managers::Base {
  private:
-  /* data */
+  sf::RenderWindow* window_ = nullptr;
+
  public:
-  ManagerRender() { Init(); }
-  ~ManagerRender() { FreeResources(); }
+  ManagerRender() {
+    Init();
+  }
+  ~ManagerRender() {
+    FreeResources();
+  }
 
   /**
-   * @brief Обновление менеджера (в тике)
+   * @brief Обновление рендера (в тике)
    *
    */
-  virtual void Update() override {};
+  virtual void Update() override {
+    if (!window_) {
+      return;
+    }
+  };
 
   /**
    * @brief Инициализация менеджера (При старте)
@@ -28,6 +41,15 @@ class ManagerRender : public Managers::Base {
   /**
    * @brief Освобождение ресурсов
    */
-  virtual void FreeResources() override {};
+  virtual void FreeResources() override {
+
+  };
+
+  /**
+   * @brief Установка окна для рендеринга
+   */
+  void SetWindow(sf::RenderWindow* window) {
+    window_ = window;
+  }
 };
 }  // namespace EDD::Managers

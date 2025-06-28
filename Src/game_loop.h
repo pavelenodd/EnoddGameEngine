@@ -1,6 +1,8 @@
 // game_loop.h
 #pragma once
 #include <iostream>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "EngineData/engine_data.h"
@@ -15,13 +17,18 @@
 #include "Managers/Engine/manager_settings.h"
 #include "Managers/Engine/manager_entity.h"
 
+// test
+#include "sfml/Graphics.hpp"
+
 namespace EDD {
   //
 class GameLoop {
  public:
   bool is_gameloop_enabled_ = false;        // флаг активности игрового цикла
-  std::vector<Managers::Base *> managers_;  // спиок менеджеров
-  ManagerSettings *manager_settings_;       // менеджер настроек
+  std::unordered_map<std::string, Managers::Base *>
+      managers_;  // спиок менеджеров
+
+  ManagerSettings *manager_settings_;  // менеджер настроек
 
  public:
   explicit GameLoop() {
@@ -54,28 +61,33 @@ class GameLoop {
     }
 
     // инициализация менеджеров
-    managers_.push_back(new Managers::Inputs());
-    managers_.push_back(new Managers::Entity());
-    managers_.push_back(new Managers::Resource());
-    managers_.push_back(new Managers::Physics());
-    managers_.push_back(new Managers::ManagerRender());
-    managers_.push_back(
-        new Managers::Scene(Data::Viewport{"main", 800, 600},
-                            dynamic_cast<Managers::Inputs *>(managers_[0]),  //
-                            &is_gameloop_enabled_));
+    managers_.emplace("inputs", new Managers::Inputs());
+    managers_.emplace("entity", new Managers::Entity());
+    managers_.emplace("resource", new Managers::Resource());
+    managers_.emplace("physics", new Managers::Physics());
+    managers_.emplace("render", new Managers::ManagerRender());
+    managers_.emplace(
+        "scene", new Managers::Scene(
+                     Data::Viewport{"main", 800, 600},
+                     static_cast<Managers::Inputs *>(managers_["inputs"]),  //
+                     &is_gameloop_enabled_));
+
+    // Связывание менеджеров
+    static_cast<Managers::Scene *>(managers_["scene"])
+        ->SetRenderManager(static_cast<Managers::ManagerRender *>(managers_["render"]));
 
     if (managers_.empty()) {
       LOG::Fatal("managers list is empty");
       return false;
     }
-
+    
     if (!manager_settings_) {
       LOG::Fatal("manager_settings_ is null");
       return false;
     }
 
     for (auto &manager : managers_) {
-      manager->Init();
+      manager.second->Init();
     }
 
     // TODO ввести проверку на успешную инициализацию
@@ -89,11 +101,11 @@ class GameLoop {
       // однопоточное , но обрабатывающее только изменённые данные
 
       for (auto &&manager : managers_) {
-        manager->Update();
+        manager.second->Update();
       }
     }
     for (auto &manager : managers_) {
-      manager->FreeResources();
+      manager.second->FreeResources();
     }
   }
   // INFO методы для загрузки и сохранения настроек

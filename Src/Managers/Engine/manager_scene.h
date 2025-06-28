@@ -6,6 +6,7 @@
 #include "../EngineData/engine_data.h"
 #include "manager_base.h"
 #include "manager_inputs.h"
+#include "manager_render.h"
 
 namespace EDD::Managers {
 
@@ -16,6 +17,7 @@ class Scene : public Managers::Base {
   bool* is_gameloop_enabled_;  // Указатель на флаг активности игрового цикла
   const Tools::Interface<sf::Event>* event_provider_;  // Обработчик событий
   Inputs* input_manager_ = nullptr;  // Указатель на менеджер ввода
+  ManagerRender* render_manager_ = nullptr;  // Указатель на менеджер рендера
 
  public:
   /**
@@ -59,14 +61,32 @@ class Scene : public Managers::Base {
     }
 
     window_->clear(sf::Color::Black);
-    // INFO : отрисовка объектов сцены
+
+    // Рендеринг объектов через менеджер рендера
+    if (render_manager_) {
+      render_manager_->Update();
+    }
+
     window_->display();
+  }
+
+  /**
+   * @brief Установка менеджера рендера
+   */
+  void SetRenderManager(ManagerRender* render_manager) {
+    render_manager_ = render_manager;
+    if (render_manager_ && window_) {
+      render_manager_->SetWindow(window_);
+    }
   }
 
  private:
   void Init() override {
     if (CreateScene() && input_manager_) {
       input_manager_->SetWindow(window_);
+      if (render_manager_) {
+        render_manager_->SetWindow(window_);
+      }
     }
   }
 

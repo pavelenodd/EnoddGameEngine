@@ -1,0 +1,93 @@
+---
+Language: Cpp
+BasedOnStyle: Google  # Базовый стиль форматирования
+AccessModifierOffset: -1  # Смещение модификаторов доступа (public:, private:)
+AlignAfterOpenBracket: Align  # Выравнивание параметров после открывающей скобки
+AlignConsecutiveAssignments: false  # Не выравнивать последовательные присваивания
+AlignConsecutiveDeclarations: false  # Не выравнивать последовательные объявления
+AlignEscapedNewlines: Left  # Выравнивание escaped символов новой строки по левому краю
+AlignOperands: true  # Выравнивать операнды бинарных операций
+AlignTrailingComments: true  # Выравнивать комментарии в конце строк
+AllowAllParametersOfDeclarationOnNextLine: false  # Запретить все параметры на следующей строке
+AllowShortBlocksOnASingleLine: false  # Не разрешать короткие блоки на одной строке
+AllowShortCaseLabelsOnASingleLine: false  # Не разрешать короткие case на одной строке
+AllowShortFunctionsOnASingleLine: Empty  # Разрешать только пустые функции на одной строке
+AllowShortIfStatementsOnASingleLine: false  # Не разрешать короткие if на одной строке
+AllowShortLoopsOnASingleLine: false  # Не разрешать короткие циклы на одной строке
+AlwaysBreakAfterDefinitionReturnType: None  # Никогда не переносить тип возвращаемого значения
+AlwaysBreakAfterReturnType: None  # Никогда не переносить тип возвращаемого значения в объявлениях
+AlwaysBreakBeforeMultilineStrings: true  # Всегда переносить многострочные строки
+AlwaysBreakTemplateDeclarations: true  # Всегда переносить объявления шаблонов
+BinPackArguments: true  # Включить упаковку аргументов для ускорения
+BinPackParameters: true  # Включить упаковку параметров для ускорения
+BraceWrapping:  # Настройки переноса фигурных скобок
+  AfterClass: false  # Не переносить скобки после class
+  AfterControlStatement: false  # Не переносить скобки после управляющих конструкций
+  AfterEnum: false  # Не переносить скобки после enum
+  AfterFunction: false  # Не переносить скобки после функций
+  AfterNamespace: false  # Не переносить скобки после namespace
+  AfterObjCDeclaration: false  # Не переносить скобки после Objective-C объявлений
+  AfterStruct: false  # Не переносить скобки после struct
+  AfterUnion: false  # Не переносить скобки после union
+  BeforeCatch: false  # Не переносить скобки перед catch
+  BeforeElse: false  # Не переносить скобки перед else
+  IndentBraces: false  # Не делать отступ для скобок
+BreakBeforeBinaryOperators: None  # Не переносить бинарные операторы
+BreakBeforeBraces: Attach  # Прикреплять скобки к предыдущей строке
+BreakBeforeTernaryOperators: true  # Переносить тернарные операторы
+BreakConstructorInitializersBeforeComma: false  # Не переносить инициализаторы конструктора перед запятой
+BreakConstructorInitializers: BeforeComma  # Переносить инициализаторы конструктора перед запятой
+BreakAfterJavaFieldAnnotations: false  # Не переносить Java аннотации полей
+BreakStringLiterals: true  # Переносить строковые литералы
+ColumnLimit: 120  # Уменьшить лимит для ускорения обработки
+CommentPragmas: '^ IWYU pragma:'  # Регулярное выражение для pragma комментариев
+ConstructorInitializerAllOnOneLineOrOnePerLine: false  # Каждый инициализатор на отдельной строке
+ConstructorInitializerIndentWidth: 4  # Отступ для инициализаторов конструктора
+ContinuationIndentWidth: 4  # Отступ для продолжения строк
+Cpp11BracedListStyle: true  # Использовать C++11 стиль для списков в фигурных скобках
+DerivePointerAlignment: true  # Автоматически определять выравнивание указателей
+DisableFormat: false  # Не отключать форматирование
+ExperimentalAutoDetectBinPacking: true  # Включить автоопределение для ускорения
+ForEachMacros: [ foreach, Q_FOREACH, BOOST_FOREACH ]  # Макросы для циклов foreach
+IncludeCategories:  # Категории для сортировки include
+  - Regex: '^<.*\.h>'  # C заголовки
+    Priority: 1
+  - Regex: '^<.*'  # Системные заголовки
+    Priority: 2
+  - Regex: '.*'  # Пользовательские заголовки
+    Priority: 3
+IncludeIsMainRegex: '([-_](test|unittest))?$'  # Регекс для определения главного файла
+IndentCaseLabels: true  # Делать отступ для case labels
+IndentWidth: 2  # Ширина отступа в пробелах
+IndentWrappedFunctionNames: false  # Не делать отступ для перенесенных имен функций
+KeepEmptyLinesAtTheStartOfBlocks: false  # Не сохранять пустые строки в начале блоков
+MacroBlockBegin: ''  # Начальный макрос блока
+MacroBlockEnd: ''  # Конечный макрос блока
+MaxEmptyLinesToKeep: 1  # Максимальное количество пустых строк подряд
+NamespaceIndentation: None  # Не делать отступ для namespace
+ObjCBlockIndentWidth: 2  # Ширина отступа для Objective-C блоков
+ObjCSpaceAfterProperty: false  # Не добавлять пробел после @property
+ObjCSpaceBeforeProtocolList: false  # Не добавлять пробел перед списком протоколов
+PenaltyBreakBeforeFirstCallParameter: 100  # Уменьшить сложность вычислений
+PenaltyBreakComment: 300  # Штраф за перенос комментария
+PenaltyBreakFirstLessLess: 120  # Штраф за перенос первого оператора <<
+PenaltyBreakString: 1000  # Штраф за перенос строки
+PenaltyExcessCharacter: 1000  # Упростить штрафы
+PenaltyReturnTypeOnItsOwnLine: 200  # Штраф за возвращаемый тип на отдельной строке
+PointerAlignment: Left  # Выравнивание звездочки указателя по левому краю (int* ptr)
+ReflowComments: false  # Отключить переформатирование комментариев для ускорения
+SortIncludes: false  # Отключить сортировку include для ускорения
+SpaceAfterCStyleCast: false  # Не добавлять пробел после C-style каста
+SpaceAfterTemplateKeyword: true  # Добавлять пробел после ключевого слова template
+SpaceBeforeAssignmentOperators: true  # Добавлять пробел перед операторами присваивания
+SpaceBeforeParens: ControlStatements  # Пробел перед скобками только в управляющих конструкциях
+SpaceInEmptyParentheses: false  # Не добавлять пробел в пустых скобках
+SpacesBeforeTrailingComments: 2  # Количество пробелов перед комментарием в конце строки
+SpacesInAngles: false  # Не добавлять пробелы в угловых скобках <template>
+SpacesInContainerLiterals: true  # Добавлять пробелы в литералах контейнеров
+SpacesInCStyleCastParentheses: false  # Не добавлять пробелы в скобках C-style каста
+SpacesInParentheses: false  # Не добавлять пробелы в обычных скобках
+SpacesInSquareBrackets: false  # Не добавлять пробелы в квадратных скобках
+Standard: Auto  # Автоматически определять стандарт C++
+TabWidth: 8  # Ширина табуляции в пробелах
+UseTab: Never  # Никогда не использовать табуляцию, только пробелы
