@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "Entity/primitive.h"
+#include "Entity/coord.h"
 
 namespace EDD {
 namespace Entity {

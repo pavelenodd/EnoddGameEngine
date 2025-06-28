@@ -1,10 +1,13 @@
 // game_loop.h
 #pragma once
+#include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
-
+#include <memory>
+//
 #include "EngineData/engine_data.h"
 #include "EngineError/engine_logging.h"
 
@@ -61,18 +64,20 @@ class GameLoop {
     }
 
     // инициализация менеджеров
+    // TODO переписать на unique_ptr
     managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("entity", new Managers::Entity());
     managers_.emplace("resource", new Managers::Resource());
     managers_.emplace("physics", new Managers::Physics());
     managers_.emplace("render", new Managers::ManagerRender());
-    managers_.emplace(
-        "scene", new Managers::Scene(
-                     Data::Viewport{"main", 800, 600},
-                     static_cast<Managers::Inputs *>(managers_["inputs"]),  //
-                     &is_gameloop_enabled_));
+    managers_.emplace("scene",
+                      new Managers::Scene(Data::Viewport{"main", 800, 600},
+                                          static_cast<Managers::Inputs *>(managers_["inputs"]),  //
+                                          &is_gameloop_enabled_));
 
     // Связывание менеджеров
+    static_cast<Managers::Scene *>(managers_["scene"])
+        ->SetEntityManager(static_cast<Managers::Entity *>(managers_["entity"]));
     static_cast<Managers::Scene *>(managers_["scene"])
         ->SetRenderManager(static_cast<Managers::ManagerRender *>(managers_["render"]));
 
@@ -90,22 +95,58 @@ class GameLoop {
       manager.second->Init();
     }
 
+    // Создаем тестовую сущность с координатами
+    CreateTestEntities();
+
     // TODO ввести проверку на успешную инициализацию
     return true;
   }
-  void EngineLoop() {
-    while (is_gameloop_enabled_) {
-      // обновление всех менеджеров
 
-      // TODO пока однопоточное , потом сделать параллельное переходящее в
-      // однопоточное , но обрабатывающее только изменённые данные
+  /**
+   * @brief Создание тестовых сущностей для проверки рендеринга
+   */
+  void CreateTestEntities() {
+    auto *entity_manager = static_cast<Managers::Entity *>(managers_["entity"]);
+    if (entity_manager) {
+      // Создаем несколько тестовых точек в разных местах экрана
+      entity_manager->CreateEntityWithCoord("test_point_1", 100.0f, 100.0f, 0.0f);
+      entity_manager->CreateEntityWithCoord("test_point_2", 200.0f, 150.0f, 0.0f);
+      entity_manager->CreateEntityWithCoord("test_point_3", 300.0f, 200.0f, 0.0f);
 
-      for (auto &&manager : managers_) {
-        manager.second->Update();
-      }
+      // Создаем точку с другим цветом
+      auto test_entity = entity_manager->CreateEntity("test_point_blue");
+      entity_manager->AddComponent<Coord>(test_entity, 150.0f, 250.0f, 0.0f, 0, 0, 255, 255);
+
+      LOG::Info("Created test entities with coordinates");
     }
+  }
+  // !FIX исправить баг с двойным вызовом метода Update у ManagerRender из за связывания с Managers::Entity
+  // TODO сделать вывод отладки у менеджеров для проверки работы
+  void EngineLoop() {
+    const float target_fps = 60.0f;
+    const float frame_time = 1.0f / target_fps;
+    auto last_time = std::chrono::high_resolution_clock::now();
+
+    while (is_gameloop_enabled_) {
+      auto current_time = std::chrono::high_resolution_clock::now();
+      auto elapsed = std::chrono::duration<float>(current_time - last_time).count();
+
+      if (elapsed >= frame_time) {
+        // обновление всех менеджеров
+        for (auto &&manager : managers_) {
+          manager.second->Update();
+        }
+
+        last_time = current_time;
+      }
+
+      // небольшая пауза чтобы не загружать CPU
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
+    }
+
     for (auto &manager : managers_) {
       manager.second->FreeResources();
+      delete manager.second;  // Освобождаем память
     }
   }
   // INFO методы для загрузки и сохранения настроек
@@ -140,7 +181,5 @@ class GameLoop {
     EngineLoop();
   }
   void StopLoop() { is_gameloop_enabled_ = false; }
-
-  void LoadSettings() {}
 };
 }  // namespace EDD

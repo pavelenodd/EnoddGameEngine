@@ -1,6 +1,7 @@
 #pragma once
 // менеджер созданя сцены и управлении окнами
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include <string>
 
 #include "../EngineData/engine_data.h"
@@ -18,6 +19,7 @@ class Scene : public Managers::Base {
   const Tools::Interface<sf::Event>* event_provider_;  // Обработчик событий
   Inputs* input_manager_ = nullptr;  // Указатель на менеджер ввода
   ManagerRender* render_manager_ = nullptr;  // Указатель на менеджер рендера
+  Entity* entity_manager_ = nullptr;         // Указатель на менеджер сущностей
 
  public:
   /**
@@ -71,12 +73,25 @@ class Scene : public Managers::Base {
   }
 
   /**
+   * @brief Установка менеджера сущностей
+   */
+  void SetEntityManager(Entity* entity_manager) {
+    entity_manager_ = entity_manager;
+    if (render_manager_) {
+      render_manager_->SetEntityManager(entity_manager_);
+    }
+  }
+
+  /**
    * @brief Установка менеджера рендера
    */
   void SetRenderManager(ManagerRender* render_manager) {
     render_manager_ = render_manager;
     if (render_manager_ && window_) {
       render_manager_->SetWindow(window_);
+    }
+    if (render_manager_ && entity_manager_) {
+      render_manager_->SetEntityManager(entity_manager_);
     }
   }
 
@@ -86,6 +101,9 @@ class Scene : public Managers::Base {
       input_manager_->SetWindow(window_);
       if (render_manager_) {
         render_manager_->SetWindow(window_);
+        if (entity_manager_) {
+          render_manager_->SetEntityManager(entity_manager_);
+        }
       }
     }
   }

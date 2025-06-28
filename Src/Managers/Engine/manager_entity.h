@@ -2,11 +2,13 @@
 
 #pragma once
 
+#include <algorithm>
 #include <entt/entt.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
+#include "../../EngineData/Entity/coord.h"
 #include "manager_base.h"
 
 namespace EDD::Managers {
@@ -91,7 +93,7 @@ class Entity : public Base {
    * @param name Имя сущности
    * @return Идентификатор сущности или entt::null если не найдена
    */
-  entt::entity FindEntity(const std::string& name) const {
+  entt::entity GetEntityByName(const std::string& name) const {
     auto it = named_entities_.find(name);
     return (it != named_entities_.end()) ? it->second : entt::null;
   }
@@ -233,6 +235,38 @@ class Entity : public Base {
   void ForEach(Func&& func) {
     auto view = registry_.view<Components...>();
     view.each(std::forward<Func>(func));
+  }
+  // ! TEST
+  /**
+   * @brief Создать именованную сущность с компонентом координат
+   * @param name Имя сущности
+   * @param x X координата
+   * @param y Y координата
+   * @param z Z координата (по умолчанию 0)
+   * @return Идентификатор созданной сущности
+   */
+  entt::entity CreateEntityWithCoord(const std::string& name, float x, float y, float z = 0) {
+    auto entity = CreateEntity(name);
+    AddComponent<Coord>(entity, x, y, z);
+    return entity;
+  }
+
+  /**
+   * @brief Получить все сущности с компонентом координат для рендеринга
+   * @return Представление сущностей с координатами
+   */
+  auto GetRenderableEntities() {
+    return GetView<Coord>();
+  }
+
+  /**
+   * @brief Выполнить функцию для каждой сущности с координатами
+   * @tparam Func Тип функции
+   * @param func Функция для выполнения (принимает entt::entity и Coord&)
+   */
+  template <typename Func>
+  void ForEachCoordEntity(Func&& func) {
+    ForEach<Coord>(std::forward<Func>(func));
   }
 
   // ================================================================
