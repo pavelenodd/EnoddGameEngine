@@ -7,6 +7,10 @@
 #include "manager_base.h"
 
 namespace EDD::Managers {
+/*
+  Менеджер ввода отвечает за обработку событий ввода от пользователя.
+  все события, которые он принимает передаётся в интерфейс Tools::Interface<sf::Event>.
+  */
 class Inputs : public Base, public Tools::Interface<sf::Event> {
  private:
   sf::Event event_;
@@ -14,7 +18,18 @@ class Inputs : public Base, public Tools::Interface<sf::Event> {
   sf::RenderWindow* window_ = nullptr;  
 
  public:
-  // Метод для установки указателя на окно
+  Inputs(sf::RenderWindow* window = nullptr)
+      : window_(window) {
+    Init();
+  }
+  ~Inputs() {
+    FreeResources();
+  }
+
+  /**
+   * @brief Установить окно для обработки событий
+   * @param window Указатель на окно SFML
+   */
   void SetWindow(sf::RenderWindow* window) {
     window_ = window;
   }

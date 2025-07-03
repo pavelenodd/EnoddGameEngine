@@ -12,7 +12,11 @@ enum SettingsType {
   AUDIO_SETTINGS = 1,
   GRAPHICS_SETTINGS = 2
 };
-
+/*
+  Менеджер настроек отвечает за загрузку и сохранение настроек игры.
+      Он может загружать настройки из файла JSON и сохранять их обратно в файл.
+      Настройки могут включать параметры окна, аудио и графики.
+*/
 class ManagerSettings : public Managers::Base {
  private:
   nlohmann::json settings_;
@@ -46,13 +50,25 @@ class ManagerSettings : public Managers::Base {
   }
 
  public:
-  ManagerSettings() {}
-  ~ManagerSettings() {}
+  explicit ManagerSettings() {}
+
+  ~ManagerSettings() {
+    FreeResources();
+    LOG::Debug("ManagerSettings destroyed");
+  }
+  // Удаление конструкторов копирования, присваивания и перемещения
+  ManagerSettings(const ManagerSettings&) = delete;
+  ManagerSettings(ManagerSettings&&) = delete;
+  ManagerSettings& operator=(const ManagerSettings&) = delete;
+  ManagerSettings& operator=(ManagerSettings&&) = delete;
+
   bool LoadSettings(const std::string& file_path) {return true;}
   bool SaveSettings(const std::string& file_path) {return true;}
 
   void Update() override {}
-  void Init() override {}
+  void Init() override {
+    LOG::Debug("ManagerSettings initialized");
+  }
   void FreeResources() override {}
 };
 

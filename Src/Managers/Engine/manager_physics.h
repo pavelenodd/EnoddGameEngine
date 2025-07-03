@@ -6,7 +6,7 @@
 namespace EDD::Managers {
 
 /**
- * @brief Менеджер отвечающий за обработку физики
+ * @brief Менеджер отвечающий за обработку физических взаимодействий в игре.
  *
  */
 class Physics : public Managers::Base {

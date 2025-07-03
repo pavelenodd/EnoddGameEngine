@@ -2,41 +2,39 @@
 #pragma once
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <thread>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 //
 #include "EngineData/engine_data.h"
 #include "EngineError/engine_logging.h"
 
 // managers
+#include "Managers/Engine/manager_entity.h"
 #include "Managers/Engine/manager_inputs.h"
 #include "Managers/Engine/manager_physics.h"
 #include "Managers/Engine/manager_render.h"
 #include "Managers/Engine/manager_resource.h"
 #include "Managers/Engine/manager_scene.h"
 #include "Managers/Engine/manager_settings.h"
-#include "Managers/Engine/manager_entity.h"
 
 // test
 #include "sfml/Graphics.hpp"
 
 namespace EDD {
-  //
+//
 class GameLoop {
  public:
-  bool is_gameloop_enabled_ = false;        // флаг активности игрового цикла
-  std::unordered_map<std::string, Managers::Base *>
-      managers_;  // спиок менеджеров
-
-  ManagerSettings *manager_settings_;  // менеджер настроек
+  bool is_gameloop_enabled_ = false;                            // флаг активности игрового цикла
+  std::unordered_map<std::string, Managers::Base *> managers_;  // спиок менеджеров
+  ManagerSettings *manager_settings_;                           // менеджер настроек
 
  public:
   explicit GameLoop() {
     if (!Init()) {
-      std::cerr << "Error: game loop initialization failed" << std::endl;
+      LOG::Fatal("game loop initialization failed");
       return;
     }
   }
@@ -56,8 +54,7 @@ class GameLoop {
     if (!manager_settings_) {
       LOG::Fatal("manager_settings_ is null");
       return false;
-      if (IsLoadViewportSettings() && IsLoadAudioSettings() &&
-          IsLoadGraphicsSettings() && IsLoadInputSettings()) {
+      if (IsLoadViewportSettings() && IsLoadAudioSettings() && IsLoadGraphicsSettings() && IsLoadInputSettings()) {
         LOG::Fatal("Failed to load settings");
         return false;
       }
@@ -65,27 +62,28 @@ class GameLoop {
 
     // инициализация менеджеров
     // TODO переписать на unique_ptr
-    managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("entity", new Managers::Entity());
-    managers_.emplace("resource", new Managers::Resource());
     managers_.emplace("physics", new Managers::Physics());
-    managers_.emplace("render", new Managers::ManagerRender());
+    managers_.emplace("resource", new Managers::Resource());
+    managers_.emplace("render", new Managers::Render());
     managers_.emplace("scene",
                       new Managers::Scene(Data::Viewport{"main", 800, 600},
-                                          static_cast<Managers::Inputs *>(managers_["inputs"]),  //
+                                          static_cast<Managers::Inputs *>(managers_["inputs"]),
                                           &is_gameloop_enabled_));
+    managers_.emplace("inputs",
+                      new Managers::Inputs(static_cast<Managers::Scene *>(managers_["scene"])->GetWindow()));
 
     // Связывание менеджеров
-    static_cast<Managers::Scene *>(managers_["scene"])
-        ->SetEntityManager(static_cast<Managers::Entity *>(managers_["entity"]));
-    static_cast<Managers::Scene *>(managers_["scene"])
-        ->SetRenderManager(static_cast<Managers::ManagerRender *>(managers_["render"]));
+    // static_cast<Managers::Scene *>(managers_["scene"])
+    //     ->SetEntityManager(static_cast<Managers::Entity *>(managers_["entity"]));
+    // static_cast<Managers::Scene *>(managers_["scene"])
+    //     ->SetRenderManager(static_cast<Managers::Render *>(managers_["render"]));
 
     if (managers_.empty()) {
       LOG::Fatal("managers list is empty");
       return false;
     }
-    
+
     if (!manager_settings_) {
       LOG::Fatal("manager_settings_ is null");
       return false;
@@ -95,32 +93,11 @@ class GameLoop {
       manager.second->Init();
     }
 
-    // Создаем тестовую сущность с координатами
-    CreateTestEntities();
-
     // TODO ввести проверку на успешную инициализацию
     return true;
   }
 
-  /**
-   * @brief Создание тестовых сущностей для проверки рендеринга
-   */
-  void CreateTestEntities() {
-    auto *entity_manager = static_cast<Managers::Entity *>(managers_["entity"]);
-    if (entity_manager) {
-      // Создаем несколько тестовых точек в разных местах экрана
-      entity_manager->CreateEntityWithCoord("test_point_1", 100.0f, 100.0f, 0.0f);
-      entity_manager->CreateEntityWithCoord("test_point_2", 200.0f, 150.0f, 0.0f);
-      entity_manager->CreateEntityWithCoord("test_point_3", 300.0f, 200.0f, 0.0f);
-
-      // Создаем точку с другим цветом
-      auto test_entity = entity_manager->CreateEntity("test_point_blue");
-      entity_manager->AddComponent<Coord>(test_entity, 150.0f, 250.0f, 0.0f, 0, 0, 255, 255);
-
-      LOG::Info("Created test entities with coordinates");
-    }
-  }
-  // !FIX исправить баг с двойным вызовом метода Update у ManagerRender из за связывания с Managers::Entity
+  // !FIX исправить баг с двойным вызовом метода Update у Render из за связывания с Managers::Entity
   // TODO сделать вывод отладки у менеджеров для проверки работы
   void EngineLoop() {
     const float target_fps = 60.0f;
@@ -139,14 +116,12 @@ class GameLoop {
 
         last_time = current_time;
       }
-
-      // небольшая пауза чтобы не загружать CPU
       std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
 
     for (auto &manager : managers_) {
-      manager.second->FreeResources();
-      delete manager.second;  // Освобождаем память
+      delete manager.second;     // Освобождаем память
+      delete manager_settings_;  // Освобождаем память
     }
   }
   // INFO методы для загрузки и сохранения настроек
@@ -175,11 +150,14 @@ class GameLoop {
     return manager_settings_->SaveSettings("Init/input_settings.json");
   }
 
+  // INFO методы для управления игровым циклом
  public:
   void StartLoop() {
     is_gameloop_enabled_ = true;
     EngineLoop();
   }
-  void StopLoop() { is_gameloop_enabled_ = false; }
+  void StopLoop() {
+    is_gameloop_enabled_ = false;
+  }
 };
 }  // namespace EDD

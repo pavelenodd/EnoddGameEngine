@@ -9,10 +9,10 @@ AlignEscapedNewlines: Left  # Выравнивание escaped символов 
 AlignOperands: true  # Выравнивать операнды бинарных операций
 AlignTrailingComments: true  # Выравнивать комментарии в конце строк
 AllowAllParametersOfDeclarationOnNextLine: false  # Запретить все параметры на следующей строке
-AllowShortBlocksOnASingleLine: false  # Не разрешать короткие блоки на одной строке
+AllowShortBlocksOnASingleLine: true  # Не разрешать короткие блоки на одной строке
 AllowShortCaseLabelsOnASingleLine: false  # Не разрешать короткие case на одной строке
 AllowShortFunctionsOnASingleLine: Empty  # Разрешать только пустые функции на одной строке
-AllowShortIfStatementsOnASingleLine: false  # Не разрешать короткие if на одной строке
+AllowShortIfStatementsOnASingleLine: true  # Не разрешать короткие if на одной строке
 AllowShortLoopsOnASingleLine: false  # Не разрешать короткие циклы на одной строке
 AlwaysBreakAfterDefinitionReturnType: None  # Никогда не переносить тип возвращаемого значения
 AlwaysBreakAfterReturnType: None  # Никогда не переносить тип возвращаемого значения в объявлениях
@@ -39,7 +39,7 @@ BreakConstructorInitializersBeforeComma: false  # Не переносить ин
 BreakConstructorInitializers: BeforeComma  # Переносить инициализаторы конструктора перед запятой
 BreakAfterJavaFieldAnnotations: false  # Не переносить Java аннотации полей
 BreakStringLiterals: true  # Переносить строковые литералы
-ColumnLimit: 120  # Уменьшить лимит для ускорения обработки
+ColumnLimit: 115  # Уменьшить лимит для ускорения обработки
 CommentPragmas: '^ IWYU pragma:'  # Регулярное выражение для pragma комментариев
 ConstructorInitializerAllOnOneLineOrOnePerLine: false  # Каждый инициализатор на отдельной строке
 ConstructorInitializerIndentWidth: 4  # Отступ для инициализаторов конструктора
