@@ -1,6 +1,7 @@
 ---
 Language: Cpp
 BasedOnStyle: Google  # Базовый стиль форматирования
+ColumnLimit: 280  # Установить ширину строки до 180 символов
 AccessModifierOffset: -1  # Смещение модификаторов доступа (public:, private:)
 AlignAfterOpenBracket: Align  # Выравнивание параметров после открывающей скобки
 AlignConsecutiveAssignments: false  # Не выравнивать последовательные присваивания
@@ -39,7 +40,7 @@ BreakConstructorInitializersBeforeComma: false  # Не переносить ин
 BreakConstructorInitializers: BeforeComma  # Переносить инициализаторы конструктора перед запятой
 BreakAfterJavaFieldAnnotations: false  # Не переносить Java аннотации полей
 BreakStringLiterals: true  # Переносить строковые литералы
-ColumnLimit: 115  # Уменьшить лимит для ускорения обработки
+ColumnLimit: 0  # Отключить автоматический перенос строк (комментарии не будут учитываться)
 CommentPragmas: '^ IWYU pragma:'  # Регулярное выражение для pragma комментариев
 ConstructorInitializerAllOnOneLineOrOnePerLine: false  # Каждый инициализатор на отдельной строке
 ConstructorInitializerIndentWidth: 4  # Отступ для инициализаторов конструктора
@@ -69,10 +70,10 @@ ObjCBlockIndentWidth: 2  # Ширина отступа для Objective-C бло
 ObjCSpaceAfterProperty: false  # Не добавлять пробел после @property
 ObjCSpaceBeforeProtocolList: false  # Не добавлять пробел перед списком протоколов
 PenaltyBreakBeforeFirstCallParameter: 100  # Уменьшить сложность вычислений
-PenaltyBreakComment: 300  # Штраф за перенос комментария
+PenaltyBreakComment: 0  # Не штрафовать за перенос комментария
 PenaltyBreakFirstLessLess: 120  # Штраф за перенос первого оператора <<
 PenaltyBreakString: 1000  # Штраф за перенос строки
-PenaltyExcessCharacter: 1000  # Упростить штрафы
+PenaltyExcessCharacter: 0  # Не штрафовать за избыточные символы
 PenaltyReturnTypeOnItsOwnLine: 200  # Штраф за возвращаемый тип на отдельной строке
 PointerAlignment: Left  # Выравнивание звездочки указателя по левому краю (int* ptr)
 ReflowComments: false  # Отключить переформатирование комментариев для ускорения

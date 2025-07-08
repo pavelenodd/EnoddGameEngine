@@ -1,15 +1,13 @@
 // game_loop.h
 #pragma once
 #include <chrono>
-#include <iostream>
-#include <memory>
 #include <string>
 #include <thread>
 #include <unordered_map>
-#include <vector>
 //
 #include "EngineData/engine_data.h"
 #include "EngineError/engine_logging.h"
+#include "Tools/Engine/interface.h"
 
 // managers
 #include "Managers/Engine/manager_entity.h"
@@ -26,12 +24,13 @@
 namespace EDD {
 //
 class GameLoop {
- public:
-  bool is_gameloop_enabled_ = false;                            // флаг активности игрового цикла
-  std::unordered_map<std::string, Managers::Base *> managers_;  // спиок менеджеров
-  ManagerSettings *manager_settings_;                           // менеджер настроек
+public:
+  bool is_gameloop_enabled_ = false; // флаг активности игрового цикла
+  // список менеджеров
+  std::unordered_map<std::string, Managers::Base *> managers_;
+  ManagerSettings *manager_settings_; // менеджер настроек
 
- public:
+public:
   explicit GameLoop() {
     if (!Init()) {
       LOG::Fatal("game loop initialization failed");
@@ -46,7 +45,7 @@ class GameLoop {
   GameLoop &operator=(const GameLoop &) = delete;
   GameLoop &operator=(GameLoop &&) = delete;
 
- private:
+private:
   bool Init() {
     //
     manager_settings_ = new ManagerSettings();
@@ -54,7 +53,8 @@ class GameLoop {
     if (!manager_settings_) {
       LOG::Fatal("manager_settings_ is null");
       return false;
-      if (IsLoadViewportSettings() && IsLoadAudioSettings() && IsLoadGraphicsSettings() && IsLoadInputSettings()) {
+      if (IsLoadViewportSettings() && IsLoadAudioSettings() &&
+          IsLoadGraphicsSettings() && IsLoadInputSettings()) {
         LOG::Fatal("Failed to load settings");
         return false;
       }
@@ -70,21 +70,21 @@ class GameLoop {
     // Сначала создаем менеджер ввода без окна
     managers_.emplace("inputs", new Managers::Inputs());
 
-    // Затем создаем сцену с менеджером ввода
-    managers_.emplace("scene",
-                      new Managers::Scene(Data::Viewport{"main", 800, 600},
-                                          static_cast<Managers::Inputs *>(managers_["inputs"]),
-                                          &is_gameloop_enabled_));
+    // Получаем указатель на менеджер ввода для правильного приведения типов
+    auto *inputs_manager =
+        static_cast<Managers::Inputs *>(managers_.at("inputs"));
 
-    // После создания сцены устанавливаем окно для менеджера ввода
-    static_cast<Managers::Inputs *>(managers_["inputs"])
-        ->SetWindow(static_cast<Managers::Scene *>(managers_["scene"])->GetWindow());
+    // Затем создаем сцену с интерфейсом для передачи событий
+    managers_.emplace(
+        "scene", new Managers::Scene(
+                     Data::Viewport{"main", 800, 600},
+                     static_cast<Tools::Interface<sf::Event> *>(inputs_manager),
+                     static_cast<Managers::Render *>(managers_.at("render")),
+                     &is_gameloop_enabled_));
 
-    // Связывание менеджеров
-    // static_cast<Managers::Scene *>(managers_["scene"])
-    //     ->SetEntityManager(static_cast<Managers::Entity *>(managers_["entity"]));
-    // static_cast<Managers::Scene *>(managers_["scene"])
-    //     ->SetRenderManager(static_cast<Managers::Render *>(managers_["render"]));
+    // Устанавливаем окно для менеджера ввода после создания сцены
+    auto *scene_manager = static_cast<Managers::Scene *>(managers_.at("scene"));
+    inputs_manager->SetWindow(scene_manager->GetWindow());
 
     if (managers_.empty()) {
       LOG::Fatal("managers list is empty");
@@ -104,7 +104,8 @@ class GameLoop {
     return true;
   }
 
-  // !FIX исправить баг с двойным вызовом метода Update у Render из за связывания с Managers::Entity
+  // !FIX исправить баг с двойным вызовом метода Update у Render из за
+  // связывания с Managers::Entity
   // TODO сделать вывод отладки у менеджеров для проверки работы
   void EngineLoop() {
     const float target_fps = 60.0f;
@@ -113,7 +114,8 @@ class GameLoop {
 
     while (is_gameloop_enabled_) {
       auto current_time = std::chrono::high_resolution_clock::now();
-      auto elapsed = std::chrono::duration<float>(current_time - last_time).count();
+      auto elapsed =
+          std::chrono::duration<float>(current_time - last_time).count();
 
       if (elapsed >= frame_time) {
         // обновление всех менеджеров
@@ -127,8 +129,8 @@ class GameLoop {
     }
 
     for (auto &manager : managers_) {
-      delete manager.second;     // Освобождаем память
-      delete manager_settings_;  // Освобождаем память
+      delete manager.second;    // Освобождаем память
+      delete manager_settings_; // Освобождаем память
     }
   }
   // INFO методы для загрузки и сохранения настроек
@@ -158,13 +160,11 @@ class GameLoop {
   }
 
   // INFO методы для управления игровым циклом
- public:
+public:
   void StartLoop() {
     is_gameloop_enabled_ = true;
     EngineLoop();
   }
-  void StopLoop() {
-    is_gameloop_enabled_ = false;
-  }
+  void StopLoop() { is_gameloop_enabled_ = false; }
 };
-}  // namespace EDD
+} // namespace EDD

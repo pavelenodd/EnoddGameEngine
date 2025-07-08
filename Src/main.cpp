@@ -8,11 +8,7 @@
 
 int main(int argc, char** argv) {
 #ifdef _DEBUG
-  // Запуск тестов в debug режиме
-  if (argc > 1 && std::string(argv[1]) == "--test") {
-    EDD::Tests::RunInputsManagerTests();
-    return 0;
-  }
+
 #endif
 
   EDD::GameLoop game_loop;
