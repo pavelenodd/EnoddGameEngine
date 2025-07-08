@@ -13,7 +13,7 @@ namespace EDD::Managers {
   */
 class Inputs : public Base, public Tools::Interface<sf::Event> {
  private:
-  sf::Event event_;
+  std::optional<sf::Event> event_;
   bool has_event_ = false;
   sf::RenderWindow* window_ = nullptr;  
 
@@ -46,7 +46,8 @@ class Inputs : public Base, public Tools::Interface<sf::Event> {
     has_event_ = false;
     // Обработка всех событий в очереди
     if (window_) {
-      has_event_ = window_->pollEvent(event_);
+      event_ = window_->pollEvent();
+      has_event_ = event_.has_value();
     }
   }
 

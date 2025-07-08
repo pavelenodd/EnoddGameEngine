@@ -52,9 +52,9 @@ ForEachMacros: [ foreach, Q_FOREACH, BOOST_FOREACH ]  # Макросы для ц
 IncludeCategories:  # Категории для сортировки include
   - Regex: '^<.*\.h>'  # C заголовки
     Priority: 1
-  - Regex: '^<.*'  # Системные заголовки
+  - Regex: '^<.*'  # Системные заголовки C++
     Priority: 2
-  - Regex: '.*'  # Пользовательские заголовки
+  - Regex: '^".*'  # Пользовательские заголовки
     Priority: 3
 IncludeIsMainRegex: '([-_](test|unittest))?$'  # Регекс для определения главного файла
 IndentCaseLabels: true  # Делать отступ для case labels
@@ -76,7 +76,8 @@ PenaltyExcessCharacter: 1000  # Упростить штрафы
 PenaltyReturnTypeOnItsOwnLine: 200  # Штраф за возвращаемый тип на отдельной строке
 PointerAlignment: Left  # Выравнивание звездочки указателя по левому краю (int* ptr)
 ReflowComments: false  # Отключить переформатирование комментариев для ускорения
-SortIncludes: false  # Отключить сортировку include для ускорения
+SortIncludes: true  # Включить сортировку include по алфавиту
+IncludeBlocks: Regroup  # Перегруппировать блоки include с разделением
 SpaceAfterCStyleCast: false  # Не добавлять пробел после C-style каста
 SpaceAfterTemplateKeyword: true  # Добавлять пробел после ключевого слова template
 SpaceBeforeAssignmentOperators: true  # Добавлять пробел перед операторами присваивания

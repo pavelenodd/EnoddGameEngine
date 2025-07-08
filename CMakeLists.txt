@@ -11,8 +11,8 @@ project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 find_package(Vulkan REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(entt REQUIRED)
-find_library(SFML sfml-Graphics sfml-Window sfml-System)
+find_package(EnTT REQUIRED)
+find_library(SFML sfml-graphics sfml-window sfml-system)
 
 add_executable(${PROJECT_NAME}
     Src/main.cpp
@@ -55,12 +55,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineError
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/Tools
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineData
+    ${SFML_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    sfml-graphics
-    sfml-window
-    sfml-system
+    ${SFML_LIBRARIES}
 
     Vulkan::Vulkan
 

@@ -1,7 +1,8 @@
 #pragma once
 // менеджер созданя сцены и управлении окнами
 #include <SFML/Graphics.hpp>
-#include <iostream>
+#include <SFML/Window/Event.hpp>
+#include <optional>
 #include <string>
 
 #include "../EngineData/engine_data.h"
@@ -65,12 +66,11 @@ class Scene : public Managers::Base {
   void Update() override {
     if (!window_ || !window_->isOpen()) { return; }
 
-    // INFO Обработка событий ввода
-    // TODO Обработка событий ввода надо сделать через интерфейс
-    if (auto event = event_provider_->Send()) {
-      if (event->type == sf::Event::Closed) { *is_gameloop_enabled_ = false; }
-      if (event->type == sf::Event::KeyPressed && event->key.code == sf::Keyboard::Escape) {
-        *is_gameloop_enabled_ = false;
+    // ! INFO Обработка событий ввода
+    if (event_provider_->Send().has_value()) {
+      auto event = event_provider_->Send().value();
+      if (auto closedEvent = event.getIf<sf::Event::Closed>()) {
+        if (window_) { window_->close(); }
       }
     }
 
@@ -127,8 +127,8 @@ class Scene : public Managers::Base {
   }
 
   bool CreateScene() {
-    window_ = new sf::RenderWindow(sf::VideoMode(viewport_data_.w, viewport_data_.h), viewport_data_.viewport_name,
-                                   sf::Style::Default);
+    window_ = new sf::RenderWindow(sf::VideoMode(sf::Vector2u(viewport_data_.w, viewport_data_.h)),
+                                   viewport_data_.viewport_name, sf::Style::Default);
 
     if (!window_ || !window_->isOpen()) { return false; }
     window_->setFramerateLimit(60);

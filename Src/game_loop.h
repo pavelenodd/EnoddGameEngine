@@ -21,7 +21,7 @@
 #include "Managers/Engine/manager_settings.h"
 
 // test
-#include "sfml/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 
 namespace EDD {
 //
@@ -66,12 +66,19 @@ class GameLoop {
     managers_.emplace("physics", new Managers::Physics());
     managers_.emplace("resource", new Managers::Resource());
     managers_.emplace("render", new Managers::Render());
+
+    // Сначала создаем менеджер ввода без окна
+    managers_.emplace("inputs", new Managers::Inputs());
+
+    // Затем создаем сцену с менеджером ввода
     managers_.emplace("scene",
                       new Managers::Scene(Data::Viewport{"main", 800, 600},
                                           static_cast<Managers::Inputs *>(managers_["inputs"]),
                                           &is_gameloop_enabled_));
-    managers_.emplace("inputs",
-                      new Managers::Inputs(static_cast<Managers::Scene *>(managers_["scene"])->GetWindow()));
+
+    // После создания сцены устанавливаем окно для менеджера ввода
+    static_cast<Managers::Inputs *>(managers_["inputs"])
+        ->SetWindow(static_cast<Managers::Scene *>(managers_["scene"])->GetWindow());
 
     // Связывание менеджеров
     // static_cast<Managers::Scene *>(managers_["scene"])
