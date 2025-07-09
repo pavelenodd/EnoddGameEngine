@@ -1,14 +1,6 @@
 #pragma once
 // Менеджер рендера игровых объектов в сцене
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include <vector>
-
-#include "../../EngineData/Entity/coord.h"
-#include "Engine/delegate.h"
-#include "Engine/interface.h"
-#include "EngineData/engine_entity.h"
-//
 
 #include "manager_base.h"
 #include "manager_entity.h"

@@ -1,13 +1,10 @@
 // game_loop.h
 #pragma once
-#include <chrono>
 #include <string>
-#include <thread>
 #include <unordered_map>
 //
-#include "EngineData/engine_data.h"
+// #include "EngineData/engine_data.h"
 #include "EngineError/engine_logging.h"
-#include "Tools/Engine/interface.h"
 
 // managers
 #include "Managers/Engine/manager_entity.h"
@@ -15,22 +12,21 @@
 #include "Managers/Engine/manager_physics.h"
 #include "Managers/Engine/manager_render.h"
 #include "Managers/Engine/manager_resource.h"
-#include "Managers/Engine/manager_scene.h"
+// #include "Managers/Engine/manager_scene.h"
 #include "Managers/Engine/manager_settings.h"
 
 // test
-#include <SFML/Graphics.hpp>
+#include "../Tests/test_manager_inputs.h"
 
 namespace EDD {
-//
 class GameLoop {
-public:
-  bool is_gameloop_enabled_ = false; // флаг активности игрового цикла
+ public:
+  bool is_gameloop_enabled_ = false;  // флаг активности игрового цикла
   // список менеджеров
   std::unordered_map<std::string, Managers::Base *> managers_;
-  ManagerSettings *manager_settings_; // менеджер настроек
+  ManagerSettings *manager_settings_;  // менеджер настроек
 
-public:
+ public:
   explicit GameLoop() {
     if (!Init()) {
       LOG::Fatal("game loop initialization failed");
@@ -45,7 +41,7 @@ public:
   GameLoop &operator=(const GameLoop &) = delete;
   GameLoop &operator=(GameLoop &&) = delete;
 
-private:
+ private:
   bool Init() {
     //
     manager_settings_ = new ManagerSettings();
@@ -53,8 +49,11 @@ private:
     if (!manager_settings_) {
       LOG::Fatal("manager_settings_ is null");
       return false;
-      if (IsLoadViewportSettings() && IsLoadAudioSettings() &&
-          IsLoadGraphicsSettings() && IsLoadInputSettings()) {
+      if (manager_settings_->LoadSettings("Init/viewport_settings.json") &&
+          manager_settings_->LoadSettings("Init/audio_settings.json") &&
+          manager_settings_->LoadSettings("Init/graphics_settings.json") &&
+          manager_settings_->LoadSettings("Init/input_settings.json")) {
+      } else {
         LOG::Fatal("Failed to load settings");
         return false;
       }
@@ -68,15 +67,14 @@ private:
     managers_.emplace("render", new Managers::Render());
     managers_.emplace("inputs", new Managers::Inputs());
     // Затем создаем сцену с интерфейсом для передачи событий
-    managers_.emplace(
-        "scene",
-        new Managers::Scene(
-            Data::Viewport{"main", 800, 600},
-            static_cast<Tools::Interface<sf::Event> *>(
-                static_cast<Managers::Inputs *>(managers_.at("inputs"))),
-            static_cast<Managers::Render *>(managers_.at("render")),
-            &is_gameloop_enabled_));
 
+    /*managers_.emplace("scene",
+                      new Managers::Scene(Data::Viewport{"main", 800, 600},
+                                          static_cast<Tools::Interface<sf::Event> *>(
+                                              static_cast<Managers::Inputs
+       *>(managers_.at("inputs"))), static_cast<Managers::Render *>(managers_.at("render")),
+                                          &is_gameloop_enabled_));
+*/
     if (managers_.empty()) {
       LOG::Fatal("managers list is empty");
       return false;
@@ -87,75 +85,55 @@ private:
       return false;
     }
 
+    // Инициализация всех менеджеров
     for (auto &manager : managers_) {
       manager.second->Init();
     }
 
-    // TODO ввести проверку на успешную инициализацию
+    //=====================================================================
+    // зона тестов
+
+    TestManagerInputs test_manager_inputs;
+    static_cast<Managers::Inputs *>(managers_.at("inputs"))->Subscribe(&test_manager_inputs);
+
+    // Запуск тестов
+    test_manager_inputs.RunTests();
+
+    //======================================================================
     return true;
   }
 
-  // !FIX исправить баг с двойным вызовом метода Update у Render из за
-  // связывания с Managers::Entity
   // TODO сделать вывод отладки у менеджеров для проверки работы
   void EngineLoop() {
-    const float target_fps = 60.0f;
-    const float frame_time = 1.0f / target_fps;
-    auto last_time = std::chrono::high_resolution_clock::now();
-
     while (is_gameloop_enabled_) {
-      auto current_time = std::chrono::high_resolution_clock::now();
-      auto elapsed =
-          std::chrono::duration<float>(current_time - last_time).count();
-
-      if (elapsed >= frame_time) {
-        // обновление всех менеджеров
-        for (auto &&manager : managers_) {
-          manager.second->Update();
-        }
-
-        last_time = current_time;
+      for (auto manager : managers_) {
+        manager.second->Update();
       }
-      std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
 
-    for (auto &manager : managers_) {
-      delete manager.second;    // Освобождаем память
-      delete manager_settings_; // Освобождаем память
+    for (auto manager : managers_) {
+      manager.second->FreeResources();  // Освобождаем память
     }
-  }
-  // INFO методы для загрузки и сохранения настроек
-  bool IsLoadViewportSettings() {
-    return manager_settings_->LoadSettings("Init/viewport_settings.json");
-  }
-  bool IsSaveViewportSettings() {
-    return manager_settings_->SaveSettings("Init/viewport_settings.json");
-  }
-  bool IsLoadAudioSettings() {
-    return manager_settings_->LoadSettings("Init/audio_settings.json");
-  }
-  bool IsSaveAudioSettings() {
-    return manager_settings_->SaveSettings("Init/audio_settings.json");
-  }
-  bool IsLoadGraphicsSettings() {
-    return manager_settings_->LoadSettings("Init/graphics_settings.json");
-  }
-  bool IsSaveGraphicsSettings() {
-    return manager_settings_->SaveSettings("Init/graphics_settings.json");
-  }
-  bool IsLoadInputSettings() {
-    return manager_settings_->LoadSettings("Init/input_settings.json");
-  }
-  bool IsSaveInputSettings() {
-    return manager_settings_->SaveSettings("Init/input_settings.json");
+
+    if (manager_settings_->SaveSettings("Init/viewport_settings.json") &&
+        manager_settings_->SaveSettings("Init/audio_settings.json") &&
+        manager_settings_->SaveSettings("Init/graphics_settings.json") &&
+        manager_settings_->SaveSettings("Init/input_settings.json")) {
+      LOG::Info("All settings saved successfully");
+    } else {
+      LOG::Fatal("Failed to save some settings");
+    }
+    manager_settings_->FreeResources();  // Освобождаем память
   }
 
   // INFO методы для управления игровым циклом
-public:
+ public:
   void StartLoop() {
     is_gameloop_enabled_ = true;
     EngineLoop();
   }
-  void StopLoop() { is_gameloop_enabled_ = false; }
+  void StopLoop() {
+    is_gameloop_enabled_ = false;
+  }
 };
-} // namespace EDD
+}  // namespace EDD

@@ -57,4 +57,21 @@ inline auto Fatal = [](const std::string &message) {
 };
 
 }  // namespace LOG
+namespace TEST_LOG {
+inline auto Success = [](const std::string &message) {
+  LOG::InitLogging();  // Инициализация логгера
+  BOOST_LOG_TRIVIAL(info) << "[TEST OK] " << message;
+};
+
+inline auto Failed = [](const std::string &message) {
+  LOG::InitLogging();  // Инициализация логгера
+  BOOST_LOG_TRIVIAL(info) << "[TEST FAILED] " << message;
+};
+
+inline auto Info = [](const std::string &message) {
+  LOG::InitLogging();  // Инициализация логгера
+  BOOST_LOG_TRIVIAL(info) << "[TEST Message] " << message;
+};
+
+}  // namespace TEST_LOG
 }  // namespace EDD
