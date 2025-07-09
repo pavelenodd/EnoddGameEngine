@@ -66,25 +66,16 @@ private:
     managers_.emplace("physics", new Managers::Physics());
     managers_.emplace("resource", new Managers::Resource());
     managers_.emplace("render", new Managers::Render());
-
-    // Сначала создаем менеджер ввода без окна
     managers_.emplace("inputs", new Managers::Inputs());
-
-    // Получаем указатель на менеджер ввода для правильного приведения типов
-    auto *inputs_manager =
-        static_cast<Managers::Inputs *>(managers_.at("inputs"));
-
     // Затем создаем сцену с интерфейсом для передачи событий
     managers_.emplace(
-        "scene", new Managers::Scene(
-                     Data::Viewport{"main", 800, 600},
-                     static_cast<Tools::Interface<sf::Event> *>(inputs_manager),
-                     static_cast<Managers::Render *>(managers_.at("render")),
-                     &is_gameloop_enabled_));
-
-    // Устанавливаем окно для менеджера ввода после создания сцены
-    auto *scene_manager = static_cast<Managers::Scene *>(managers_.at("scene"));
-    inputs_manager->SetWindow(scene_manager->GetWindow());
+        "scene",
+        new Managers::Scene(
+            Data::Viewport{"main", 800, 600},
+            static_cast<Tools::Interface<sf::Event> *>(
+                static_cast<Managers::Inputs *>(managers_.at("inputs"))),
+            static_cast<Managers::Render *>(managers_.at("render")),
+            &is_gameloop_enabled_));
 
     if (managers_.empty()) {
       LOG::Fatal("managers list is empty");
