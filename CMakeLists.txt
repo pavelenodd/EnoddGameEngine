@@ -12,7 +12,7 @@ find_package(Vulkan REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(EnTT REQUIRED)
-find_library(SFML sfml-graphics sfml-window sfml-system)
+find_package(SFML 3 REQUIRED COMPONENTS System)
 
 add_executable(${PROJECT_NAME}
     Src/main.cpp
@@ -68,9 +68,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::thread
     Boost::filesystem
 
+    SFML::System
+
     nlohmann_json::nlohmann_json
 
     EnTT::EnTT
+    sfml-graphics sfml-window sfml-system
 )
 # === Копирование файлов в папку build/Engine ================================
 add_custom_command( # копировать `Src/Settings` в папку build/Engine
