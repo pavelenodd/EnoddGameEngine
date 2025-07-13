@@ -12,7 +12,7 @@
 #include "Managers/Engine/manager_physics.h"
 #include "Managers/Engine/manager_render.h"
 #include "Managers/Engine/manager_resource.h"
-// #include "Managers/Engine/manager_scene.h"
+#include "Managers/Engine/manager_scene.h"
 #include "Managers/Engine/manager_settings.h"
 
 // test
@@ -20,6 +20,11 @@
 
 namespace EDD {
 class GameLoop {
+ private:
+  //======================================================================
+  TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
+
+  //======================================================================
  public:
   bool is_gameloop_enabled_ = false;  // флаг активности игрового цикла
   // список менеджеров
@@ -68,13 +73,9 @@ class GameLoop {
     managers_.emplace("inputs", new Managers::Inputs());
     // Затем создаем сцену с интерфейсом для передачи событий
 
-    /*managers_.emplace("scene",
-                      new Managers::Scene(Data::Viewport{"main", 800, 600},
-                                          static_cast<Tools::Interface<sf::Event> *>(
-                                              static_cast<Managers::Inputs
-       *>(managers_.at("inputs"))), static_cast<Managers::Render *>(managers_.at("render")),
-                                          &is_gameloop_enabled_));
-*/
+    managers_.emplace("scene",
+                      new Managers::Scene({"main", 800, 600}, &is_gameloop_enabled_));
+
     if (managers_.empty()) {
       LOG::Fatal("managers list is empty");
       return false;
@@ -91,13 +92,12 @@ class GameLoop {
     }
 
     //=====================================================================
-    // зона тестов
+    // зона подключения тестов
 
-    TestManagerInputs test_manager_inputs;
-    static_cast<Managers::Inputs *>(managers_.at("inputs"))->Subscribe(&test_manager_inputs);
-
-    // Запуск тестов
-    test_manager_inputs.RunTests();
+    test_manager_inputs_ = new TestManagerInputs(
+        static_cast<Managers::Inputs *>(managers_.at("inputs")));
+    static_cast<Managers::Inputs *>(managers_.at("inputs"))
+        ->Subscribe(test_manager_inputs_);
 
     //======================================================================
     return true;
@@ -106,6 +106,8 @@ class GameLoop {
   // TODO сделать вывод отладки у менеджеров для проверки работы
   void EngineLoop() {
     while (is_gameloop_enabled_) {
+      // Запуск тестов
+      // test_manager_inputs_->RunTests();
       for (auto manager : managers_) {
         manager.second->Update();
       }

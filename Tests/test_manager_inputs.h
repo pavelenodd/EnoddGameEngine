@@ -1,11 +1,11 @@
 #pragma once
 #include "EngineError/engine_logging.h"
 #include "Managers/Engine/manager_inputs.h"
-// #include "Tools/Engine/delegate.h"
+#include "Tools/Engine/delegate.h"
 #include "Tools/Engine/interface.h"
 namespace EDD {
 class TestManagerInputs : public Tools::Interface<sf::Event> {
-  Managers::Inputs *input_manager_;
+  Managers::Inputs *input_manager_ = nullptr;
   mutable std::optional<sf::Event> last_event_;
 
  public:
@@ -23,7 +23,7 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
   void TestInputManagerInitialization() {
     TEST_LOG::Info("Запуск теста: TestInputManagerInitialization...");
     if (input_manager_ != nullptr) {
-      TEST_LOG::Success("Input manager initialized.");
+      TEST_LOG::Success("Input manager initialized. \n");
     } else {
       TEST_LOG::Failed("Input manager initialization.");
     }
@@ -31,29 +31,24 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
   // тест проверки что данные получаются от эвента а не от input_manager
   void TestSceneManagerHandlesInputEvent() {
     TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesInputEvent...");
-    while (true) {
-      if (input_manager_->Send().has_value()) {
-        auto ev = input_manager_->Send();
-        if (ev) {
-          last_event_ = ev;
-          TEST_LOG::Info("Message send.");
-          if (last_event_.has_value()) {
-            if (1) {
-              TEST_LOG::Success("TestSceneManagerHandlesInputEvent passed.");
-              break;
-            } else {
-              TEST_LOG::Failed("TestSceneManagerHandlesInputEvent failed.");
-              break;
-            }
+    if (input_manager_->Send().has_value()) {
+      auto ev = input_manager_->Send();
+      if (ev) {
+        last_event_ = ev;
+        TEST_LOG::Info("Message send.");
+        if (last_event_.has_value()) {
+          if (1) {
+            TEST_LOG::Success("TestSceneManagerHandlesInputEvent passed. \n");
           } else {
-            TEST_LOG::Info("Message not send.");
             TEST_LOG::Failed("TestSceneManagerHandlesInputEvent failed.");
-            break;
           }
+        } else {
+          TEST_LOG::Info("Message not send.");
+          TEST_LOG::Failed("TestSceneManagerHandlesInputEvent failed.");
         }
-      } else {
-        break;
       }
+    } else {
+      TEST_LOG::Failed("TestSceneManagerHandlesInputEvent failed.");
     }
   }
   // тест проверки что данные получаются от делегата

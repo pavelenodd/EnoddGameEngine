@@ -8,7 +8,7 @@ namespace EDD::Data {
  * @param h высота
  */
 struct Viewport {
-  std::string viewport_name;  // имя вьюпорта
+  std::string name;           // имя вьюпорта
   int w;                      // ширина
   int h;                      // высота
 };

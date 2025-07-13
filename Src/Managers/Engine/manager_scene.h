@@ -2,12 +2,11 @@
 // менеджер созданя сцены и управлении окнами
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
 #include <string>
 
 #include "../EngineData/engine_data.h"
 #include "manager_base.h"
-#include "manager_inputs.h"
-#include "manager_render.h"
 
 namespace EDD::Managers {
 
@@ -22,42 +21,18 @@ class Scene : public Managers::Base {
  private:
   sf::RenderWindow *window_ = nullptr;                 // Указатель на окно
   Data::Viewport viewport_data_;                       // Данные о вьюпорте
-  bool *is_gameloop_enabled_;                          // Указатель на флаг активности игрового цикла
-  const InterfaceSFEvent *event_provider_;             // Обработчик событий
-  Inputs *input_manager_ = nullptr;                    // Указатель на менеджер ввода
-  Render *render_manager_ = nullptr;                   // Указатель на менеджер рендера
-  Entity *entity_manager_ = nullptr;                   // Указатель на менеджер сущностей
+  bool *is_gameloop_enabled_;  // Указатель на флаг активности игрового цикла
 
  public:
   /**
    * @brief Construct a new Scene object
    *
    * @param viewport_data // Настройки окна
-   * @param event_provider // обработчик событий
    * @param is_gameloop_enabled // указатель на флаг, игрового цикла
    */
-  Scene(Data::Viewport viewport_data,            // базовые настройки вьюпорта
-        const InterfaceSFEvent *event_provider,  // обработчик событий
-        const Managers::Render *render_manager,  // менеджер рендера
-        bool *is_gameloop_enabled)
-      : viewport_data_(viewport_data),
-        event_provider_(event_provider),
-        is_gameloop_enabled_(is_gameloop_enabled),
-        render_manager_(const_cast<Managers::Render *>(render_manager)) {
+  Scene(Data::Viewport viewport_data, bool *is_gameloop_enabled)
+      : viewport_data_(viewport_data), is_gameloop_enabled_(is_gameloop_enabled) {
     LOG::Debug("Manager Scene created");
-
-    if (!input_manager_) {
-      LOG::Fatal("Failed to cast event_provider to Inputs");
-      // return;
-    }
-    if (!render_manager_) {
-      LOG::Fatal("Failed to cast event_provider to Render");
-      // return;
-    }
-    if (!entity_manager_) {
-      LOG::Fatal("Failed to cast event_provider to Entity");
-      // return;
-    }
   }
 
   ~Scene() {
@@ -77,29 +52,28 @@ class Scene : public Managers::Base {
    */
   void Update() override {}
 
-  /**
-   * @brief Установка менеджера сущностей
-   */
-  void SetEntityManager(Entity *entity_manager) {
-
-  }
-
-  /**
-   * @brief Установка менеджера рендера
-   */
-  void SetRenderManager(Render *render_manager) {
-
-  }
-
   sf::RenderWindow *GetWindowRef() const {
     return window_;
   }
 
  private:
   void Init() override {
+    // Создаем окно с заданными параметрами
+    window_ = new sf::RenderWindow(
+        sf::VideoMode(sf::Vector2u(viewport_data_.w, viewport_data_.h)),
+        viewport_data_.name,
+        sf::Style::Default,
+        sf::State::Windowed,
+        sf::ContextSettings(24, 8, 4, 3, 3));
 
+    if (!window_) {
+      LOG::Fatal("Failed to create window");
+      return;
+    }
+
+    LOG::Info("Window created with size: " + std::to_string(viewport_data_.w) + "x" +
+              std::to_string(viewport_data_.h));
   }
-
   void FreeResources() override {
     LOG::Debug("ManagerScene call destroy");
   }
