@@ -3,8 +3,9 @@
 #include <SFML/Window.hpp>
 #include <optional>
 
-#include "Engine/interface.h"
-#include "engine_logging.h"
+#include "EngineError/engine_logging.h"
+#include "Tools/Engine/delegate.h"
+#include "Tools/Engine/interface.h"
 #include "manager_base.h"
 
 namespace EDD::Managers {
@@ -15,39 +16,22 @@ namespace EDD::Managers {
 class Inputs : public Base, public Tools::Interface<sf::Event>, public Tools::Delegate<sf::Event> {
  private:
   std::optional<sf::Event> event_;
-  bool has_event_ = false;
   sf::RenderWindow* window_ = nullptr;
 
   // Подписчики на события интерфейса
   std::vector<Tools::Interface<sf::Event>*> observers_;
 
  public:
-  Inputs(sf::RenderWindow* window = nullptr)
-      : window_(window) {
-    Init();
-  }
+  Inputs() {}
   ~Inputs() {
     FreeResources();
   }
 
-  /**
-   * @brief Установить окно для обработки событий
-   * @param window Указатель на окно SFML
-   */
-  void SetWindow(sf::RenderWindow* window = nullptr) {
-    if (window) {
-      window_ = window;
-    } else {
-      LOG::Fatal("window is null");
-    }
-  }
-
   virtual void Update() override {
-    has_event_ = false;
+    LOG::Info("Input manager updated.");
     if (window_) {
       event_ = window_->pollEvent();
-      has_event_ = event_.has_value();
-      if (has_event_) {
+      if (event_.has_value()) {
         // Уведомляем всех подписчиков
         for (auto* obs : observers_) {
           if (obs) obs->Send();
@@ -67,20 +51,33 @@ class Inputs : public Base, public Tools::Interface<sf::Event>, public Tools::De
   }
   // Реализация отправки события
   virtual std::optional<sf::Event> Send() const override {
-    if (has_event_) {
+    if (event_.has_value()) {
       return event_;
     }
     return std::nullopt;
   }
 
  private:
-  virtual void Init() override {
+  virtual void Init(std::initializer_list<void*> args = {}) override {
     // Инициализация обработчика ввода
+    LOG::Info("Input manager initialized.");
+    SetWindowRef(static_cast<sf::RenderWindow*>(*args.begin()));
   }
 
   virtual void FreeResources() override {
     // Освобождение ресурсов
     window_ = nullptr;
+  }
+  /**
+   * @brief Установить окно для обработки событий
+   * @param window Указатель на окно SFML
+   */
+  void SetWindowRef(sf::RenderWindow* window = nullptr) {
+    if (window) {
+      window_ = window;
+    } else {
+      LOG::Fatal("window is null");
+    }
   }
 };
 }  // namespace EDD::Managers

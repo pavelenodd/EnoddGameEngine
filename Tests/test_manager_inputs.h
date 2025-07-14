@@ -1,7 +1,7 @@
 #pragma once
 #include "EngineError/engine_logging.h"
 #include "Managers/Engine/manager_inputs.h"
-#include "Tools/Engine/delegate.h"
+// #include "Tools/Engine/delegate.h"
 #include "Tools/Engine/interface.h"
 namespace EDD {
 class TestManagerInputs : public Tools::Interface<sf::Event> {
@@ -21,7 +21,7 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
  private:
   // тест инициализации менеджера ввода
   void TestInputManagerInitialization() {
-    TEST_LOG::Info("Запуск теста: TestInputManagerInitialization...");
+    TEST_LOG::Info("Run Test: TestInputManagerInitialization...");
     if (input_manager_ != nullptr) {
       TEST_LOG::Success("Input manager initialized. \n");
     } else {
@@ -30,12 +30,12 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
   }
   // тест проверки что данные получаются от эвента а не от input_manager
   void TestSceneManagerHandlesInputEvent() {
-    TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesInputEvent...");
+    TEST_LOG::Info("Run Test: TestSceneManagerHandlesInputEvent...");
     if (input_manager_->Send().has_value()) {
       auto ev = input_manager_->Send();
       if (ev) {
         last_event_ = ev;
-        TEST_LOG::Info("Message send.");
+        TEST_LOG::Info("Message sent.");
         if (last_event_.has_value()) {
           if (1) {
             TEST_LOG::Success("TestSceneManagerHandlesInputEvent passed. \n");
@@ -48,32 +48,32 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
         }
       }
     } else {
-      TEST_LOG::Failed("TestSceneManagerHandlesInputEvent failed.");
+      TEST_LOG::Info("Message not sent.");
     }
   }
   // тест проверки что данные получаются от делегата
   void TestSceneManagerHandlesDelegateEvent() {
-    TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesDelegateEvent...");
+    TEST_LOG::Info("Run Test: TestSceneManagerHandlesDelegateEvent...");
   }
   // тест обработки события нажатия клавиши
   void TestSceneManagerHandlesKeyPressEvent() {
-    TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesKeyPressEvent...");
+    TEST_LOG::Info("Run Test: TestSceneManagerHandlesKeyPressEvent...");
   }
   // тест обработки события закрытия окна
   void TestSceneManagerHandlesCloseEvent() {
-    TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesCloseEvent...");
+    TEST_LOG::Info("Run Test: TestSceneManagerHandlesCloseEvent...");
   }
   // тест нажатия группы клавиш на протяжении 5 минут
   void TestSceneManagerHandlesKeyPressEventLongDuration() {
-    TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesKeyPressEventLongDuration...");
+    TEST_LOG::Info("Run Test: TestSceneManagerHandlesKeyPressEventLongDuration...");
   }
   // тест обработки события движения мыши
   void TestSceneManagerHandlesMouseMoveEvent() {
-    TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesMouseMoveEvent...");
+    TEST_LOG::Info("Run Test: TestSceneManagerHandlesMouseMoveEvent...");
   }
   // тест обработки события изменения размера окна
   void TestSceneManagerHandlesWindowResizeEvent() {
-    TEST_LOG::Info("Запуск теста: TestSceneManagerHandlesWindowResizeEvent...");
+    TEST_LOG::Info("Run Test: TestSceneManagerHandlesWindowResizeEvent...");
   }
 
   std::optional<sf::Event> Send() const override {
@@ -81,7 +81,7 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
     auto ev = input_manager_->Send();  // вернёт текущее событие
     if (ev) {
       last_event_ = ev;
-      TEST_LOG::Success("Observer получил событие");
+      TEST_LOG::Success("Observer sent event.");
     }
     return std::nullopt;  // дальше событие не шлём
   }

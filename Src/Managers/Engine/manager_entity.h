@@ -4,11 +4,11 @@
 
 #include <algorithm>
 #include <entt/entt.hpp>
-#include <memory>
 #include <string>
 #include <unordered_map>
 
 #include "../../EngineData/Entity/coord.h"
+#include "EngineError/engine_logging.h"
 #include "manager_base.h"
 
 namespace EDD::Managers {
@@ -25,8 +25,8 @@ class Entity : public Base {
   std::unordered_map<std::string, entt::entity> named_entities_;
 
  public:
-  Entity() { Init(); }
-  ~Entity() { FreeResources(); }
+  Entity() {}
+  ~Entity() {}
 
   // Удаление конструкторов копирования и перемещения
   Entity(const Entity&) = delete;
@@ -39,13 +39,15 @@ class Entity : public Base {
   // ================================================================
 
   virtual void Update() override {}
-  virtual void Init() override {
+  virtual void Init(std::initializer_list<void*> args = {}) override {
     // Инициализация, если нужна
+    LOG::Info("Entity manager initialized.");
     registry_.clear();
     named_entities_.clear();
   }
 
   virtual void FreeResources() override {
+    LOG::Info("Entity manager resources freed.");
     registry_.clear();
     named_entities_.clear();
   }

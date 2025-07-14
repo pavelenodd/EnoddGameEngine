@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+#include "../EngineError/engine_logging.h"
 #include "manager_base.h"
 
 namespace EDD {
@@ -54,7 +55,7 @@ class ManagerSettings : public Managers::Base {
 
   ~ManagerSettings() {
     FreeResources();
-    LOG::Debug("ManagerSettings destroyed");
+    EDD::LOG::Debug("ManagerSettings destroyed");
   }
   // Удаление конструкторов копирования, присваивания и перемещения
   ManagerSettings(const ManagerSettings&) = delete;
@@ -66,8 +67,8 @@ class ManagerSettings : public Managers::Base {
   bool SaveSettings(const std::string& file_path) {return true;}
 
   void Update() override {}
-  void Init() override {
-    LOG::Debug("ManagerSettings initialized");
+  void Init(std::initializer_list<void*> args = {}) override {
+    EDD::LOG::Debug("ManagerSettings initialized");
   }
   void FreeResources() override {}
 };

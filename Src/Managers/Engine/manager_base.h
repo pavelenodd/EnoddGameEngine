@@ -1,8 +1,6 @@
 // Managers/manager.h
 #pragma once
-#include "Engine/delegate.h"
-#include "Engine/interface.h"
-#include "EngineError/engine_logging.h"
+#include <initializer_list>
 
 namespace EDD::Managers {
 /**
@@ -19,9 +17,11 @@ class Base {
   virtual void Update() = 0;
 
   /**
-   * @brief Инициализация менеджера (При старте), инициализация не должна вызываться в конструкторе 
+   * @brief Инициализация менеджера (При старте), инициализация не должна вызываться в
+   * конструкторе
+   * @param args Список указателей на контекст инициализации
    */
-  virtual void Init() = 0;
+  virtual void Init(std::initializer_list<void*> args = {}) = 0;
 
   /**
    * @brief Освобождение ресурсов вызывается при завершении работы менеджера или в деструкторе

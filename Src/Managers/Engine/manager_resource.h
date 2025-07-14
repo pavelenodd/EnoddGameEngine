@@ -1,15 +1,8 @@
 // Managers/manager_resourse.h
 #pragma once
 
-#include <filesystem>
-#include <map>
 #include <string>
-#include <vector>
 
-#include "Items/audio.h"
-#include "Items/font.h"
-#include "Items/model.h"
-#include "Items/texture.h"
 #include "manager_base.h"
 
 namespace EDD::Managers {
@@ -50,7 +43,7 @@ class Resource : public Managers::Base {
     return true;
   }
 
-  virtual void Init() override {}
+  virtual void Init(std::initializer_list<void*> args = {}) override {}
   virtual void FreeResources() override {}
 };
 }  // namespace EDD::Managers

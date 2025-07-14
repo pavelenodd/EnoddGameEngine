@@ -64,15 +64,12 @@ class GameLoop {
       }
     }
 
-    // инициализация менеджеров
-    // TODO переписать на unique_ptr
+    // Зона создания менеджеров
     managers_.emplace("entity", new Managers::Entity());
     managers_.emplace("physics", new Managers::Physics());
     managers_.emplace("resource", new Managers::Resource());
     managers_.emplace("render", new Managers::Render());
     managers_.emplace("inputs", new Managers::Inputs());
-    // Затем создаем сцену с интерфейсом для передачи событий
-
     managers_.emplace("scene",
                       new Managers::Scene({"main", 800, 600}, &is_gameloop_enabled_));
 
@@ -87,8 +84,9 @@ class GameLoop {
     }
 
     // Инициализация всех менеджеров
-    for (auto &manager : managers_) {
-      manager.second->Init();
+    {
+      managers_["inputs"]->Init({managers_["scene"]});
+      managers_["scene"]->Init();
     }
 
     //=====================================================================
@@ -96,6 +94,7 @@ class GameLoop {
 
     test_manager_inputs_ = new TestManagerInputs(
         static_cast<Managers::Inputs *>(managers_.at("inputs")));
+
     static_cast<Managers::Inputs *>(managers_.at("inputs"))
         ->Subscribe(test_manager_inputs_);
 
@@ -106,8 +105,8 @@ class GameLoop {
   // TODO сделать вывод отладки у менеджеров для проверки работы
   void EngineLoop() {
     while (is_gameloop_enabled_) {
-      // Запуск тестов
       // test_manager_inputs_->RunTests();
+      // Запуск тестов
       for (auto manager : managers_) {
         manager.second->Update();
       }

@@ -36,7 +36,7 @@ class Render : public Managers::Base {
   /**
    * @brief Инициализация менеджера (При старте)
    */
-  virtual void Init() override {};
+  virtual void Init(std::initializer_list<void*> args = {}) override {};
 
   /**
    * @brief Освобождение ресурсов
