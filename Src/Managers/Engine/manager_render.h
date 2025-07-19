@@ -29,9 +29,7 @@ class Render : public Managers::Base {
    * @brief Обновление рендера (в тике)
    *
    */
-  virtual void Update() override {
-    if (!window_ || !entity_manager_) { return; }
-  };
+  virtual void Update() override {};
 
   /**
    * @brief Инициализация менеджера (При старте)

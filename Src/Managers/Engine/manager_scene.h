@@ -2,7 +2,10 @@
 // менеджер созданя сцены и управлении окнами
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
+#include <algorithm>
+#include <optional>
 
 #include "../EngineData/engine_data.h"
 #include "../EngineError/engine_logging.h"
@@ -17,12 +20,12 @@ namespace EDD::Managers {
       принимает интерфейс для обработки событий
       принимает указатель на менеджер
   */
-using InterfaceSFEvent = EDD::Tools::Interface<sf::Event>;
-class Scene : public Managers::Base {
+using InterfaceSFEvent = Tools::Interface<sf::Event>;
+class Scene : public Managers::Base, public InterfaceSFEvent {
  private:
-  sf::RenderWindow *window_ = nullptr;  // Указатель на окно
-  Data::Viewport viewport_data_;        // Данные о вьюпорте
-  bool *is_gameloop_enabled_;           // Указатель на флаг активности цикла
+  sf::RenderWindow *window_ = nullptr;            // Указатель на окно
+  Data::Viewport viewport_data_;                  // Данные о вьюпорте
+  bool *is_gameloop_enabled_;                     // Указатель на флаг активности цикла
 
  public:
   /**
@@ -55,21 +58,25 @@ class Scene : public Managers::Base {
     if (!window_ || !window_->isOpen()) {
       return;
     }
+    EDD::LOG::Info("Scene manager updated.");
 
-    // INFO Обработка событий ввода
-    // TODO Обработка событий ввода надо сделать через интерфейс
-    // if (auto event = event_provider_->Send()) {
-    //   if (event->type == sf::Event::Closed) {
-    //     *is_gameloop_enabled_ = false;
-    //   }
-    //   if (event->type == sf::Event::KeyPressed &&
-    //       event->key.code == sf::Keyboard::Escape) {
-    //     *is_gameloop_enabled_ = false;
-    //   }
-    // }
-
+    // Обработка событий ввода
+    std::for_each(this->interface_args_.begin(),
+                  this->interface_args_.end(),
+                  [this](const std::optional<sf::Event> &opt_event) {
+                    sf::Event event = opt_event.value();
+                    const auto *keyPressed = event.getIf<sf::Event::KeyPressed>();
+                    if (keyPressed != nullptr &&
+                        (event.is<sf::Event::Closed>() ||
+                         keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)) {
+                      if (window_ && window_->isOpen()) {
+                        window_->close();
+                      }
+                      *is_gameloop_enabled_ = false;  // Останавливаем игровой цикл
+                    }
+                  });
+    interface_args_.clear();  // Очищаем аргументы интерфейса
     window_->clear(sf::Color::Black);
-
     window_->display();
   }
 
@@ -80,8 +87,14 @@ class Scene : public Managers::Base {
  private:
   void Init(std::initializer_list<void *> args = {}) override {
     // Создаем окно с заданными параметрами
-
-    CreateScene();
+    LOG::Info("Scene manager initialized.");
+    if (CreateScene()) {
+      EDD::LOG::Info("Scene created successfully.");
+      EDD::LOG::Info("Window created with size: " + std::to_string(viewport_data_.w) +
+                     "x" + std::to_string(viewport_data_.h));
+    } else {
+      EDD::LOG::Fatal("Failed to create scene.");
+    }
   }
   void FreeResources() override {
     EDD::LOG::Debug("ManagerScene call destroy");
@@ -96,7 +109,6 @@ class Scene : public Managers::Base {
         sf::ContextSettings(24, 8, 4, 3, 3));
 
     if (!window_) {
-      EDD::LOG::Fatal("Failed to create window");
       return false;
     }
 
@@ -104,8 +116,6 @@ class Scene : public Managers::Base {
     window_->setSize(sf::Vector2u(viewport_data_.w, viewport_data_.h));
     window_->setVerticalSyncEnabled(true);  // Включаем вертикальную синхронизацию
 
-    EDD::LOG::Info("Window created with size: " + std::to_string(viewport_data_.w) + "x" +
-                   std::to_string(viewport_data_.h));
     return true;
   }
 };

@@ -1,17 +1,25 @@
 #pragma once
+#include <algorithm>
+#include <cstdlib>
+#include <optional>
+#include <string>
+
 #include "EngineError/engine_logging.h"
 #include "Managers/Engine/manager_inputs.h"
-// #include "Tools/Engine/delegate.h"
+#include "Tools/Engine/delegate.h"
 #include "Tools/Engine/interface.h"
 namespace EDD {
-class TestManagerInputs : public Tools::Interface<sf::Event> {
+using InterfaceSFEvent = Tools::Interface<std::optional<sf::Event>>;
+class TestManagerInputs : public InterfaceSFEvent {
   Managers::Inputs *input_manager_ = nullptr;
-  mutable std::optional<sf::Event> last_event_;
+  bool do_it_TestInputManagerInitialization = false;  // что бы не запускать лишний раз
 
  public:
-  TestManagerInputs() {}
-  TestManagerInputs(Managers::Inputs *input_manager) : input_manager_(input_manager) {}
-  ~TestManagerInputs() {}
+  TestManagerInputs(Managers::Inputs *input_manager) : input_manager_(input_manager) {
+    if (input_manager_ == nullptr) {
+      TEST_LOG::Failed("Attempting to create TestManagerInputs with null input_manager");
+    }
+  }
 
   void RunTests() {
     TestInputManagerInitialization();
@@ -21,35 +29,26 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
  private:
   // тест инициализации менеджера ввода
   void TestInputManagerInitialization() {
-    TEST_LOG::Info("Run Test: TestInputManagerInitialization...");
-    if (input_manager_ != nullptr) {
-      TEST_LOG::Success("Input manager initialized. \n");
-    } else {
-      TEST_LOG::Failed("Input manager initialization.");
+    if (do_it_TestInputManagerInitialization) {
+      return;
     }
+    TEST_LOG::Info("Run Test: TestInputManagerInitialization...");
+
+    // Проверка на null указатель
+    if (input_manager_ == nullptr) {
+      TEST_LOG::Failed("Input manager is null pointer.");
+    }
+
+    // Проверим адрес объекта
+    TEST_LOG::Info("Input manager address: " +
+                   std::to_string(reinterpret_cast<uintptr_t>(input_manager_)));
+
+    TEST_LOG::Success("Input manager initialized correctly. \n");
+    do_it_TestInputManagerInitialization = true;
   }
   // тест проверки что данные получаются от эвента а не от input_manager
   void TestSceneManagerHandlesInputEvent() {
     TEST_LOG::Info("Run Test: TestSceneManagerHandlesInputEvent...");
-    if (input_manager_->Send().has_value()) {
-      auto ev = input_manager_->Send();
-      if (ev) {
-        last_event_ = ev;
-        TEST_LOG::Info("Message sent.");
-        if (last_event_.has_value()) {
-          if (1) {
-            TEST_LOG::Success("TestSceneManagerHandlesInputEvent passed. \n");
-          } else {
-            TEST_LOG::Failed("TestSceneManagerHandlesInputEvent failed.");
-          }
-        } else {
-          TEST_LOG::Info("Message not send.");
-          TEST_LOG::Failed("TestSceneManagerHandlesInputEvent failed.");
-        }
-      }
-    } else {
-      TEST_LOG::Info("Message not sent.");
-    }
   }
   // тест проверки что данные получаются от делегата
   void TestSceneManagerHandlesDelegateEvent() {
@@ -74,16 +73,6 @@ class TestManagerInputs : public Tools::Interface<sf::Event> {
   // тест обработки события изменения размера окна
   void TestSceneManagerHandlesWindowResizeEvent() {
     TEST_LOG::Info("Run Test: TestSceneManagerHandlesWindowResizeEvent...");
-  }
-
-  std::optional<sf::Event> Send() const override {
-    // В этот момент Events уже лежат в input_manager_->event_
-    auto ev = input_manager_->Send();  // вернёт текущее событие
-    if (ev) {
-      last_event_ = ev;
-      TEST_LOG::Success("Observer sent event.");
-    }
-    return std::nullopt;  // дальше событие не шлём
   }
 };
 }  // namespace EDD

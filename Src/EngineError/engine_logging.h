@@ -71,54 +71,55 @@ inline void InitLogging() {
 // Функторы для логирования с цветами
 inline auto Trace = [](const std::string &message) {
   InitLogging();
-  std::cout << Colors::CYAN << "[ Trace ] " << Colors::RESET << message << std::endl;
+  std::cout << Colors::CYAN << "[ Trace\t] " << Colors::RESET << message << '\n';
 };
 
 inline auto Debug = [](const std::string &message) {
   InitLogging();
-  std::cout << Colors::BLUE << "[ Debug ] " << Colors::RESET << message << std::endl;
+  std::cout << Colors::BLUE << "[ Debug\t] " << Colors::RESET << message << '\n';
 };
 
 inline auto Info = [](const std::string &message) {
   InitLogging();
-  std::cout << Colors::GREEN << "[ Info ]  " << Colors::RESET << message << std::endl;
+  std::cout << Colors::GREEN << "[ Info\t] " << Colors::RESET << message << '\n';
 };
 
 inline auto Warning = [](const std::string &message) {
   InitLogging();
-  std::cout << Colors::YELLOW << "[ Warning ]  " << Colors::RESET << message << std::endl;
+  std::cout << Colors::YELLOW << Colors::BOLD << "[ Warning\t] " << Colors::RESET
+            << message << '\n';
 };
 
 inline auto Error = [](const std::string &message) {
   InitLogging();
-  std::cout << Colors::RED << "[ Error ] " << Colors::RESET << message << std::endl;
+  std::cout << Colors::RED << "[ Error\t] " << Colors::RESET << message << '\n';
 };
 
 inline auto Fatal = [](const std::string &message) {
   InitLogging();
-  std::cout << Colors::RED << Colors::BOLD << "[ Fatal ] " << Colors::RESET << message
-            << std::endl;
+  std::cout << Colors::RED << Colors::BOLD << "[ Fatal\t] " << Colors::RESET << message
+            << '\n';
 };
 
 }  // namespace LOG
 namespace TEST_LOG {
 inline auto Success = [](const std::string &message) {
   LOG::InitLogging();
-  std::cout << LOG::Colors::GREEN << LOG::Colors::BOLD << "[TEST OK] "
-            << LOG::Colors::RESET << message << std::endl;
+  std::cout << LOG::Colors::GREEN << LOG::Colors::BOLD << "[ TEST OK\t] "
+            << LOG::Colors::RESET << message << '\n';
 };
 
 inline auto Failed = [](const std::string &message) {
   LOG::InitLogging();
-  std::cout << LOG::Colors::RED << LOG::Colors::BOLD << "[TEST FAILED] "
-            << LOG::Colors::RESET << message << std::endl;
+  std::cout << LOG::Colors::RED << LOG::Colors::BOLD << "[ TEST FAILED\t] "
+            << LOG::Colors::RESET << message << '\n';
   throw std::runtime_error(message);  // Генерируем исключение для тестов
 };
 
 inline auto Info = [](const std::string &message) {
   LOG::InitLogging();
-  std::cout << LOG::Colors::CYAN << "[TEST Message] " << LOG::Colors::RESET << message
-            << std::endl;
+  std::cout << LOG::Colors::CYAN << "[ TEST Message\t] " << LOG::Colors::RESET << message
+            << '\n';
 };
 
 }  // namespace TEST_LOG

@@ -8,6 +8,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/Engine)
 
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
+include(CTest)
+enable_testing()
+
 find_package(Vulkan REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -85,3 +88,25 @@ add_custom_command( # копировать `Src/Settings` в папку build/En
     ${CMAKE_SOURCE_DIR}/build/Engine/Settings
 )
 
+# =========== ТЕСТЫ =============
+add_test(NAME SmokeTest_Basic
+    COMMAND ${PROJECT_NAME})
+set_tests_properties(SmokeTest_Basic PROPERTIES
+    TIMEOUT 5   
+    LABELS "smoke"
+)
+
+# Тест на утечки памяти (с Valgrind если доступен)
+find_program(VALGRIND_EXECUTABLE valgrind)
+if(VALGRIND_EXECUTABLE)
+    add_test(NAME MemoryTest_Valgrind
+        COMMAND ${VALGRIND_EXECUTABLE} 
+        --leak-check=full 
+        --error-exitcode=1 
+        --show-leak-kinds=all
+        $<TARGET_FILE:${PROJECT_NAME}>)
+    set_tests_properties(MemoryTest_Valgrind PROPERTIES
+        TIMEOUT 300  
+        LABELS "memory"
+    )
+endif()

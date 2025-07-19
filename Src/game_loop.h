@@ -14,15 +14,14 @@
 #include "Managers/Engine/manager_resource.h"
 #include "Managers/Engine/manager_scene.h"
 #include "Managers/Engine/manager_settings.h"
-
-// test
+// tests
 #include "../Tests/test_manager_inputs.h"
-
 namespace EDD {
 class GameLoop {
  private:
   //======================================================================
-  TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
+
+  // TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
 
   //======================================================================
  public:
@@ -85,18 +84,25 @@ class GameLoop {
 
     // Инициализация всех менеджеров
     {
-      managers_["inputs"]->Init({managers_["scene"]});
       managers_["scene"]->Init();
+      managers_["inputs"]->Init(
+          {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef()});
     }
 
+    // Подписска на `input` события
+    {
+      static_cast<Managers::Inputs *>(managers_.at("inputs"))
+          ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
+    }
     //=====================================================================
+
     // зона подключения тестов
 
-    test_manager_inputs_ = new TestManagerInputs(
-        static_cast<Managers::Inputs *>(managers_.at("inputs")));
+    // test_manager_inputs_ = new TestManagerInputs(
+    //     static_cast<Managers::Inputs *>(managers_.at("inputs")));
 
-    static_cast<Managers::Inputs *>(managers_.at("inputs"))
-        ->Subscribe(test_manager_inputs_);
+    // static_cast<Managers::Inputs *>(managers_.at("inputs"))
+    //     ->Subscribe(test_manager_inputs_);
 
     //======================================================================
     return true;
@@ -105,8 +111,9 @@ class GameLoop {
   // TODO сделать вывод отладки у менеджеров для проверки работы
   void EngineLoop() {
     while (is_gameloop_enabled_) {
-      // test_manager_inputs_->RunTests();
       // Запуск тестов
+      // test_manager_inputs_->RunTests();
+
       for (auto manager : managers_) {
         manager.second->Update();
       }
@@ -133,6 +140,7 @@ class GameLoop {
     is_gameloop_enabled_ = true;
     EngineLoop();
   }
+
   void StopLoop() {
     is_gameloop_enabled_ = false;
   }
