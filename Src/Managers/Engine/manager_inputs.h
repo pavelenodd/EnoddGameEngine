@@ -34,15 +34,15 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
 
   virtual void Update() override {
     LOG::Info("Input manager updated.");
-    if (window_) {
-      event_ = window_->pollEvent();
-      if (event_.has_value()) {
-        // Уведомляем всех подписчиков
-        for (auto* obs : observers_) {
-          obs->interface_args_ = event_;
-        }
-      }
-    }
+    // if (window_) {
+    //   event_ = window_->pollEvent();
+    //   if (event_.has_value() && event_->is<sf::Event::KeyPressed>()) {
+    //     // Уведомляем всех подписчиков
+    //     for (auto* obs : observers_) {
+    //       obs->interface_args_ = event_;
+    //     }
+    //   }
+    // }
   }
   // Подписаться/отписаться на события
   void Subscribe(InterfaceSFEvent* observers = nullptr) {

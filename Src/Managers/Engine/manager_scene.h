@@ -60,7 +60,7 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
     EDD::LOG::Info("Scene manager updated.");
 
     // Обработка событий ввода
-    if (interface_args_.has_value()) {
+    if (this->interface_args_.has_value()) {
       sf::Event event = interface_args_.value();
       const auto *keyPressed = event.getIf<sf::Event::KeyPressed>();
       if (event.is<sf::Event::Closed>() ||
@@ -113,7 +113,8 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
     // Устанавливаем размер окна
     window_->setSize(sf::Vector2u(viewport_data_.w, viewport_data_.h));
     window_->setVerticalSyncEnabled(true);  // Включаем вертикальную синхронизацию
-
+    window_->setKeyRepeatEnabled(false);    // Отключаем повтор нажатий клавиш
+    window_->setFramerateLimit(60);         // Ограничиваем FPS до 60
     return true;
   }
 };
