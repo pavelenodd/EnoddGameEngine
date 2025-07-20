@@ -21,7 +21,7 @@ class GameLoop {
  private:
   //======================================================================
 
-  // TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
+  TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
 
   //======================================================================
  public:
@@ -64,11 +64,11 @@ class GameLoop {
     }
 
     // Зона создания менеджеров
+    managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("entity", new Managers::Entity());
     managers_.emplace("physics", new Managers::Physics());
     managers_.emplace("resource", new Managers::Resource());
     managers_.emplace("render", new Managers::Render());
-    managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("scene",
                       new Managers::Scene({"main", 800, 600}, &is_gameloop_enabled_));
 
@@ -98,11 +98,11 @@ class GameLoop {
 
     // зона подключения тестов
 
-    // test_manager_inputs_ = new TestManagerInputs(
-    //     static_cast<Managers::Inputs *>(managers_.at("inputs")));
+    test_manager_inputs_ = new TestManagerInputs(
+        static_cast<Managers::Inputs *>(managers_.at("inputs")));
 
-    // static_cast<Managers::Inputs *>(managers_.at("inputs"))
-    //     ->Subscribe(test_manager_inputs_);
+    static_cast<Managers::Inputs *>(managers_.at("inputs"))
+        ->Subscribe(test_manager_inputs_);
 
     //======================================================================
     return true;

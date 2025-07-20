@@ -8,8 +8,9 @@
 #include "Managers/Engine/manager_inputs.h"
 #include "Tools/Engine/delegate.h"
 #include "Tools/Engine/interface.h"
+
 namespace EDD {
-using InterfaceSFEvent = Tools::Interface<std::optional<sf::Event>>;
+using InterfaceSFEvent = Tools::Interface<sf::Event>;
 class TestManagerInputs : public InterfaceSFEvent {
   Managers::Inputs *input_manager_ = nullptr;
   bool do_it_TestInputManagerInitialization = false;  // что бы не запускать лишний раз

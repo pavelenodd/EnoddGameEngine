@@ -60,16 +60,13 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
     EDD::LOG::Info("Scene manager updated.");
 
     // Обработка событий ввода
-
-    sf::Event event = interface_args_.value();
-    const auto *keyPressed = event.getIf<sf::Event::KeyPressed>();
-    if (keyPressed != nullptr &&
-        (event.is<sf::Event::Closed>() ||
-         keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)) {
-      if (window_ && window_->isOpen()) {
-        window_->close();
+    if (interface_args_.has_value()) {
+      sf::Event event = interface_args_.value();
+      const auto *keyPressed = event.getIf<sf::Event::KeyPressed>();
+      if (event.is<sf::Event::Closed>() ||
+          (keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)) {
+        *is_gameloop_enabled_ = false;  // Останавливаем игровой цикл
       }
-      *is_gameloop_enabled_ = false;  // Останавливаем игровой цикл
     }
 
     window_->clear(sf::Color::Black);
@@ -93,6 +90,11 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
     }
   }
   void FreeResources() override {
+    if (window_->isOpen()) {
+      window_->close();
+    }
+    delete window_;
+
     EDD::LOG::Debug("ManagerScene call destroy");
   }
 
