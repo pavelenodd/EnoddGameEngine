@@ -1,5 +1,4 @@
 #pragma once
-#include <list>
 #include <optional>
 namespace EDD ::Tools {
 
@@ -7,7 +6,7 @@ namespace EDD ::Tools {
 template <typename T>
 class Interface {
  public:
-  std::list<std::optional<T>> interface_args_;  // Список передаваемых значений
+  std::optional<T> interface_args_;  // Передаваемое значение
 
   virtual ~Interface() = default;
 };

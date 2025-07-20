@@ -4,7 +4,6 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
-#include <algorithm>
 #include <optional>
 
 #include "../EngineData/engine_data.h"
@@ -61,21 +60,18 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
     EDD::LOG::Info("Scene manager updated.");
 
     // Обработка событий ввода
-    std::for_each(this->interface_args_.begin(),
-                  this->interface_args_.end(),
-                  [this](const std::optional<sf::Event> &opt_event) {
-                    sf::Event event = opt_event.value();
-                    const auto *keyPressed = event.getIf<sf::Event::KeyPressed>();
-                    if (keyPressed != nullptr &&
-                        (event.is<sf::Event::Closed>() ||
-                         keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)) {
-                      if (window_ && window_->isOpen()) {
-                        window_->close();
-                      }
-                      *is_gameloop_enabled_ = false;  // Останавливаем игровой цикл
-                    }
-                  });
-    interface_args_.clear();  // Очищаем аргументы интерфейса
+
+    sf::Event event = interface_args_.value();
+    const auto *keyPressed = event.getIf<sf::Event::KeyPressed>();
+    if (keyPressed != nullptr &&
+        (event.is<sf::Event::Closed>() ||
+         keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)) {
+      if (window_ && window_->isOpen()) {
+        window_->close();
+      }
+      *is_gameloop_enabled_ = false;  // Останавливаем игровой цикл
+    }
+
     window_->clear(sf::Color::Black);
     window_->display();
   }

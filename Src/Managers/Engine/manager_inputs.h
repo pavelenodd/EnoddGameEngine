@@ -40,7 +40,7 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
 
       // Уведомляем всех подписчиков
       for (auto* obs : observers_) {
-        obs->interface_args_.push_back(event_);
+        obs->interface_args_ = event_;
       }
     }
   }
