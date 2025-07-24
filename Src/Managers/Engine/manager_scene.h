@@ -61,7 +61,7 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
 
     // Обработка событий ввода
     if (this->interface_args_.has_value()) {
-      sf::Event event = interface_args_.value();
+      const sf::Event &event = interface_args_.value();
       const auto *keyPressed = event.getIf<sf::Event::KeyPressed>();
       if (event.is<sf::Event::Closed>() ||
           (keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)) {
