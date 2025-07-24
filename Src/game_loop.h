@@ -65,10 +65,10 @@ class GameLoop {
 
     // Зона создания менеджеров
     managers_.emplace("inputs", new Managers::Inputs());
-    managers_.emplace("entity", new Managers::Entity());
-    managers_.emplace("physics", new Managers::Physics());
-    managers_.emplace("resource", new Managers::Resource());
-    managers_.emplace("render", new Managers::Render());
+    // managers_.emplace("entity", new Managers::Entity());
+    // managers_.emplace("physics", new Managers::Physics());
+    // managers_.emplace("resource", new Managers::Resource());
+    // managers_.emplace("render", new Managers::Render());
     managers_.emplace("scene",
                       new Managers::Scene({"main", 800, 600}, &is_gameloop_enabled_));
 

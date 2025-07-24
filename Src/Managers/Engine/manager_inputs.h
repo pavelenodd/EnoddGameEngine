@@ -33,17 +33,23 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
   }
 
   virtual void Update() override {
-    LOG::Info("Input manager updated.");
-    if (window_) {
-      event_ = window_->pollEvent();
-      if (event_.has_value() && event_->getIf<sf::Event::KeyPressed>()) {
-        // Уведомляем всех подписчиков
-        for (auto* obs : observers_) {
-          obs->interface_args_ = event_;
-        }
+    while ((event_ = window_->pollEvent())) {
+      /* --- фильтрация только клавиатуры --- */
+      const auto* pressed = event_->getIf<sf::Event::KeyPressed>();
+      const auto* released = event_->getIf<sf::Event::KeyReleased>();
+
+      if ((!event_->is<sf::Event::Closed>()) && (!pressed && !released)) continue;
+
+      /* --- рассылаем подписчикам --- */
+      for (auto* obs : observers_) {
+        obs->interface_args_ = event_;
       }
     }
+
+    // Очистка события после обработки
+    event_ = std::nullopt;
   }
+
   // Подписаться/отписаться на события
   void Subscribe(InterfaceSFEvent* observers = nullptr) {
     if (observers != nullptr) {
