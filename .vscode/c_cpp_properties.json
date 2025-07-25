@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "name": "Debug",
+      "defines": ["DEBUG"],
+      "includePath": ["${workspaceFolder}/**"],
+      "compilerPath": "/usr/bin/clang++",
+      "intelliSenseMode": "linux-clang-x64",
+      "cppStandard": "gnu++23"
+    },
+    {
+      "name": "Release",
+      "defines": ["RELEASE"],
+      "includePath": ["${workspaceFolder}/**"],
+      "compilerPath": "/usr/bin/clang++",
+      "intelliSenseMode": "linux-clang-x64",
+      "cppStandard": "gnu++23"
+    }
+  ],
+  "version": 4
+}

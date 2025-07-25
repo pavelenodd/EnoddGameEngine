@@ -20,9 +20,10 @@ namespace EDD {
 class GameLoop {
  private:
   //======================================================================
-
+#ifdef DEBUG
   TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
 
+#endif
   //======================================================================
  public:
   bool is_gameloop_enabled_ = false;  // флаг активности игрового цикла
@@ -65,10 +66,10 @@ class GameLoop {
 
     // Зона создания менеджеров
     managers_.emplace("inputs", new Managers::Inputs());
-    // managers_.emplace("entity", new Managers::Entity());
-    // managers_.emplace("physics", new Managers::Physics());
-    // managers_.emplace("resource", new Managers::Resource());
-    // managers_.emplace("render", new Managers::Render());
+    managers_.emplace("entity", new Managers::Entity());
+    managers_.emplace("physics", new Managers::Physics());
+    managers_.emplace("resource", new Managers::Resource());
+    managers_.emplace("render", new Managers::Render());
     managers_.emplace("scene",
                       new Managers::Scene({"main", 800, 600}, &is_gameloop_enabled_));
 
@@ -97,12 +98,13 @@ class GameLoop {
     //=====================================================================
 
     // зона подключения тестов
-
+#ifdef DEBUG
     test_manager_inputs_ = new TestManagerInputs(
         static_cast<Managers::Inputs *>(managers_.at("inputs")));
 
     static_cast<Managers::Inputs *>(managers_.at("inputs"))
         ->Subscribe(test_manager_inputs_);
+#endif
 
     //======================================================================
     return true;
@@ -111,11 +113,15 @@ class GameLoop {
   // TODO сделать вывод отладки у менеджеров для проверки работы
   void EngineLoop() {
     while (is_gameloop_enabled_) {
-      // Запуск тестов
-      // test_manager_inputs_->RunTests();
-
       for (auto manager : managers_) {
         manager.second->Update();
+#ifdef DEBUG
+        // Запуск тестов
+        if (dynamic_cast<Managers::Inputs *>(manager.second)) {
+          test_manager_inputs_->RunTests();
+        }
+
+#endif
       }
     }
 

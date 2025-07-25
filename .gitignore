@@ -1,4 +1,6 @@
 build
 diff
-.vscode
-.cache
+.*
+!.vscode
+!.gitignore
+!.clang-format

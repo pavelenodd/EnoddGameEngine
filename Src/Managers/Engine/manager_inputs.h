@@ -33,21 +33,27 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
   }
 
   virtual void Update() override {
+    if (!window_ || !window_->isOpen()) {
+      return;
+    }
+    EDD::LOG::Info("Input manager updated.");
     while ((event_ = window_->pollEvent())) {
-      /* --- фильтрация только клавиатуры --- */
       const auto* pressed = event_->getIf<sf::Event::KeyPressed>();
       const auto* released = event_->getIf<sf::Event::KeyReleased>();
+      const auto* closed = event_->getIf<sf::Event::Closed>();
 
-      if ((!event_->is<sf::Event::Closed>()) && (!pressed && !released)) continue;
+      if (!pressed && !released && !closed) continue;
 
-      /* --- рассылаем подписчикам --- */
+#ifdef DEBUG
+      this->interface_args_ = event_;
+#endif
+
       for (auto* obs : observers_) {
         obs->interface_args_ = event_;
       }
-    }
 
-    // Очистка события после обработки
-    event_ = std::nullopt;
+      event_ = std::nullopt;
+    }
   }
 
   // Подписаться/отписаться на события
@@ -78,6 +84,7 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
     std::for_each(args.begin(), args.end(), [this](const auto& arg) {
       SetWindowRef(static_cast<sf::RenderWindow*>(arg));
     });
+    window_->setKeyRepeatEnabled(false);  // Отключаем повтор нажатия клавиш
   }
 
   virtual void FreeResources() override {
@@ -95,7 +102,5 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
       LOG::Fatal("window is null");
     }
   }
-  // INFO: для тестов
-  friend class TestManagerInputs;
 };
 }  // namespace EDD::Managers

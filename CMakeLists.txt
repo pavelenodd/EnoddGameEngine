@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/Engine)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(DEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_definitions(RELEASE)
+endif()
 
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
@@ -50,6 +55,10 @@ add_executable(${PROJECT_NAME}
     Src/Tools/Engine/delegate.h
     Src/Tools/Engine/interface.h
     Src/Tools/Engine/json_reader.h
+
+    # Tests
+    Tests/test_manager_inputs.h
+    Tests/test_manager_inputs.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
