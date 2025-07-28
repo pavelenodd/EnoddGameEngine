@@ -74,7 +74,7 @@
 | --------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | C++             | C++23  | [https://isocpp.org/std/the-standard](https://isocpp.org/std/the-standard)                                                                 |
 | CMake           | 3.20+  | [https://cmake.org/](https://cmake.org/)                                                                                                   |
-| SFML            | 2.6    | [https://www.sfml-dev.org/](https://www.sfml-dev.org/)                                                                                     |
+| SFML            | > 3.1  | [https://www.sfml-dev.org/](https://www.sfml-dev.org/)                                                                                     |
 | Vulkan          | 1.3    | [https://www.vulkan.org/](https://www.vulkan.org/)                                                                                         |
 | VMA             | 3.x    | [https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)     |
 | Shaderc/SPIRV-C | latest | [https://github.com/google/shaderc](https://github.com/google/shaderc)                                                                     |

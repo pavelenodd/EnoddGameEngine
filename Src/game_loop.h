@@ -101,7 +101,6 @@ class GameLoop {
     //=====================================================================
 
     // зона подключения тестов
-    static_cast<Managers::Render *>(managers_["render"])->InitRenderEntity();
 #ifdef DEBUG
     test_manager_inputs_ = new TestManagerInputs(
         static_cast<Managers::Inputs *>(managers_.at("inputs")));

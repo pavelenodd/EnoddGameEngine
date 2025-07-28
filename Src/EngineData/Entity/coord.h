@@ -1,8 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
-#include <vector>
-
 class Coord {
  public:
   sf::Vector3f position_;

@@ -19,8 +19,10 @@ enable_testing()
 find_package(Vulkan REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(assimp REQUIRED)
 find_package(EnTT REQUIRED)
 find_package(SFML 3 REQUIRED COMPONENTS System)
+find_package(bgfx CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME}
     Src/main.cpp
@@ -45,7 +47,6 @@ add_executable(${PROJECT_NAME}
     Src/Managers/Engine/manager_entity.h
 
     # EngineLogging
-    Src/EngineError/engine_error.h
     Src/EngineError/engine_logging.h
 
     # DATA
@@ -81,6 +82,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::filesystem
 
     SFML::System
+    bgfx::bgfx
+    assimp::assimp
 
     nlohmann_json::nlohmann_json
 
