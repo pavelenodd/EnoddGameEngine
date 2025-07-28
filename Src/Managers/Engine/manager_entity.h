@@ -39,7 +39,7 @@ class Entity : public Base {
   // ================================================================
 
   virtual void Update() override {}
-  virtual void Init(std::initializer_list<void*> args = {}) override {
+  virtual void Init(std::vector<std::any> args) override {
     // Инициализация, если нужна
     LOG::Info("Entity manager initialized.");
     registry_.clear();

@@ -22,9 +22,9 @@ namespace EDD::Managers {
 using InterfaceSFEvent = Tools::Interface<sf::Event>;
 class Scene : public Managers::Base, public InterfaceSFEvent {
  private:
-  sf::RenderWindow *window_ = nullptr;            // Указатель на окно
-  Data::Viewport viewport_data_;                  // Данные о вьюпорте
-  bool *is_gameloop_enabled_;                     // Указатель на флаг активности цикла
+  sf::RenderWindow *window_ = nullptr;  // Указатель на окно
+  Data::Viewport viewport_data_;        // Данные о вьюпорте
+  bool *is_gameloop_enabled_;           // Указатель на флаг активности цикла
 
  public:
   /**
@@ -69,8 +69,8 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
       }
     }
 
-    window_->clear(sf::Color::Black);
-    window_->display();
+    // window_->clear(sf::Color::Black);
+    // window_->display();
   }
 
   sf::RenderWindow *GetWindowRef() const {
@@ -78,7 +78,7 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
   }
 
  private:
-  void Init(std::initializer_list<void *> args = {}) override {
+  void Init(std::vector<std::any> args = {}) override {
     // Создаем окно с заданными параметрами
     LOG::Info("Scene manager initialized.");
     if (CreateScene()) {

@@ -68,25 +68,23 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
     }
   }
 
- private:
-  virtual void Init(std::initializer_list<void*> args = {}) override {
+  virtual void Init(std::vector<std::any> args) override {
     // Инициализация обработчика ввода
     LOG::Info("Input manager initialized.");
     if (args.size() == 0) {
       LOG::Fatal("No window provided for Inputs manager initialization");
     }
-    if (args.begin() == args.end() || *args.begin() == nullptr) {
-      LOG::Fatal("Window pointer is null in Inputs manager initialization");
-    }
-    if (static_cast<sf::RenderWindow*>(*args.begin()) == nullptr) {
+
+    if (args.size() < 1 || !args[0].has_value()) {
       LOG::Fatal("Window pointer is null in Inputs manager initialization");
     }
     std::for_each(args.begin(), args.end(), [this](const auto& arg) {
-      SetWindowRef(static_cast<sf::RenderWindow*>(arg));
+      SetWindowRef(std::any_cast<sf::RenderWindow*>(arg));
     });
     window_->setKeyRepeatEnabled(false);  // Отключаем повтор нажатия клавиш
   }
 
+ private:
   virtual void FreeResources() override {
     // Освобождение ресурсов
     window_ = nullptr;

@@ -88,6 +88,9 @@ class GameLoop {
       managers_["scene"]->Init();
       managers_["inputs"]->Init(
           {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef()});
+      managers_["render"]->Init(
+          {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
+           static_cast<Managers::Entity *>(managers_["entity"])});
     }
 
     // Подписска на `input` события
@@ -98,6 +101,7 @@ class GameLoop {
     //=====================================================================
 
     // зона подключения тестов
+    static_cast<Managers::Render *>(managers_["render"])->InitRenderEntity();
 #ifdef DEBUG
     test_manager_inputs_ = new TestManagerInputs(
         static_cast<Managers::Inputs *>(managers_.at("inputs")));

@@ -8,11 +8,7 @@
 #include "manager_base.h"
 
 namespace EDD {
-enum SettingsType {
-  WINDOW_SETTINGS = 0,
-  AUDIO_SETTINGS = 1,
-  GRAPHICS_SETTINGS = 2
-};
+enum SettingsType { WINDOW_SETTINGS = 0, AUDIO_SETTINGS = 1, GRAPHICS_SETTINGS = 2 };
 /*
   Менеджер настроек отвечает за загрузку и сохранение настроек игры.
       Он может загружать настройки из файла JSON и сохранять их обратно в файл.
@@ -63,11 +59,15 @@ class ManagerSettings : public Managers::Base {
   ManagerSettings& operator=(const ManagerSettings&) = delete;
   ManagerSettings& operator=(ManagerSettings&&) = delete;
 
-  bool LoadSettings(const std::string& file_path) {return true;}
-  bool SaveSettings(const std::string& file_path) {return true;}
+  bool LoadSettings(const std::string& file_path) {
+    return true;
+  }
+  bool SaveSettings(const std::string& file_path) {
+    return true;
+  }
 
   void Update() override {}
-  void Init(std::initializer_list<void*> args = {}) override {
+  void Init(std::vector<std::any> args) override {
     EDD::LOG::Debug("ManagerSettings initialized");
   }
   void FreeResources() override {}

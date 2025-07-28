@@ -43,7 +43,7 @@ class Resource : public Managers::Base {
     return true;
   }
 
-  virtual void Init(std::initializer_list<void*> args = {}) override {}
+  virtual void Init(std::vector<std::any> args) override {}
   virtual void FreeResources() override {}
 };
 }  // namespace EDD::Managers

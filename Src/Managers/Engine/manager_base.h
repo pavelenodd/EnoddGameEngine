@@ -1,6 +1,7 @@
 // Managers/manager.h
 #pragma once
-#include <initializer_list>
+#include <any>
+#include <vector>
 
 namespace EDD::Managers {
 /**
@@ -21,7 +22,7 @@ class Base {
    * конструкторе
    * @param args Список указателей на контекст инициализации
    */
-  virtual void Init(std::initializer_list<void*> args = {}) = 0;
+  virtual void Init(std::vector<std::any> args = {}) = 0;
 
   /**
    * @brief Освобождение ресурсов вызывается при завершении работы менеджера или в деструкторе
