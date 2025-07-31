@@ -35,7 +35,7 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
    */
   Scene(Data::Viewport viewport_data, bool *is_gameloop_enabled)
       : viewport_data_(viewport_data), is_gameloop_enabled_(is_gameloop_enabled) {
-    EDD::LOG::Debug("Manager Scene created");
+    LOG::Debug() << "Manager Scene created";
   }
 
   ~Scene() {
@@ -57,7 +57,7 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
     if (!window_ || !window_->isOpen()) {
       return;
     }
-    EDD::LOG::Info("Scene manager updated.");
+    LOG::Debug() << "Scene manager updated.";
 
     // Обработка событий ввода
     if (this->interface_args_.has_value()) {
@@ -80,13 +80,13 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
  private:
   void Init(std::vector<std::any> args = {}) override {
     // Создаем окно с заданными параметрами
-    LOG::Info("Scene manager initialized.");
+    LOG::Debug() << "Scene manager initialized.";
     if (CreateScene()) {
-      EDD::LOG::Info("Scene created successfully.");
-      EDD::LOG::Info("Window created with size: " + std::to_string(viewport_data_.w) +
-                     "x" + std::to_string(viewport_data_.h));
+      LOG::Info() << "Scene created successfully.";
+      LOG::Info() << "Window created with size: " + std::to_string(viewport_data_.w) +
+                         "x" + std::to_string(viewport_data_.h);
     } else {
-      EDD::LOG::Fatal("Failed to create scene.");
+      LOG::Fatal(__FILE__, __LINE__) << "Failed to create scene.";
     }
   }
   void FreeResources() override {
@@ -95,7 +95,7 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
     }
     delete window_;
 
-    EDD::LOG::Debug("ManagerScene call destroy");
+    LOG::Debug() << "ManagerScene call destroy";
   }
 
   bool CreateScene() {

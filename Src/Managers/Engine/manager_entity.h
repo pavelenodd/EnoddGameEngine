@@ -41,13 +41,13 @@ class Entity : public Base {
   virtual void Update() override {}
   virtual void Init(std::vector<std::any> args) override {
     // Инициализация, если нужна
-    LOG::Info("Entity manager initialized.");
+    LOG::Debug() << "Entity manager initialized.";
     registry_.clear();
     named_entities_.clear();
   }
 
   virtual void FreeResources() override {
-    LOG::Info("Entity manager resources freed.");
+    LOG::Debug() << "Entity manager resources freed.";
     registry_.clear();
     named_entities_.clear();
   }

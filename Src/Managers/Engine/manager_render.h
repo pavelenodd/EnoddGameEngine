@@ -50,7 +50,7 @@ class Render : public Managers::Base {
    * @brief Инициализация менеджера (При старте)
    */
   virtual void Init(std::vector<std::any> args) override {
-    LOG::Info("Render manager initialized.");
+    LOG::Debug() << "Render manager initialized.";
 
     for (const auto& arg : args) {
       if (!arg.has_value()) continue;
@@ -63,11 +63,13 @@ class Render : public Managers::Base {
     }
 
     if (!window_) {
-      LOG::Fatal("Window pointer is null or not provided in Render manager");
+      LOG::Fatal(__FILE__, __LINE__)
+          << "Window pointer is null or not provided in Render manager";
     }
 
     if (!entity_manager_) {
-      LOG::Fatal("Entity manager pointer is null or not provided in Render manager");
+      LOG::Fatal(__FILE__, __LINE__)
+          << "Entity manager pointer is null or not provided in Render manager";
     }
 
     InitRenderEntity();
@@ -80,14 +82,14 @@ class Render : public Managers::Base {
   virtual void FreeResources() override {
     window_ = nullptr;
     entity_manager_ = nullptr;
-    LOG::Info("Render manager resources freed.");
+    LOG::Debug() << "Render manager resources freed.";
   };
   void InitRenderEntity() {
     if (!entity_manager_) {
-      LOG::Fatal("EntityManager not set in Render");
+      LOG::Fatal(__FILE__, __LINE__) << "EntityManager not set in Render";
       return;
     }
-    LOG::Info("Initializing Render Entity");
+    LOG::Debug() << "Initializing Render Entity";
     /*
     здесь должна быть логика инициализации
     объектов для отрисовки сведение частей сущностей для из рендера
@@ -101,14 +103,14 @@ class Render : public Managers::Base {
     if (window) {
       window_ = window;
     } else {
-      LOG::Fatal("window is null");
+      LOG::Fatal(__FILE__, __LINE__) << "Window pointer is null";
     }
   }
   void SetEntityManager(Entity* entity_manager = nullptr) {
     if (entity_manager) {
       entity_manager_ = entity_manager;
     } else {
-      LOG::Fatal("entity manager is null");
+      LOG::Fatal(__FILE__, __LINE__) << "Entity manager pointer is null";
     }
   }
 

@@ -34,7 +34,7 @@ class GameLoop {
  public:
   explicit GameLoop() {
     if (!Init()) {
-      LOG::Fatal("game loop initialization failed");
+      LOG::Fatal(__FILE__, __LINE__) << "game loop initialization failed";
       return;
     }
   }
@@ -52,14 +52,14 @@ class GameLoop {
     manager_settings_ = new ManagerSettings();
     // INFO загрузка настроек движка
     if (!manager_settings_) {
-      LOG::Fatal("manager_settings_ is null");
+      LOG::Fatal(__FILE__, __LINE__) << "manager_settings_ is null";
       return false;
       if (manager_settings_->LoadSettings("Init/viewport_settings.json") &&
           manager_settings_->LoadSettings("Init/audio_settings.json") &&
           manager_settings_->LoadSettings("Init/graphics_settings.json") &&
           manager_settings_->LoadSettings("Init/input_settings.json")) {
       } else {
-        LOG::Fatal("Failed to load settings");
+        LOG::Fatal(__FILE__, __LINE__) << "Failed to load settings";
         return false;
       }
     }
@@ -74,12 +74,12 @@ class GameLoop {
                       new Managers::Scene({"main", 800, 600}, &is_gameloop_enabled_));
 
     if (managers_.empty()) {
-      LOG::Fatal("managers list is empty");
+      LOG::Fatal(__FILE__, __LINE__) << "managers list is empty";
       return false;
     }
 
     if (!manager_settings_) {
-      LOG::Fatal("manager_settings_ is null");
+      LOG::Fatal(__FILE__, __LINE__) << "manager_settings_ is null";
       return false;
     }
 
@@ -136,9 +136,9 @@ class GameLoop {
         manager_settings_->SaveSettings("Init/audio_settings.json") &&
         manager_settings_->SaveSettings("Init/graphics_settings.json") &&
         manager_settings_->SaveSettings("Init/input_settings.json")) {
-      LOG::Info("All settings saved successfully");
+      LOG::Info(__FILE__) << "Settings saved successfully";
     } else {
-      LOG::Fatal("Failed to save some settings");
+      LOG::Fatal(__FILE__, __LINE__) << "Failed to save some settings";
     }
     manager_settings_->FreeResources();  // Освобождаем память
   }

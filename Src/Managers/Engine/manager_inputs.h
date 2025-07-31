@@ -36,7 +36,7 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
     if (!window_ || !window_->isOpen()) {
       return;
     }
-    EDD::LOG::Info("Input manager updated.");
+    LOG::Debug() << "Input manager updated.";
     while ((event_ = window_->pollEvent())) {
       const auto* pressed = event_->getIf<sf::Event::KeyPressed>();
       const auto* released = event_->getIf<sf::Event::KeyReleased>();
@@ -70,13 +70,15 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
 
   virtual void Init(std::vector<std::any> args) override {
     // Инициализация обработчика ввода
-    LOG::Info("Input manager initialized.");
+    LOG::Debug() << "Input manager initialized.";
     if (args.size() == 0) {
-      LOG::Fatal("No window provided for Inputs manager initialization");
+      LOG::Fatal(__FILE__, __LINE__)
+          << "No arguments provided for Inputs manager initialization";
     }
 
     if (args.size() < 1 || !args[0].has_value()) {
-      LOG::Fatal("Window pointer is null in Inputs manager initialization");
+      LOG::Fatal(__FILE__, __LINE__)
+          << "Window pointer is null in Inputs manager initialization";
     }
     std::for_each(args.begin(), args.end(), [this](const auto& arg) {
       SetWindowRef(std::any_cast<sf::RenderWindow*>(arg));
@@ -97,7 +99,7 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
     if (window) {
       window_ = window;
     } else {
-      LOG::Fatal("window is null");
+      LOG::Fatal(__FILE__, __LINE__) << "Window pointer is null";
     }
   }
 };

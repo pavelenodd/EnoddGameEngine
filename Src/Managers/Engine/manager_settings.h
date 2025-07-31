@@ -51,7 +51,7 @@ class ManagerSettings : public Managers::Base {
 
   ~ManagerSettings() {
     FreeResources();
-    EDD::LOG::Debug("ManagerSettings destroyed");
+    LOG::Debug() << "ManagerSettings destroyed";
   }
   // Удаление конструкторов копирования, присваивания и перемещения
   ManagerSettings(const ManagerSettings&) = delete;
@@ -68,7 +68,7 @@ class ManagerSettings : public Managers::Base {
 
   void Update() override {}
   void Init(std::vector<std::any> args) override {
-    EDD::LOG::Debug("ManagerSettings initialized");
+    LOG::Debug() << "ManagerSettings initialized";
   }
   void FreeResources() override {}
 };
