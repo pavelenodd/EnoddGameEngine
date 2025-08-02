@@ -99,7 +99,14 @@ add_custom_command( # копировать `Src/Settings` в папку build/En
     ${CMAKE_SOURCE_DIR}/Src/Settings
     ${CMAKE_SOURCE_DIR}/build/Engine/Settings
 )
-
+add_custom_command( # копировать `Src/Resources` в папку build/Engine
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/build/Engine/Resources
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/Src/Resources
+    ${CMAKE_SOURCE_DIR}/build/Engine/Resources
+)
 # =========== ТЕСТЫ =============
 add_test(NAME SmokeTest_Basic
     COMMAND ${PROJECT_NAME})

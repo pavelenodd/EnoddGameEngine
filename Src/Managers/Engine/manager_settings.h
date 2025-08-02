@@ -25,24 +25,17 @@ class ManagerSettings : public Managers::Base {
    * @param file_path Путь к файлу
    */
   bool IsOpenFile(const std::string& file_path) {
-    std::ifstream L_file(file_path);
-    if (L_file.fail()) {
-      return false;
-    }
-    L_file.open(file_path);
-    if (!L_file.is_open()) {
-      return false;
-    }
-    return true;
+    std::fstream file(file_path, std::ios::in);
+    return file.is_open();
   }
   /**
    * @brief Закрывает файл, если он открыт
    * @param file_path Путь к файлу для закрытия
    */
   void CloseFile(const std::string& file_path) {
-    std::ifstream L_file(file_path);
-    if (L_file.is_open()) {
-      L_file.close();
+    std::fstream file(file_path, std::ios::in);
+    if (file.is_open()) {
+      file.close();
     }
   }
 
@@ -53,17 +46,17 @@ class ManagerSettings : public Managers::Base {
     FreeResources();
     LOG::Debug() << "ManagerSettings destroyed";
   }
-  // Удаление конструкторов копирования, присваивания и перемещения
+  // Удаление лишних конструкторов
   ManagerSettings(const ManagerSettings&) = delete;
   ManagerSettings(ManagerSettings&&) = delete;
   ManagerSettings& operator=(const ManagerSettings&) = delete;
   ManagerSettings& operator=(ManagerSettings&&) = delete;
 
   bool LoadSettings(const std::string& file_path) {
-    return true;
+    return IsOpenFile(file_path);
   }
   bool SaveSettings(const std::string& file_path) {
-    return true;
+    return IsOpenFile(file_path);
   }
 
   void Update() override {}
