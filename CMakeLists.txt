@@ -81,14 +81,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::thread
     Boost::filesystem
 
-    SFML::System
     bgfx::bgfx
     assimp::assimp
 
     nlohmann_json::nlohmann_json
 
     EnTT::EnTT
-    sfml-graphics sfml-window sfml-system
+    
+    sfml-graphics
+    sfml-window
+    sfml-system
 )
 # === Копирование файлов в папку build/Engine ================================
 add_custom_command( # копировать `Src/Settings` в папку build/Engine

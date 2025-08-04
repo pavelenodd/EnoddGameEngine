@@ -33,11 +33,8 @@ class Render : public Managers::Base {
 
     window_->clear(sf::Color::Black);
 
-    /*
-    entity_manager_->ForEachCoordEntity([this](entt::entity entity, Coord& coord) {
-здесь должна быть логика рендера сущностей для их отрисовки в окне
-});
-*/
+    entity_manager_->ForEach<sf::RectangleShape>(
+        [this](entt::entity, sf::RectangleShape& shape) { window_->draw(shape); });
 
     window_->display();
   };

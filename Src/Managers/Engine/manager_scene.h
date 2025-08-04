@@ -68,9 +68,6 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
         *is_gameloop_enabled_ = false;  // Останавливаем игровой цикл
       }
     }
-
-    // window_->clear(sf::Color::Black);
-    // window_->display();
   }
 
   sf::RenderWindow *GetWindowRef() const {

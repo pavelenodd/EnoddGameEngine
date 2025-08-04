@@ -99,14 +99,31 @@ class GameLoop {
           ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
     }
     //=====================================================================
-
-    // зона подключения тестов
 #ifdef DEBUG
-    test_manager_inputs_ = new TestManagerInputs(
-        static_cast<Managers::Inputs *>(managers_.at("inputs")));
+    // INFO место тестов
+    {
+      test_manager_inputs_ = new TestManagerInputs(
+          static_cast<Managers::Inputs *>(managers_.at("inputs")));
 
-    static_cast<Managers::Inputs *>(managers_.at("inputs"))
-        ->Subscribe(test_manager_inputs_);
+      static_cast<Managers::Inputs *>(managers_.at("inputs"))
+          ->Subscribe(test_manager_inputs_);
+
+      auto *entity_mgr = static_cast<Managers::Entity *>(managers_.at("entity"));
+      auto *resource_mgr = static_cast<Managers::Resource *>(managers_.at("resource"));
+
+      // Создание сущности, если её нет
+      auto entity = entity_mgr->CreateEntity("test");
+
+      // Загрузка текстуры
+      resource_mgr->LoadTexture("/home/pavel/Загрузки/test.jpg");
+      sf::Texture *tex = resource_mgr->GetTexture("test");
+
+      // Добавление компонента
+      auto &rect = entity_mgr->AddComponent<sf::RectangleShape>(
+          entity, sf::Vector2f{800.f, 600.f});
+      rect.setTexture(tex);
+      rect.setPosition(sf::Vector2f(0.f, 0.f));
+    }
 #endif
 
     //======================================================================
@@ -119,11 +136,12 @@ class GameLoop {
       for (auto manager : managers_) {
         manager.second->Update();
 #ifdef DEBUG
-        // Запуск тестов
-        if (dynamic_cast<Managers::Inputs *>(manager.second)) {
-          test_manager_inputs_->RunTests();
+        {
+          // Запуск тестов
+          if (dynamic_cast<Managers::Inputs *>(manager.second)) {
+            test_manager_inputs_->RunTests();
+          }
         }
-
 #endif
       }
     }

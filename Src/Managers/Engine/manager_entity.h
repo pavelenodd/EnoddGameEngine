@@ -96,7 +96,11 @@ class Entity : public Base {
    */
   entt::entity GetEntityByName(const std::string& name) const {
     auto it = named_entities_.find(name);
-    return (it != named_entities_.end()) ? it->second : entt::null;
+    if (it != named_entities_.end()) {
+      return it->second;
+    } else {
+      return entt::null;
+    }
   }
 
   /**
@@ -203,17 +207,6 @@ class Entity : public Base {
   }
 
   /**
-   * @brief Получить представление сущностей с определенными компонентами
-   * (константная версия)
-   * @tparam Components Типы компонентов
-   * @return Константное представление для итерации
-   */
-  template <typename... Components>
-  auto GetView() const {
-    return registry_.view<Components...>();
-  }
-
-  /**
    * @brief Получить группу сущностей (более оптимизированная версия view)
    * @tparam Owned Компоненты, которыми владеет группа
    * @tparam Get Дополнительные компоненты для получения
@@ -237,18 +230,16 @@ class Entity : public Base {
     auto view = registry_.view<Components...>();
     view.each(std::forward<Func>(func));
   }
-  // ! TEST
+
   /**
    * @brief Создать именованную сущность с компонентом координат
    * @param name Имя сущности
-   * @param x X координата
-   * @param y Y координата
-   * @param z Z координата (по умолчанию 0)
+   * @param coords Координаты `x`, `y`, `z`
    * @return Идентификатор созданной сущности
    */
-  entt::entity CreateEntityWithCoord(const std::string& name, float x, float y, float z = 0) {
+  entt::entity CreateEntityWithCoord(const std::string& name, Coord coords) {
     auto entity = CreateEntity(name);
-    AddComponent<Coord>(entity, x, y, z);
+    AddComponent<Coord>(entity, coords);
     return entity;
   }
 
@@ -256,7 +247,7 @@ class Entity : public Base {
    * @brief Получить все сущности с компонентом координат для рендеринга
    * @return Представление сущностей с координатами
    */
-  auto GetRenderableEntities() {
+  auto GetRenderableEntitiesWhithCoord() {
     return GetView<Coord>();
   }
 
