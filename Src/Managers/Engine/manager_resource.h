@@ -46,61 +46,57 @@ class Resource : public Managers::Base {
    */
   virtual void Init(std::vector<std::any> args) override {
     LOG::Debug() << "Resource manager initialized.";
-    if (args.size() < 5) {
-      LOG::Fatal(__FILE__, __LINE__)
-          << "Insufficient resource paths provided for initialization.";
-    }
     std::string L_path;
     for (int i = 0; i < args.size(); ++i) {
       switch (i) {
         case ResourceType::Animation: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadAnimation(L_path);
           break;
         }
         case ResourceType::Audio: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadAudio(L_path);
           break;
         }
         case ResourceType::Font: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadFont(L_path);
           break;
         }
         case ResourceType::Image: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadImage(L_path);
           break;
         }
         case ResourceType::Mesh: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadMesh(L_path);
           break;
         }
         case ResourceType::Model: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadModel(L_path);
           break;
         }
         case ResourceType::Script: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadScript(L_path);
           break;
         }
         case ResourceType::Shader: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadShader(L_path);
           break;
         }
         case ResourceType::Texture: {
-          L_path = std::any_cast<std::string>(args[i]);
+          L_path = std::any_cast<const char*>(args[i]);
           LoadTexture(L_path);
           break;
         }
       };
 
-      LOG::Debug() << "Resource loaded: " << L_path << '\n';
+      LOG::Debug() << "Resource loaded: " << L_path;
     }
     LOG::Info() << "Resource loading completed.";
   }

@@ -91,6 +91,17 @@ class GameLoop {
       managers_["render"]->Init(
           {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
            static_cast<Managers::Entity *>(managers_["entity"])});
+      managers_["resource"]->Init({"Resources/Animations",
+                                   "Resources/Audio",
+                                   "Resources/Fonts",
+                                   "Resources/Images",
+                                   "Resources/Meshs",
+                                   "Resources/Models",
+                                   "Resources/Scripts",
+                                   "Resources/Shaders",
+                                   {"Resources/Textures/test.png"}});
+      managers_["entity"]->Init();
+      managers_["physics"]->Init();
     }
 
     // Подписска на `input` события
@@ -115,7 +126,7 @@ class GameLoop {
       auto entity = entity_mgr->CreateEntity("test");
 
       // Загрузка текстуры
-      resource_mgr->LoadTexture("/home/pavel/Загрузки/test.jpg");
+      // resource_mgr->LoadTexture("Resources/Test/test.png");
       sf::Texture *tex = resource_mgr->GetTexture("test");
 
       // Добавление компонента
