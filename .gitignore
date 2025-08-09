@@ -1,7 +1,6 @@
 build
 diff
-.vscode
-
-
-arh_doc.md
-teh_doc.md
+.*
+!.vscode
+!.gitignore
+!.clang-format

@@ -1,0 +1,28 @@
+[
+    {
+        "Mesh": {
+            "path": "Resources/Meshes/"
+        },
+        "Texture": {
+            "path": "Resources/Textures/"
+        },
+        "Audio": {
+            "path": "Resources/Audio/"
+        },
+        "Font": {
+            "path": "Resources/Fonts/"
+        },
+        "Model": {
+            "path": "Resources/Models/"
+        },
+        "Animation": {
+            "path": "Resources/Animations/"
+        },
+        "Shader": {
+            "path": "Resources/Shaders/"
+        },
+        "Script": {
+            "path": "Resources/Scripts/"
+        }
+    }
+]

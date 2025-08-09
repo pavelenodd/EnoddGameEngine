@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang='ru'>
+
+<head>
+    <meta charset='UTF-8'>
+    <title>TODO List - EnoddGameEngine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+        }
+
+        h2 {
+            margin-top: 1em;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin: 4px 0;
+        }
+
+        label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>EnoddGameEngine TODO List</h1>
+
+    <h2>Развитие ядра движка</h2>
+
+    <h3>Минимальный MVP ядра</h3>
+    <ul>
+        <li><label><input type='checkbox' checked> Инициализировать окно и рендерер с помощью SFML</label></li>
+        <li><label><input type='checkbox' checked> Реализовать базовый цикл рендеринга (clear / draw / display)</label></li>
+        <li><label><input type='checkbox' checked> Реализовать ядро ECS: сущности, компоненты, системы</label></li>
+        <li><label><input type='checkbox' checked> Реализовать систему интерфейсов (передача данных подписчикам, без
+                выполнения)</label></li>
+        <li><label><input type='checkbox'> Реализовать систему делегатов (передача данных подписчикам, с
+                обязательным выполнением во время получения )</label></li>
+        <li><label><input type='checkbox'> Реализовать систему передачи лямбд в интерфейсе </label></li>
+        <li><label><input type='checkbox'> Реализовать систему передачи лямбд в делегатах</label></li>
+        <li><label><input type='checkbox'> Реализовать систему загрузки/выгрузки ресурсов</label></li>
+        <li><label><input type='checkbox' checked> Реализовать систему рендера объектов на экране(с помощью ECS)</label></li>
+        <li><label><input type='checkbox'> Реализовать систему управления объектами на сцене</label></li>
+        <li><label><input type='checkbox'> Реализовать систему управления камерой на сцене</label></li>
+        <li><label><input type='checkbox'> <strong> Тестовая сцена: движущийся объект из примитивов для
+                    проверки</strong></label></li>
+    </ul>
+    <h3>базовый рендер 3D</h3>
+    <ul>
+                <li><label><input type='checkbox'> <strong> Тестовая сцена: движущийся 3D объект на рендере Vulkan/OpenGL из примитивов
+                            для
+                            проверки</strong></label></li>
+    <ul>
+            <h3>вывод звука </h3>
+    <ul>
+                <li><label><input type='checkbox'> <strong> Тестовая сцена: проигрывание звуковых эффектов на нажатие
+                            кнопок</strong></label></li>
+    <ul>
+            <h3>обработка физики </h3>
+            <ul>
+                <li><label><input type='checkbox'> <strong> Тестовая сцена: два объекта сталкиваются и отскакивают друг от
+                            друга</strong></label></li>
+                <ul>
+                    <h3>Логгер </h3>
+                    <ul>
+                        <li><label><input type='checkbox'><strong> Логгирование в терминал:</strong> Установить выбор выводимого
+                                типа
+                                логгирования и возможность пропуска типа </label></li>
+    <ul>
