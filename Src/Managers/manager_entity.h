@@ -7,14 +7,14 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../EngineData/Entity/coord.h"
+#include "../EngineData/Entity/coord.h"
 #include "EngineError/engine_logging.h"
 #include "manager_base.h"
 
 namespace EDD::Managers {
 
 /**
-  Менеджер сущностей (Entity Manager) 
+  Менеджер сущностей (Entity Manager)
      Отвечает за создание, удаление, поиск и управление компонентами сущностей.
  */
 class Entity : public Base {
@@ -60,7 +60,9 @@ class Entity : public Base {
    * @brief Создать новую сущность
    * @return Идентификатор созданной сущности
    */
-  entt::entity CreateEntity() { return registry_.create(); }
+  entt::entity CreateEntity() {
+    return registry_.create();
+  }
 
   /**
    * @brief Создать именованную сущность
@@ -79,9 +81,9 @@ class Entity : public Base {
    */
   void DestroyEntity(entt::entity entity) {
     // Удалить из кэша имен, если есть
-    auto it = std::find_if(
-        named_entities_.begin(), named_entities_.end(),
-        [entity](const auto& pair) { return pair.second == entity; });
+    auto it = std::find_if(named_entities_.begin(),
+                           named_entities_.end(),
+                           [entity](const auto& pair) { return pair.second == entity; });
     if (it != named_entities_.end()) {
       named_entities_.erase(it);
     }
@@ -108,7 +110,9 @@ class Entity : public Base {
    * @param entity Идентификатор сущности
    * @return true если существует
    */
-  bool IsValid(entt::entity entity) const { return registry_.valid(entity); }
+  bool IsValid(entt::entity entity) const {
+    return registry_.valid(entity);
+  }
 
   // ================================================================
   // Методы для работы с компонентами
@@ -215,8 +219,7 @@ class Entity : public Base {
    */
   template <typename... Owned, typename... Get, typename... Exclude>
   auto GetGroup() {
-    return registry_.group<Owned...>(entt::get<Get...>,
-                                     entt::exclude<Exclude...>);
+    return registry_.group<Owned...>(entt::get<Get...>, entt::exclude<Exclude...>);
   }
 
   /**
@@ -269,13 +272,17 @@ class Entity : public Base {
    * @brief Получить прямой доступ к реестру EnTT
    * @return Ссылка на реестр
    */
-  entt::registry& GetRegistry() { return registry_; }
+  entt::registry& GetRegistry() {
+    return registry_;
+  }
 
   /**
    * @brief Получить прямой доступ к реестру EnTT (константная версия)
    * @return Константная ссылка на реестр
    */
-  const entt::registry& GetRegistry() const { return registry_; }
+  const entt::registry& GetRegistry() const {
+    return registry_;
+  }
 
   // ================================================================
   // Утилиты

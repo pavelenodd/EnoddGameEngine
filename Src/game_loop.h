@@ -7,13 +7,13 @@
 #include "EngineError/engine_logging.h"
 
 // managers
-#include "Managers/Engine/manager_entity.h"
-#include "Managers/Engine/manager_inputs.h"
-#include "Managers/Engine/manager_physics.h"
-#include "Managers/Engine/manager_render.h"
-#include "Managers/Engine/manager_resource.h"
-#include "Managers/Engine/manager_scene.h"
-#include "Managers/Engine/manager_settings.h"
+#include "Managers/manager_entity.h"
+#include "Managers/manager_inputs.h"
+#include "Managers/manager_physics.h"
+#include "Managers/manager_render.h"
+#include "Managers/manager_resource.h"
+#include "Managers/manager_scene.h"
+#include "Managers/manager_settings.h"
 // tests
 #include "../Tests/test_manager_inputs.h"
 namespace EDD {
@@ -27,7 +27,9 @@ class GameLoop {
   //======================================================================
  public:
   bool is_gameloop_enabled_ = false;  // флаг активности игрового цикла
-  // список менеджеров
+
+  // TODO: надо перевести в пулл объектов
+  //  список менеджеров
   std::unordered_map<std::string, Managers::Base *> managers_;
   ManagerSettings *manager_settings_;  // менеджер настроек
 
@@ -118,22 +120,6 @@ class GameLoop {
 
       static_cast<Managers::Inputs *>(managers_.at("inputs"))
           ->Subscribe(test_manager_inputs_);
-
-      auto *entity_mgr = static_cast<Managers::Entity *>(managers_.at("entity"));
-      auto *resource_mgr = static_cast<Managers::Resource *>(managers_.at("resource"));
-
-      // Создание сущности, если её нет
-      auto entity = entity_mgr->CreateEntity("test");
-
-      // Загрузка текстуры
-      // resource_mgr->LoadTexture("Resources/Test/test.png");
-      sf::Texture *tex = resource_mgr->GetTexture("test");
-
-      // Добавление компонента
-      auto &rect = entity_mgr->AddComponent<sf::RectangleShape>(
-          entity, sf::Vector2f{800.f, 600.f});
-      rect.setTexture(tex);
-      rect.setPosition(sf::Vector2f(0.f, 0.f));
     }
 #endif
 
@@ -181,6 +167,24 @@ class GameLoop {
 
   void StopLoop() {
     is_gameloop_enabled_ = false;
+  }
+  Managers::Inputs *GetInputsManager() {
+    return static_cast<Managers::Inputs *>(managers_.at("inputs"));
+  }
+  Managers::Entity *GetEntityManager() {
+    return static_cast<Managers::Entity *>(managers_.at("entity"));
+  }
+  Managers::Physics *GetPhysicsManager() {
+    return static_cast<Managers::Physics *>(managers_.at("physics"));
+  }
+  Managers::Resource *GetResourceManager() {
+    return static_cast<Managers::Resource *>(managers_.at("resource"));
+  }
+  Managers::Render *GetRenderManager() {
+    return static_cast<Managers::Render *>(managers_.at("render"));
+  }
+  Managers::Scene *GetSceneManager() {
+    return static_cast<Managers::Scene *>(managers_.at("scene"));
   }
 };
 }  // namespace EDD

@@ -23,8 +23,8 @@ enum ResourceType {
 /*
 Менеджер ресурсов отвечает
       за загрузку/выгрузку ресурсов в движке.
-      за объединение ресурсов в группы (entity+texture, entity+audio и т.д.) 
-      разграничение доступа к ресурсам (холодные и горячие ресурсы) 
+      за объединение ресурсов в группы (entity+texture, entity+audio и т.д.)
+      разграничение доступа к ресурсам (холодные и горячие ресурсы)
       поиск ресурсов по типу (texture, audio, font, model и т.д.)
       поиск ресурсов по тегу/имени (например, найти все текстуры с тегом "player")
       передачу ресурсов менеджеру рендера
@@ -116,10 +116,10 @@ class Resource : public Managers::Base {
   void LoadShader(const std::string& path) {}
 
   /**
-   * @brief Нормализация имени файла
+   * @brief Normalization of the file name
    *
-   * @param path Путь к файлу
-   * @return std::string Нормализованное имя файла
+   * @param path File Path
+   * @return std::string Normalized file name
    */
   std::string NormalizeFileName(const std::string& path) {
     std::string L_texture_name = path.substr(path.find_last_of('/') + 1);
@@ -127,12 +127,10 @@ class Resource : public Managers::Base {
     return L_texture_name;
   }
 
- public:
-  //! ^^ Public временно для тестов
   /**
-   * @brief Загрузка текстуры
+   * @brief Texture load
    *
-   * @param path Путь к файлу текстуры
+   * @param path Way to the Texture file
    */
   void LoadTexture(const std::string& path) {
     std::string L_texture_name = NormalizeFileName(path);

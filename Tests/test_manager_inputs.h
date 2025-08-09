@@ -4,9 +4,9 @@
 #include <string>
 
 #include "EngineError/engine_logging.h"
-#include "Managers/Engine/manager_inputs.h"
-// #include "Tools/Engine/delegate.h"
-#include "Tools/Engine/interface.h"
+#include "Managers/manager_inputs.h"
+#include "Tools/delegate.h"
+#include "Tools/interface.h"
 
 namespace EDD {
 using KeyPressedEvent = sf::Event::KeyPressed;

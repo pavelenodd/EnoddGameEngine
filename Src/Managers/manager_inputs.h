@@ -7,8 +7,8 @@
 #include <unordered_set>
 
 #include "EngineError/engine_logging.h"
-#include "Tools/Engine/delegate.h"
-#include "Tools/Engine/interface.h"
+#include "Tools/delegate.h"
+#include "Tools/interface.h"
 #include "algorithm"
 #include "manager_base.h"
 

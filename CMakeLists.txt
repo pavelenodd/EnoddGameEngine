@@ -24,27 +24,31 @@ find_package(EnTT REQUIRED)
 find_package(SFML 3 REQUIRED COMPONENTS System)
 find_package(bgfx CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME}
+set(GAME_SRC 
+    Game/snake_game.h
+    Game/snake_game.cpp
+)
+set(ENGINE_SRC
     Src/main.cpp
 
     Src/game_loop.h
 
     # Managers
-    Src/Managers/Engine/manager_base.h
+    Src/Managers/manager_base.h
 
-    Src/Managers/Engine/manager_inputs.h
+    Src/Managers/manager_inputs.h
 
-    Src/Managers/Engine/manager_physics.h
+    Src/Managers/manager_physics.h
 
-    Src/Managers/Engine/manager_resource.h
-    Src/Managers/Engine/Items/audio.h
-    Src/Managers/Engine/Items/font.h
-    Src/Managers/Engine/Items/model.h
-    Src/Managers/Engine/Items/texture.h
+    Src/Managers/manager_resource.h
+    Src/Managers/Items/audio.h
+    Src/Managers/Items/font.h
+    Src/Managers/Items/model.h
+    Src/Managers/Items/texture.h
 
-    Src/Managers/Engine/manager_scene.h
-    Src/Managers/Engine/manager_render.h
-    Src/Managers/Engine/manager_entity.h
+    Src/Managers/manager_scene.h
+    Src/Managers/manager_render.h
+    Src/Managers/manager_entity.h
 
     # EngineLogging
     Src/EngineError/engine_logging.h
@@ -53,13 +57,25 @@ add_executable(${PROJECT_NAME}
     Src/EngineData/engine_data.h
 
     # Tools
-    Src/Tools/Engine/delegate.h
-    Src/Tools/Engine/interface.h
-    Src/Tools/Engine/json_reader.h
-
-    # Tests
+    Src/Tools/delegate.h
+    Src/Tools/interface.h
+    Src/Tools/json_reader.h
+)
+set(TEST_ENGINE_SRC
     Tests/test_manager_inputs.h
     Tests/test_manager_inputs.cpp
+)
+set(TEST_GAME_SRC
+)
+
+add_executable(${PROJECT_NAME}
+    ${GAME_SRC}
+    ${ENGINE_SRC}
+
+    # Tests
+    ${TEST_ENGINE_SRC}
+    ${TEST_GAME_SRC}
+    
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
