@@ -25,8 +25,8 @@ class Entity : public Base {
   std::unordered_map<std::string, entt::entity> named_entities_;
 
  public:
-  Entity() {}
-  ~Entity() {}
+  Entity() = default;
+  ~Entity() = default;
 
   // Удаление конструкторов копирования и перемещения
   Entity(const Entity&) = delete;
@@ -39,11 +39,24 @@ class Entity : public Base {
   // ================================================================
 
   virtual void Update() override {}
+  /**
+   * @brief Инициализация менеджера сущностей
+   * @param args Список аргументов для инициализации
+   * @param -args[0] - размер списка именованных сущностей
+   * @param -args[1] - список именованных сущностей
+   *
+   */
   virtual void Init(std::vector<std::any> args) override {
-    // Инициализация, если нужна
     LOG::Debug() << "Entity manager initialized.";
-    registry_.clear();
-    named_entities_.clear();
+    named_entities_.reserve(std::any_cast<std::size_t>(args[0]));
+    if (args.size() > 1) {
+      auto& names = std::any_cast<std::vector<std::string>&>(args[1]);
+      for (const auto& name : names) {
+        named_entities_[name] = entt::null;  // Изначально сущности не созданы
+      }
+    }
+    LOG::Info() << "Entity manager initialized with " << named_entities_.size()
+                << " named entities.";
   }
 
   virtual void FreeResources() override {
@@ -57,40 +70,48 @@ class Entity : public Base {
   // ================================================================
 
   /**
-   * @brief Создать новую сущность
-   * @return Идентификатор созданной сущности
-   */
-  entt::entity CreateEntity() {
-    return registry_.create();
-  }
-
-  /**
    * @brief Создать именованную сущность
    * @param name Имя сущности
    * @return Идентификатор созданной сущности
    */
-  entt::entity CreateEntity(const std::string& name) {
+  entt::entity CreateEntity(const std::string& name = "") {
+    if (name == "") {
+      LOG::Debug("Entity created without name.");
+      return registry_.create();
+    }
     auto entity = registry_.create();
     named_entities_[name] = entity;
+    LOG::Debug("Entity '" + name +
+               "' created with name: " + std::to_string(entt::to_integral(entity)));
+    return entity;
+  }
+  /**
+   * @brief Создать именованную сущность с компонентом координат
+   * @param name Имя сущности
+   * @param coords Координаты `x`, `y`, `z`
+   * @return Идентификатор созданной сущности
+   */
+  entt::entity CreateEntityWithCoord(const std::string& name, Coord coords) {
+    auto entity = CreateEntity(name);
+    AddComponent<Coord>(entity, coords);
     return entity;
   }
 
-  /**
-   * @brief Уничтожить сущность
-   * @param entity Идентификатор сущности
-   */
-  void DestroyEntity(entt::entity entity) {
-    // Удалить из кэша имен, если есть
+  bool DestroyEntityByName(const std::string& name) {
+    auto entity = GetEntityByName(name);
+    if (entity == entt::null) {
+      LOG::Debug("Entity with name '" + name + "' not found.");
+      return false;
+    }
     auto it = std::find_if(named_entities_.begin(),
                            named_entities_.end(),
                            [entity](const auto& pair) { return pair.second == entity; });
-    if (it != named_entities_.end()) {
-      named_entities_.erase(it);
-    }
+    named_entities_.erase(it);
 
-    registry_.destroy(entity);
+    DestroyEntity(entity);
+    LOG::Debug("Entity with name '" + name + "' destroyed.");
+    return true;
   }
-
   /**
    * @brief Найти сущность по имени
    * @param name Имя сущности
@@ -103,6 +124,13 @@ class Entity : public Base {
     } else {
       return entt::null;
     }
+  }
+  /**
+   * @brief Получить все сущности по координатам
+   * @return Представление сущностей по координатам
+   */
+  auto GetEntitiesByCoord() {
+    return registry_.view<Coord>();
   }
 
   /**
@@ -235,26 +263,6 @@ class Entity : public Base {
   }
 
   /**
-   * @brief Создать именованную сущность с компонентом координат
-   * @param name Имя сущности
-   * @param coords Координаты `x`, `y`, `z`
-   * @return Идентификатор созданной сущности
-   */
-  entt::entity CreateEntityWithCoord(const std::string& name, Coord coords) {
-    auto entity = CreateEntity(name);
-    AddComponent<Coord>(entity, coords);
-    return entity;
-  }
-
-  /**
-   * @brief Получить все сущности с компонентом координат для рендеринга
-   * @return Представление сущностей с координатами
-   */
-  auto GetRenderableEntitiesWhithCoord() {
-    return GetView<Coord>();
-  }
-
-  /**
    * @brief Выполнить функцию для каждой сущности с координатами
    * @tparam Func Тип функции
    * @param func Функция для выполнения (принимает entt::entity и Coord&)
@@ -307,6 +315,15 @@ class Entity : public Base {
   void Clear() {
     registry_.clear();
     named_entities_.clear();
+  }
+
+ private:
+  /**
+   * @brief Уничтожить сущность
+   * @param entity Идентификатор сущности
+   */
+  void DestroyEntity(entt::entity entity) {
+    registry_.destroy(entity);
   }
 };
 
