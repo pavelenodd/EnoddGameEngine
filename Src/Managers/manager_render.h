@@ -20,7 +20,7 @@ class Render : public Managers::Base {
  private:
   sf::RenderWindow* window_;
   Render2D* render_2d_;
-  Render3D* render_3d_;
+  // Render3D* render_3d_;
   Managers::Entity* entity_manager_;
   Managers::Resource* resource_manager_;
 
@@ -32,31 +32,17 @@ class Render : public Managers::Base {
     FreeResources();
   }
 
-  // === Update: один кадр ===
   void Update() override {
     if (!window_ || !entity_manager_) return;
     if (render_2d_) {
       render_2d_->Render_All(*entity_manager_);
     }
+
     bgfx::frame();
   }
 
-  // === Init ===
   void Init(std::vector<std::any> args) override {
     LOG::Debug() << "Render manager initialized.";
-
-    for (const auto& L_arg : args) {
-      if (!L_arg.has_value()) continue;
-      if (L_arg.type() == typeid(sf::RenderWindow*)) {
-        Set_WindowRef(std::any_cast<sf::RenderWindow*>(L_arg));
-      } else if (L_arg.type() == typeid(Entity*)) {
-        Set_EntityManager(std::any_cast<Entity*>(L_arg));
-      } else if (L_arg.type() == typeid(Managers::Resource*)) {
-        resource_manager_ = std::any_cast<Managers::Resource*>(L_arg);
-      } else if (L_arg.type() == typeid(Render2D*)) {
-        render_2d_ = std::any_cast<Render2D*>(L_arg);
-      }
-    }
 
     if (!render_2d_) {
       render_2d_ = new Render2D();
@@ -70,7 +56,9 @@ class Render : public Managers::Base {
       LOG::Fatal(__FILE__, __LINE__) << "Render: entity manager pointer is null";
     }
 
-    render_2d_->Init(window_, resource_manager_);
+    render_2d_->Init();
+    render_2d_->Set_WindowRef(window_);
+    render_2d_->Set_EntityManager(entity_manager_);
   }
 
   void FreeResources() override {
