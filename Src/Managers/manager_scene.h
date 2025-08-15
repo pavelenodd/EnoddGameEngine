@@ -84,6 +84,7 @@ class Scene : public Managers::Base, public InterfaceSFEvent {
                          "x" + std::to_string(viewport_data_.h);
     } else {
       LOG::Fatal(__FILE__, __LINE__) << "Failed to create scene.";
+      abort();
     }
   }
   void FreeResources() override {

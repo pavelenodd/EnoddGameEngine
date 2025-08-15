@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <entt/entt.hpp>
+#include <list>
 #include <string>
 #include <unordered_map>
 
@@ -47,16 +48,15 @@ class Entity : public Base {
    *
    */
   virtual void Init(std::vector<std::any> args) override {
-    LOG::Debug() << "Entity manager initialized.";
-    named_entities_.reserve(std::any_cast<std::size_t>(args[0]));
-    if (args.size() > 1) {
+    if (args.size() > 2) {
+      named_entities_.reserve(std::any_cast<std::size_t>(args[0]));
       auto& names = std::any_cast<std::vector<std::string>&>(args[1]);
       for (const auto& name : names) {
         named_entities_[name] = entt::null;  // Изначально сущности не созданы
       }
     }
-    LOG::Info() << "Entity manager initialized with " << named_entities_.size()
-                << " named entities.";
+    LOG::Debug() << "Entity manager initialized with " << named_entities_.size()
+                 << " named entities.";
   }
 
   virtual void FreeResources() override {
@@ -111,6 +111,13 @@ class Entity : public Base {
     DestroyEntity(entity);
     LOG::Debug("Entity with name '" + name + "' destroyed.");
     return true;
+  }
+  std::list<entt::entity> GetAllEntities() const {
+    std::list<entt::entity> entities;
+    for (auto&& entt : *registry_.storage<entt::entity>()) {
+      entities.push_back(entt);
+    }
+    return entities;
   }
   /**
    * @brief Найти сущность по имени

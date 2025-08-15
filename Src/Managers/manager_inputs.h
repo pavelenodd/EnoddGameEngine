@@ -74,11 +74,13 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
     if (args.size() == 0) {
       LOG::Fatal(__FILE__, __LINE__)
           << "No arguments provided for Inputs manager initialization";
+      abort();
     }
 
     if (args.size() < 1 || !args[0].has_value()) {
       LOG::Fatal(__FILE__, __LINE__)
           << "Window pointer is null in Inputs manager initialization";
+      abort();
     }
     std::for_each(args.begin(), args.end(), [this](const auto& arg) {
       SetWindowRef(std::any_cast<sf::RenderWindow*>(arg));
@@ -100,6 +102,7 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
       window_ = window;
     } else {
       LOG::Fatal(__FILE__, __LINE__) << "Window pointer is null";
+      abort();
     }
   }
 };

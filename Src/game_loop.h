@@ -1,5 +1,7 @@
 // game_loop.h
 #pragma once
+#include <SFML/Graphics.hpp>
+#include <algorithm>
 #include <string>
 #include <unordered_map>
 //
@@ -37,7 +39,7 @@ class GameLoop {
   explicit GameLoop() {
     if (!Init()) {
       LOG::Fatal(__FILE__, __LINE__) << "game loop initialization failed";
-      return;
+      abort();
     }
   }
   ~GameLoop() {}
@@ -55,14 +57,14 @@ class GameLoop {
     // INFO загрузка настроек движка
     if (!manager_settings_) {
       LOG::Fatal(__FILE__, __LINE__) << "manager_settings_ is null";
-      return false;
+      abort();
       if (manager_settings_->LoadSettings("Init/viewport_settings.json") &&
           manager_settings_->LoadSettings("Init/audio_settings.json") &&
           manager_settings_->LoadSettings("Init/graphics_settings.json") &&
           manager_settings_->LoadSettings("Init/input_settings.json")) {
       } else {
         LOG::Fatal(__FILE__, __LINE__) << "Failed to load settings";
-        return false;
+        abort();
       }
     }
 
@@ -77,12 +79,12 @@ class GameLoop {
 
     if (managers_.empty()) {
       LOG::Fatal(__FILE__, __LINE__) << "managers list is empty";
-      return false;
+      abort();
     }
 
     if (!manager_settings_) {
       LOG::Fatal(__FILE__, __LINE__) << "manager_settings_ is null";
-      return false;
+      abort();
     }
 
     // Инициализация всех менеджеров
@@ -92,7 +94,8 @@ class GameLoop {
           {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef()});
       managers_["render"]->Init(
           {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
-           static_cast<Managers::Entity *>(managers_["entity"])});
+           static_cast<Managers::Entity *>(managers_["entity"]),
+           Managers::RenderType::RENDER_2D});
       managers_["resource"]->Init({"Resources/Animations",
                                    "Resources/Audio",
                                    "Resources/Fonts",
@@ -111,15 +114,54 @@ class GameLoop {
       static_cast<Managers::Inputs *>(managers_.at("inputs"))
           ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
     }
+    // Создание квадратного объекта с текстурой test.png
+    {
+      auto *entity_mgr = static_cast<Managers::Entity *>(managers_.at("entity"));
+      auto *res_mgr = static_cast<Managers::Resource *>(managers_.at("resource"));
+      auto *scene_mgr = static_cast<Managers::Scene *>(managers_.at("scene"));
+
+      sf::Texture *tex = nullptr;
+      try {
+        tex = res_mgr->GetTexture("test");  // имя берётся из файла test.png
+      } catch (const std::exception &e) {
+        LOG::Fatal(__FILE__, __LINE__) << "Texture 'test' not found: " << e.what();
+      }
+
+      if (tex) {
+        auto e = entity_mgr->CreateEntity("TexturedQuad");
+
+        auto sizeU = tex->getSize();
+        sf::Vector2f size(static_cast<float>(sizeU.x), static_cast<float>(sizeU.y));
+        // Можно сделать поменьше, если текстура большая
+        if (size.x > 256.f || size.y > 256.f) {
+          const float scale = 256.f / std::max(size.x, size.y);
+          size.x *= scale;
+          size.y *= scale;
+        }
+
+        auto &rect = entity_mgr->AddComponent<sf::RectangleShape>(e, size);
+        rect.setTexture(tex);
+        rect.setOrigin(sf::Vector2f{size.x * 0.5f, size.y * 0.5f});
+
+        auto *window = scene_mgr->GetWindowRef();
+        if (window) {
+          auto winSize = window->getSize();
+          rect.setPosition(sf::Vector2f{static_cast<float>(winSize.x) * 0.5f,
+                                        static_cast<float>(winSize.y) * 0.5f});
+        }
+      }
+    }
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов
     {
       test_manager_inputs_ = new TestManagerInputs(
           static_cast<Managers::Inputs *>(managers_.at("inputs")));
-
       static_cast<Managers::Inputs *>(managers_.at("inputs"))
           ->Subscribe(test_manager_inputs_);
+
+      auto entity = static_cast<Managers::Entity *>(managers_.at("entity"));
+      entity->CreateEntity("TestEntity");
     }
 #endif
 
