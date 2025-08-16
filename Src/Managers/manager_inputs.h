@@ -8,7 +8,16 @@
 #include "Tools/interface.h"
 #include "manager_base.h"
 
-namespace EDD::Managers {
+namespace EDD {
+
+#ifdef DEBUG
+
+namespace Tests {
+struct InputsInspector;
+}
+#endif
+
+namespace Managers {
 class Scene;  // Предварительное объявление класса Scene
 /*
   Менеджер ввода отвечает за обработку событий ввода от пользователя.
@@ -18,7 +27,10 @@ using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
 class Inputs : public Base, public InterfaceKeyEvent {
  private:
   Scene* scene_manager_ = nullptr;  // указатель на менеджер сцены
+#ifdef DEBUG
 
+  friend struct ::EDD::Tests::InputsInspector;
+#endif
   // Подписчики на события инпута
   std::unordered_set<InterfaceKeyEvent*> observers_;
 
@@ -51,4 +63,5 @@ class Inputs : public Base, public InterfaceKeyEvent {
   // Освобождение ресурсов
   virtual void FreeResources() override {}
 };
-}  // namespace EDD::Managers
+}  // namespace Managers
+}  // namespace EDD

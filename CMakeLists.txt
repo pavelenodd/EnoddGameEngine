@@ -24,6 +24,7 @@ find_package(EnTT REQUIRED)
 find_package(SFML 3 REQUIRED COMPONENTS System)
 find_package(bgfx CONFIG REQUIRED)
 find_package(glfw3  REQUIRED)
+find_package(GTest REQUIRED)
 
 set(GAME_SRC 
     Game/snake_game.h
@@ -64,6 +65,7 @@ set(ENGINE_SRC
 )
 set(TEST_ENGINE_SRC
     Tests/test_manager_inputs.h
+    Tests/test_manager_scene.h
 )
 set(TEST_GAME_SRC
 )
@@ -84,6 +86,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineError
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/Tools
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineData
+    ${CMAKE_CURRENT_SOURCE_DIR}/Tests
+    ${CMAKE_CURRENT_SOURCE_DIR}/Game
     ${SFML_INCLUDE_DIRS}
 )
 
@@ -110,6 +114,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     sfml-graphics
     sfml-window
     sfml-system
+
+
+    GTest::gtest
 )
 # === Копирование файлов в папку build/Engine ================================
 add_custom_command( # копировать `Src/Settings` в папку build/Engine
@@ -129,24 +136,35 @@ add_custom_command( # копировать `Src/Resources` в папку build/E
     ${CMAKE_SOURCE_DIR}/build/Engine/Resources
 )
 # =========== ТЕСТЫ =============
+# Smoke 
 add_test(NAME SmokeTest_Basic
     COMMAND ${PROJECT_NAME})
 set_tests_properties(SmokeTest_Basic PROPERTIES
-    TIMEOUT 5   
+    TIMEOUT 5
     LABELS "smoke"
 )
 
-# Тест на утечки памяти (с Valgrind если доступен)
+# GoogleTest :
+## ManagerScene
+add_test(NAME ManagerScene_GTests
+    COMMAND ${PROJECT_NAME} --run-tests --gtest_filter=SceneTest.*
+)
+set_tests_properties(ManagerScene_GTests PROPERTIES
+    TIMEOUT 60
+    LABELS "gtest;manager_scene"
+)
+
+# Valgrind 
 find_program(VALGRIND_EXECUTABLE valgrind)
 if(VALGRIND_EXECUTABLE)
     add_test(NAME MemoryTest_Valgrind
-        COMMAND ${VALGRIND_EXECUTABLE} 
-        --leak-check=full 
-        --error-exitcode=1 
+        COMMAND ${VALGRIND_EXECUTABLE}
+        --leak-check=full
+        --error-exitcode=1
         --show-leak-kinds=all
         $<TARGET_FILE:${PROJECT_NAME}>)
     set_tests_properties(MemoryTest_Valgrind PROPERTIES
-        TIMEOUT 300  
+        TIMEOUT 300
         LABELS "memory"
     )
 endif()

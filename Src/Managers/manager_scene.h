@@ -14,7 +14,16 @@
 #include "manager_base.h"
 #include "manager_inputs.h"
 
-namespace EDD::Managers {
+// Forward-declare инспектора для тестов
+namespace EDD {
+
+#ifdef DEBUG
+namespace Tests {
+struct SceneInspector;
+}
+#endif
+
+namespace Managers {
 
 /*
   Менеджер сцены отвечает за создание и управление сценами(вьюпортами) в игре.
@@ -27,6 +36,10 @@ using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
 class Scene : public Managers::Base, public InterfaceKeyEvent {
  private:
   EDD::Data::Viewport viewport_;  // данные о вьюпорте
+#ifdef DEBUG
+
+  friend struct ::EDD::Tests::SceneInspector;
+#endif
  public:
   Scene() {}
   ~Scene() {
@@ -87,5 +100,6 @@ class Scene : public Managers::Base, public InterfaceKeyEvent {
     return true;
   }
 };
+}  // namespace Managers
 
-}  // namespace EDD::Managers
+}  // namespace EDD

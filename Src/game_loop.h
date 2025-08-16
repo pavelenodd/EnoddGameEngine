@@ -20,13 +20,14 @@
 #include "Managers/manager_settings.h"
 // tests
 #include "../Tests/test_manager_inputs.h"
+#include "../Tests/test_manager_scene.h"
 namespace EDD {
 class GameLoop {
  private:
   //======================================================================
 #ifdef DEBUG
-  TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
-
+  Tests::TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
+  Tests::TestManagerScene *test_manager_scene_;    // тесты менеджера сцены
 #endif
   //======================================================================
  public:
@@ -119,13 +120,6 @@ class GameLoop {
 #ifdef DEBUG
     // INFO место тестов
     {
-      test_manager_inputs_ = new TestManagerInputs(
-          static_cast<Managers::Inputs *>(managers_.at("inputs")));
-      static_cast<Managers::Inputs *>(managers_.at("inputs"))
-          ->Subscribe(test_manager_inputs_);
-
-      auto entity = static_cast<Managers::Entity *>(managers_.at("entity"));
-      entity->CreateEntity("TestEntity");
     }
 #endif
 
@@ -143,6 +137,9 @@ class GameLoop {
           // Запуск тестов
           if (dynamic_cast<Managers::Inputs *>(manager.second)) {
             test_manager_inputs_->RunTests();
+          }
+          if (dynamic_cast<Managers::Scene *>(manager.second)) {
+            test_manager_scene_->RunTests();
           }
         }
 #endif
