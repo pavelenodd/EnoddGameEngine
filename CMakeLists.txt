@@ -23,6 +23,7 @@ find_package(assimp REQUIRED)
 find_package(EnTT REQUIRED)
 find_package(SFML 3 REQUIRED COMPONENTS System)
 find_package(bgfx CONFIG REQUIRED)
+find_package(glfw3  REQUIRED)
 
 set(GAME_SRC 
     Game/snake_game.h
@@ -104,6 +105,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
     EnTT::EnTT
     
+    glfw
+
+
     sfml-graphics
     sfml-window
     sfml-system
