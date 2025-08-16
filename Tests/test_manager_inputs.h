@@ -1,6 +1,7 @@
 #pragma once
 
-#include <sstream>
+#include <GLFW/glfw3.h>
+
 #include <string>
 
 #include "EngineError/engine_logging.h"
@@ -9,37 +10,8 @@
 #include "Tools/interface.h"
 
 namespace EDD {
-using KeyPressedEvent = sf::Event::KeyPressed;
-using KeyReleasedEvent = sf::Event::KeyReleased;
-static std::string EventToString(const sf::Event &ev) {
-  std::ostringstream ss;
-  if (ev.is<KeyPressedEvent>()) {
-    auto kp = ev.getIf<KeyPressedEvent>();
-    auto kr = ev.getIf<KeyReleasedEvent>();
-    if (kp) {
-      ss << "KeyPressed(code=" << static_cast<int>(kp->code) << ")";
-    } else if (ev.is<sf::Event::Closed>()) {
-      ss << "Closed";
-    }
-  } else if (ev.is<KeyReleasedEvent>()) {
-    auto kr = ev.getIf<KeyReleasedEvent>();
-    ss << "KeyReleased(code=" << static_cast<int>(kr->code) << ")";
-  } else if (ev.is<sf::Event::Closed>()) {
-    ss << "Closed";
-  }
-  return ss.str();
-}
-static bool EventsEqual(const sf::Event &a, const sf::Event &b) {
-  if (a.is<KeyPressedEvent>() && b.is<KeyPressedEvent>()) {
-    return (a.getIf<KeyPressedEvent>()->code == b.getIf<KeyPressedEvent>()->code);
-  } else if (a.is<KeyReleasedEvent>() && b.is<KeyReleasedEvent>()) {
-    return (a.getIf<KeyReleasedEvent>()->code == b.getIf<KeyReleasedEvent>()->code);
-  } else {
-    return false;
-  }
-}
-using InterfaceSFEvent = Tools::Interface<sf::Event>;
-class TestManagerInputs : public InterfaceSFEvent {
+using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
+class TestManagerInputs : public InterfaceKeyEvent {
   Managers::Inputs *input_manager_ = nullptr;
   bool is_do_once = false;  // запуск тестов только один раз
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <optional>
-namespace EDD ::Tools {
 
+namespace EDD::Tools {
 // Интерфейс предоставляет данные любого типа
 template <typename T>
 class Interface {

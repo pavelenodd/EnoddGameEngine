@@ -64,7 +64,6 @@ set(ENGINE_SRC
 )
 set(TEST_ENGINE_SRC
     Tests/test_manager_inputs.h
-    Tests/test_manager_inputs.cpp
 )
 set(TEST_GAME_SRC
 )

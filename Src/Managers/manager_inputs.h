@@ -1,30 +1,26 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <algorithm>
-#include <optional>
+#include <GLFW/glfw3.h>
+
 #include <unordered_set>
 
 #include "EngineError/engine_logging.h"
-#include "Tools/delegate.h"
+#include "Tools/event_type.h"
 #include "Tools/interface.h"
-#include "algorithm"
 #include "manager_base.h"
 
 namespace EDD::Managers {
-using InterfaceSFEvent = Tools::Interface<sf::Event>;
+class Scene;  // Предварительное объявление класса Scene
 /*
   Менеджер ввода отвечает за обработку событий ввода от пользователя.
-  все события, которые он принимает передаётся в интерфейс Tools::Interface<sf::Event>.
+  все события, которые он принимает передаётся в интерфейс Tools::Interface<KeyEvent>.
   */
-class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::Event> {
+using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
+class Inputs : public Base, public InterfaceKeyEvent {
  private:
-  std::optional<sf::Event> event_ = std::nullopt;
-  sf::RenderWindow* window_ = nullptr;
+  Scene* scene_manager_ = nullptr;  // указатель на менеджер сцены
 
-  // Подписчики на события интерфейса
-  std::unordered_set<InterfaceSFEvent*> observers_;
+  // Подписчики на события инпута
+  std::unordered_set<InterfaceKeyEvent*> observers_;
 
  public:
   Inputs() {}
@@ -32,37 +28,15 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
     FreeResources();
   }
 
-  virtual void Update() override {
-    if (!window_ || !window_->isOpen()) {
-      return;
-    }
-    LOG::Debug() << "Input manager updated.";
-    while ((event_ = window_->pollEvent())) {
-      const auto* pressed = event_->getIf<sf::Event::KeyPressed>();
-      const auto* released = event_->getIf<sf::Event::KeyReleased>();
-      const auto* closed = event_->getIf<sf::Event::Closed>();
-
-      if (!pressed && !released && !closed) continue;
-
-#ifdef DEBUG
-      this->interface_args_ = event_;
-#endif
-
-      for (auto* obs : observers_) {
-        obs->interface_args_ = event_;
-      }
-
-      event_ = std::nullopt;
-    }
-  }
+  virtual void Update() override {}
 
   // Подписаться/отписаться на события
-  void Subscribe(InterfaceSFEvent* observers = nullptr) {
+  void Subscribe(InterfaceKeyEvent* observers = nullptr) {
     if (observers != nullptr) {
       observers_.insert(observers);
     }
   }
-  void Unsubscribe(InterfaceSFEvent* observers = nullptr) {
+  void Unsubscribe(InterfaceKeyEvent* observers = nullptr) {
     if (observers != nullptr) {
       observers_.erase(observers);
     }
@@ -71,39 +45,10 @@ class Inputs : public Base, public InterfaceSFEvent, public Tools::Delegate<sf::
   virtual void Init(std::vector<std::any> args) override {
     // Инициализация обработчика ввода
     LOG::Debug() << "Input manager initialized.";
-    if (args.size() == 0) {
-      LOG::Fatal(__FILE__, __LINE__)
-          << "No arguments provided for Inputs manager initialization";
-      abort();
-    }
-
-    if (args.size() < 1 || !args[0].has_value()) {
-      LOG::Fatal(__FILE__, __LINE__)
-          << "Window pointer is null in Inputs manager initialization";
-      abort();
-    }
-    std::for_each(args.begin(), args.end(), [this](const auto& arg) {
-      SetWindowRef(std::any_cast<sf::RenderWindow*>(arg));
-    });
-    window_->setKeyRepeatEnabled(false);  // Отключаем повтор нажатия клавиш
   }
 
  private:
-  virtual void FreeResources() override {
-    // Освобождение ресурсов
-    window_ = nullptr;
-  }
-  /**
-   * @brief Установить окно для обработки событий
-   * @param window Указатель на окно SFML
-   */
-  void SetWindowRef(sf::RenderWindow* window = nullptr) {
-    if (window) {
-      window_ = window;
-    } else {
-      LOG::Fatal(__FILE__, __LINE__) << "Window pointer is null";
-      abort();
-    }
-  }
+  // Освобождение ресурсов
+  virtual void FreeResources() override {}
 };
 }  // namespace EDD::Managers

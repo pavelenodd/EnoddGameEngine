@@ -2,7 +2,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <algorithm>
+#include <any>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 //
 // #include "EngineData/engine_data.h"
@@ -74,8 +76,7 @@ class GameLoop {
     managers_.emplace("physics", new Managers::Physics());
     managers_.emplace("resource", new Managers::Resource());
     managers_.emplace("render", new Managers::Render());
-    managers_.emplace("scene",
-                      new Managers::Scene({"main", 800, 600}, &is_gameloop_enabled_));
+    managers_.emplace("scene", new Managers::Scene());
 
     if (managers_.empty()) {
       LOG::Fatal(__FILE__, __LINE__) << "managers list is empty";
@@ -88,69 +89,32 @@ class GameLoop {
     }
 
     // Инициализация всех менеджеров
-    {
-      managers_["scene"]->Init();
-      managers_["inputs"]->Init(
-          {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef()});
-      managers_["render"]->Init(
-          {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
-           static_cast<Managers::Entity *>(managers_["entity"]),
-           Managers::RenderType::RENDER_2D});
-      managers_["resource"]->Init({"Resources/Animations",
-                                   "Resources/Audio",
-                                   "Resources/Fonts",
-                                   "Resources/Images",
-                                   "Resources/Meshs",
-                                   "Resources/Models",
-                                   "Resources/Scripts",
-                                   "Resources/Shaders",
-                                   {"Resources/Textures/test.png"}});
-      managers_["entity"]->Init();
-      managers_["physics"]->Init();
-    }
+    managers_["scene"]->Init(
+        std::vector<std::any>{std::make_any<std::tuple<std::string, int, int>>(
+            std::string("MainViewport"), 800, 600)});
+    managers_["inputs"]->Init();
+    // managers_["render"]->Init(
+    //     {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
+    //      static_cast<Managers::Entity *>(managers_["entity"]),
+    //      Managers::RenderType::RENDER_2D});
+    managers_["resource"]->Init({"Resources/Animations",
+                                 "Resources/Audio",
+                                 "Resources/Fonts",
+                                 "Resources/Images",
+                                 "Resources/Meshs",
+                                 "Resources/Models",
+                                 "Resources/Scripts",
+                                 "Resources/Shaders",
+                                 {"Resources/Textures/test.png"}});
+    managers_["entity"]->Init();
+    managers_["physics"]->Init();
 
     // Подписска на `input` события
     {
       static_cast<Managers::Inputs *>(managers_.at("inputs"))
           ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
     }
-    // Создание квадратного объекта с текстурой test.png
-    {
-      auto *entity_mgr = static_cast<Managers::Entity *>(managers_.at("entity"));
-      auto *res_mgr = static_cast<Managers::Resource *>(managers_.at("resource"));
-      auto *scene_mgr = static_cast<Managers::Scene *>(managers_.at("scene"));
 
-      sf::Texture *tex = nullptr;
-      try {
-        tex = res_mgr->GetTexture("test");  // имя берётся из файла test.png
-      } catch (const std::exception &e) {
-        LOG::Fatal(__FILE__, __LINE__) << "Texture 'test' not found: " << e.what();
-      }
-
-      if (tex) {
-        auto e = entity_mgr->CreateEntity("TexturedQuad");
-
-        auto sizeU = tex->getSize();
-        sf::Vector2f size(static_cast<float>(sizeU.x), static_cast<float>(sizeU.y));
-        // Можно сделать поменьше, если текстура большая
-        if (size.x > 256.f || size.y > 256.f) {
-          const float scale = 256.f / std::max(size.x, size.y);
-          size.x *= scale;
-          size.y *= scale;
-        }
-
-        auto &rect = entity_mgr->AddComponent<sf::RectangleShape>(e, size);
-        rect.setTexture(tex);
-        rect.setOrigin(sf::Vector2f{size.x * 0.5f, size.y * 0.5f});
-
-        auto *window = scene_mgr->GetWindowRef();
-        if (window) {
-          auto winSize = window->getSize();
-          rect.setPosition(sf::Vector2f{static_cast<float>(winSize.x) * 0.5f,
-                                        static_cast<float>(winSize.y) * 0.5f});
-        }
-      }
-    }
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов

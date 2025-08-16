@@ -1,5 +1,8 @@
 #pragma once
+#include <GLFW/glfw3.h>
+
 #include <string>
+
 namespace EDD::Data {
 /**
  * @brief Структура данных о вьюпорте
@@ -8,9 +11,10 @@ namespace EDD::Data {
  * @param h высота
  */
 struct Viewport {
-  std::string name;           // имя вьюпорта
-  int w;                      // ширина
-  int h;                      // высота
+  GLFWwindow* wnd = nullptr;  // окно GLFW
+  std::string name = "";      // имя вьюпорта
+  int w = 800;                // ширина
+  int h = 600;                // высота
 };
 
 }  // namespace EDD::Data
