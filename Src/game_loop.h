@@ -36,7 +36,7 @@ class GameLoop {
   // TODO: надо перевести в пулл объектов
   //  список менеджеров
   std::unordered_map<std::string, Managers::Base *> managers_;
-  ManagerSettings *manager_settings_;  // менеджер настроек
+  Settings *manager_settings_;  // менеджер настроек
 
  public:
   explicit GameLoop() {
@@ -56,7 +56,7 @@ class GameLoop {
  private:
   bool Init() {
     //
-    manager_settings_ = new ManagerSettings();
+    manager_settings_ = new Settings();
     // INFO загрузка настроек движка
     if (!manager_settings_) {
       LOG::Fatal(__FILE__, __LINE__) << "manager_settings_ is null";

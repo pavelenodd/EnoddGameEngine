@@ -8,13 +8,18 @@
 #include "manager_base.h"
 
 namespace EDD {
-enum SettingsType { WINDOW_SETTINGS = 0, AUDIO_SETTINGS = 1, GRAPHICS_SETTINGS = 2 };
+enum SettingsType {
+  NONE_TYPE = -1,
+  WINDOW_SETTINGS = 0,
+  AUDIO_SETTINGS = 1,
+  GRAPHICS_SETTINGS = 2
+};
 /*
   Менеджер настроек отвечает за загрузку и сохранение настроек игры.
       Он может загружать настройки из файла JSON и сохранять их обратно в файл.
       Настройки могут включать параметры окна, аудио и графики.
 */
-class ManagerSettings : public Managers::Base {
+class Settings : public Managers::Base {
  private:
   nlohmann::json settings_;
   std::map<std::string, SettingsType> settings_map_;
@@ -40,17 +45,17 @@ class ManagerSettings : public Managers::Base {
   }
 
  public:
-  explicit ManagerSettings() {}
+  explicit Settings() {}
 
-  ~ManagerSettings() {
+  ~Settings() {
     FreeResources();
     LOG::Debug() << "ManagerSettings destroyed";
   }
   // Удаление лишних конструкторов
-  ManagerSettings(const ManagerSettings&) = delete;
-  ManagerSettings(ManagerSettings&&) = delete;
-  ManagerSettings& operator=(const ManagerSettings&) = delete;
-  ManagerSettings& operator=(ManagerSettings&&) = delete;
+  Settings(const Settings&) = delete;
+  Settings(Settings&&) = delete;
+  Settings& operator=(const Settings&) = delete;
+  Settings& operator=(Settings&&) = delete;
 
   bool LoadSettings(const std::string& file_path) {
     return IsOpenFile(file_path);
