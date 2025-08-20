@@ -12,7 +12,6 @@ namespace Tests {
 
 class TestManagerSettings {
  private:
-  bool is_do_once_ = false;
   int test_case_ = -99;
   EDD::Settings* settings_manager_ = nullptr;
 

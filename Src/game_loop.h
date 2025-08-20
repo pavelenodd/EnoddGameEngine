@@ -31,7 +31,7 @@ class GameLoop {
 #ifdef DEBUG
   Tests::TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
   Tests::TestManagerScene *test_manager_scene_;    // тесты менеджера сцены
-  Tests::TestManagerSettings *test_manager_settings_;  // тесты менеджера настроек
+  Tests::TestManagerScene *test_manager_settings_;       // тесты менеджера настроек
   Tests::TestManagerResources *test_manager_resources_;  // тесты менеджера ресурсов
   Tests::TestManagerRender *test_manager_render_;        // тесты менеджера рендеринга
 #endif
@@ -128,7 +128,7 @@ class GameLoop {
     {
       test_manager_inputs_ = new Tests::TestManagerInputs();
       test_manager_scene_ = new Tests::TestManagerScene();
-      test_manager_settings_ = new Tests::TestManagerSettings();
+      test_manager_settings_ = new Tests::TestManagerScene();
       test_manager_resources_ = new Tests::TestManagerResources();
       test_manager_render_ = new Tests::TestManagerRender();
 
