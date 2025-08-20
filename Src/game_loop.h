@@ -20,7 +20,10 @@
 #include "Managers/manager_settings.h"
 // tests
 #include "../Tests/test_manager_inputs.h"
+#include "../Tests/test_manager_render.h"
+#include "../Tests/test_manager_resources.h"
 #include "../Tests/test_manager_scene.h"
+#include "../Tests/test_manager_settings.h"
 namespace EDD {
 class GameLoop {
  private:
@@ -28,6 +31,9 @@ class GameLoop {
 #ifdef DEBUG
   Tests::TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
   Tests::TestManagerScene *test_manager_scene_;    // тесты менеджера сцены
+  Tests::TestManagerSettings *test_manager_settings_;  // тесты менеджера настроек
+  Tests::TestManagerResources *test_manager_resources_;  // тесты менеджера ресурсов
+  Tests::TestManagerRender *test_manager_render_;        // тесты менеджера рендеринга
 #endif
   //======================================================================
  public:
@@ -120,6 +126,18 @@ class GameLoop {
 #ifdef DEBUG
     // INFO место тестов
     {
+      test_manager_inputs_ = new Tests::TestManagerInputs();
+      test_manager_scene_ = new Tests::TestManagerScene();
+      test_manager_settings_ = new Tests::TestManagerSettings();
+      test_manager_resources_ = new Tests::TestManagerResources();
+      test_manager_render_ = new Tests::TestManagerRender();
+
+      if (!test_manager_inputs_->RunTests() || !test_manager_scene_->RunTests() ||
+          !test_manager_settings_->RunTests() || !test_manager_resources_->RunTests() ||
+          !test_manager_render_->RunTests()) {
+        LOG::Fatal(__FILE__, __LINE__) << "Failed to initialize test managers";
+        abort();
+      }
     }
 #endif
 

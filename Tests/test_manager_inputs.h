@@ -16,11 +16,12 @@ class TestManagerInputs : public InterfaceKeyEvent {
   bool is_do_once = false;  // запуск тестов только один раз
 
  public:
-  void RunTests() {
+  bool RunTests() {
     //....
     if (is_do_once == false) {
       is_do_once = true;
     }
+    return true;
   }
 
  private:

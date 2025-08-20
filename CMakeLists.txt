@@ -67,6 +67,8 @@ set(TEST_ENGINE_SRC
     Tests/test_manager_inputs.h
     Tests/test_manager_scene.h
     Tests/test_manager_settings.h
+    Tests/test_manager_render.h
+    Tests/test_manager_resources.h
 )
 set(TEST_GAME_SRC
 )

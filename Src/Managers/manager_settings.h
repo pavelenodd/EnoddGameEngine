@@ -1,4 +1,5 @@
 #pragma once
+#include <any>
 #include <fstream>
 #include <map>
 #include <nlohmann/json.hpp>
@@ -57,11 +58,19 @@ class Settings : public Managers::Base {
   Settings& operator=(const Settings&) = delete;
   Settings& operator=(Settings&&) = delete;
 
+ public:
   bool LoadSettings(const std::string& file_path) {
     return IsOpenFile(file_path);
   }
   bool SaveSettings(const std::string& file_path) {
     return IsOpenFile(file_path);
+  }
+
+  bool SetValue(const std::string& key, const std::any& value) {
+    return true;
+  }
+  std::any GetValue(const std::string& key) {
+    return true;
   }
 
   void Update() override {}
