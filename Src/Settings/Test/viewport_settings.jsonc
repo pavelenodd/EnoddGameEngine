@@ -1,0 +1,35 @@
+[
+    {
+        "title": {
+            "type": "string",
+            "default": "Main",
+            "description": "The title of the viewport"
+        },
+        "width": {
+            "type": "int",
+            "minimum": 100,
+            "maximum": 1920,
+            "default": 800,
+            "description": "The width of the viewport"
+        },
+        "height": {
+            "type": "int",
+            "minimum": 100,
+            "maximum": 1080,
+            "default": 600,
+            "description": "The height of the viewport"
+        },
+        "window_mode": {
+            "type": "int",
+            "enum": [
+                -1, // windowed
+                0, // borderless
+                1 // fullscreen
+            ],
+            "minimum": -1,
+            "maximum": 1,
+            "default": 0,
+            "description": "The window mode of the viewport"
+        }
+    }
+]

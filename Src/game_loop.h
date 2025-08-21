@@ -31,7 +31,7 @@ class GameLoop {
 #ifdef DEBUG
   Tests::TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
   Tests::TestManagerScene *test_manager_scene_;    // тесты менеджера сцены
-  Tests::TestManagerScene *test_manager_settings_;       // тесты менеджера настроек
+  Tests::TestManagerSettings *test_manager_settings_;    // тесты менеджера настроек
   Tests::TestManagerResources *test_manager_resources_;  // тесты менеджера ресурсов
   Tests::TestManagerRender *test_manager_render_;        // тесты менеджера рендеринга
 #endif
@@ -61,23 +61,32 @@ class GameLoop {
 
  private:
   bool Init() {
-    //
-    manager_settings_ = new Settings();
-    // INFO загрузка настроек движка
-    if (!manager_settings_) {
-      LOG::Fatal(__FILE__, __LINE__) << "manager_settings_ is null";
-      abort();
-      if (manager_settings_->LoadSettings("Init/viewport_settings.json") &&
-          manager_settings_->LoadSettings("Init/audio_settings.json") &&
-          manager_settings_->LoadSettings("Init/graphics_settings.json") &&
-          manager_settings_->LoadSettings("Init/input_settings.json")) {
-      } else {
-        LOG::Fatal(__FILE__, __LINE__) << "Failed to load settings";
+    //=====================================================================
+#ifdef DEBUG
+    // INFO место тестов в симуляции работы менеджера
+    {
+      test_manager_inputs_ = new Tests::TestManagerInputs();
+      test_manager_scene_ = new Tests::TestManagerScene();
+      test_manager_settings_ = new Tests::TestManagerSettings();
+      test_manager_resources_ = new Tests::TestManagerResources();
+      test_manager_render_ = new Tests::TestManagerRender();
+
+      if (
+          !test_manager_settings_->RunTests() || 
+          !test_manager_scene_->RunTests() ||
+          !test_manager_inputs_->RunTests() || 
+          !test_manager_resources_->RunTests() ||
+          !test_manager_render_->RunTests()
+        ) {
         abort();
       }
     }
+#endif
 
+    //======================================================================
     // Зона создания менеджеров
+    manager_settings_ = new Settings();
+
     managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("entity", new Managers::Entity());
     managers_.emplace("physics", new Managers::Physics());
@@ -118,30 +127,35 @@ class GameLoop {
 
     // Подписска на `input` события
     {
-      static_cast<Managers::Inputs *>(managers_.at("inputs"))
-          ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
+      // static_cast<Managers::Inputs *>(managers_.at("inputs"))
+      //     ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
     }
-
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов
     {
-      test_manager_inputs_ = new Tests::TestManagerInputs();
-      test_manager_scene_ = new Tests::TestManagerScene();
-      test_manager_settings_ = new Tests::TestManagerScene();
-      test_manager_resources_ = new Tests::TestManagerResources();
-      test_manager_render_ = new Tests::TestManagerRender();
+      // test_manager_inputs_->SetManager(
+      //     static_cast<Inputs *>(managers_.at("inputs")));
+      // test_manager_scene_->SetManager(
+      //     static_cast<Scene *>(managers_.at("scene")));
+      test_manager_settings_->SetManager(
+          static_cast<Settings *>(managers_.at("settings")));
+      // test_manager_resources_->SetManager(
+      //     static_cast<Resource *>(managers_.at("resource")));
+      // test_manager_render_->SetManager(
+      //     static_cast<Render *>(managers_.at("render")));
 
-      if (!test_manager_inputs_->RunTests() || !test_manager_scene_->RunTests() ||
-          !test_manager_settings_->RunTests() || !test_manager_resources_->RunTests() ||
-          !test_manager_render_->RunTests()) {
-        LOG::Fatal(__FILE__, __LINE__) << "Failed to initialize test managers";
+      if (
+          !test_manager_settings_->RunTests() || 
+          !test_manager_scene_->RunTests() ||
+          !test_manager_inputs_->RunTests() || 
+          !test_manager_resources_->RunTests() ||
+          !test_manager_render_->RunTests()
+        ) {
         abort();
       }
     }
 #endif
-
-    //======================================================================
     return true;
   }
 
@@ -152,13 +166,13 @@ class GameLoop {
         manager.second->Update();
 #ifdef DEBUG
         {
-          // Запуск тестов
-          if (dynamic_cast<Managers::Inputs *>(manager.second)) {
-            test_manager_inputs_->RunTests();
-          }
-          if (dynamic_cast<Managers::Scene *>(manager.second)) {
-            test_manager_scene_->RunTests();
-          }
+          // // Запуск тестов
+          // if (dynamic_cast<Managers::Inputs *>(manager.second)) {
+          //   test_manager_inputs_->RunTests();
+          // }
+          // if (dynamic_cast<Managers::Scene *>(manager.second)) {
+          //   test_manager_scene_->RunTests();
+          // }
         }
 #endif
       }

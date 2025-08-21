@@ -24,6 +24,7 @@ const std::string MAGENTA = "\033[35m";
 const std::string CYAN = "\033[36m";
 const std::string WHITE = "\033[37m";
 const std::string BOLD = "\033[1m";
+const std::string UNDERLINE = "\033[4m";
 }  // namespace Colors
 
 // Настройка логгера
@@ -135,7 +136,8 @@ inline LOG::DATA::StreamLogger Info(const std::string& message = "") {
 
 inline LOG::DATA::StreamLogger Success(const std::string& message = "") {
   return LOG::DATA::StreamLogger("[ Test Success ] " + message,
-                                 EDD::LOG::DATA::Colors::GREEN);
+                                 EDD::LOG::DATA::Colors::GREEN +
+                                     EDD::LOG::DATA::Colors::UNDERLINE);
 }
 
 inline LOG::DATA::StreamLogger Failed(const std::string& message = "",
