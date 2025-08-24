@@ -93,7 +93,7 @@ class TestManagerSettings {
 
   // сохранение настроек
   bool IsSaveSettings(const std::string& path) {
-    bool L_ok = settings_manager_->SaveSettings(path, SettingsType::VIEWPORT_SETTINGS);
+    bool L_ok = settings_manager_->SaveSettings(SettingsType::VIEWPORT_SETTINGS);
     Test_Assert(L_ok, "Save to " + path);
     return L_ok;
   };

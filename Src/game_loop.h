@@ -182,10 +182,11 @@ class GameLoop {
       manager.second->FreeResources();  // Освобождаем память
     }
 
-    if (manager_settings_->SaveSettings("Init/viewport_settings.json") &&
-        manager_settings_->SaveSettings("Init/audio_settings.json") &&
-        manager_settings_->SaveSettings("Init/graphics_settings.json") &&
-        manager_settings_->SaveSettings("Init/input_settings.json")) {
+    if (manager_settings_->SaveSettings(SettingsType::VIEWPORT_SETTINGS) &&
+        manager_settings_->SaveSettings(SettingsType::AUDIO_SETTINGS) &&
+        manager_settings_->SaveSettings(SettingsType::GRAPHICS_SETTINGS) &&
+        manager_settings_->SaveSettings(SettingsType::INPUT_SETTINGS) &&
+        manager_settings_->SaveSettings(SettingsType::RENDER_SETTINGS)) {
       LOG::Info(__FILE__) << "Settings saved successfully";
     } else {
       LOG::Fatal(__FILE__, __LINE__) << "Failed to save some settings";

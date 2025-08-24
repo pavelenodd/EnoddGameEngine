@@ -13,6 +13,51 @@ endif()
 
 project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES C CXX)
 
+# ====== Дополнительные опции для проверки качества кода ======
+option(ENABLE_WARNINGS "Включить расширенные предупреждения" ON)
+option(ENABLE_WARNINGS_AS_ERRORS "Трактовать предупреждения как ошибки" OFF)
+option(ENABLE_ANALYZER "Включить встроенный статический анализатор (-fanalyzer GCC)" OFF)
+option(ENABLE_ASAN "Включить AddressSanitizer" OFF)
+option(ENABLE_UBSAN "Включить UndefinedBehaviorSanitizer" OFF)
+option(ENABLE_TSAN "Включить ThreadSanitizer (несовместим с ASAN/UBSAN)" OFF)
+
+set(WARNING_FLAGS "")
+if(ENABLE_WARNINGS)
+    list(APPEND WARNING_FLAGS
+        -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow
+        -Wdouble-promotion -Wold-style-cast -Wnon-virtual-dtor -Woverloaded-virtual
+        -Wnull-dereference
+    )
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        list(APPEND WARNING_FLAGS -Wlogical-op -Wuseless-cast -Wduplicated-cond -Wduplicated-branches)
+    endif()
+    if(ENABLE_WARNINGS_AS_ERRORS)
+        list(APPEND WARNING_FLAGS -Werror)
+    endif()
+endif()
+
+set(SAN_FLAGS "")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    if(ENABLE_TSAN)
+        list(APPEND SAN_FLAGS -fsanitize=thread)
+    else()
+        if(ENABLE_ASAN)
+            list(APPEND SAN_FLAGS -fsanitize=address)
+        endif()
+        if(ENABLE_UBSAN)
+            list(APPEND SAN_FLAGS -fsanitize=undefined)
+        endif()
+    endif()
+    if(SAN_FLAGS)
+        # Для лучшей диагностики стеков
+        list(APPEND SAN_FLAGS -fno-omit-frame-pointer)
+    endif()
+endif()
+
+if(ENABLE_ANALYZER AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    list(APPEND WARNING_FLAGS -fanalyzer)
+endif()
+
 include(CTest)
 enable_testing()
 
@@ -82,6 +127,14 @@ add_executable(${PROJECT_NAME}
     ${TEST_GAME_SRC}
     
 )
+
+if(WARNING_FLAGS)
+    target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
+endif()
+if(SAN_FLAGS)
+    target_compile_options(${PROJECT_NAME} PRIVATE ${SAN_FLAGS})
+    target_link_options(${PROJECT_NAME} PRIVATE ${SAN_FLAGS})
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
@@ -171,3 +224,13 @@ if(VALGRIND_EXECUTABLE)
         LABELS "memory"
     )
 endif()
+
+# Тест: синтаксическая проверка отдельных заголовков (без линковки)
+add_test(NAME SyntaxCheck_manager_settings
+    COMMAND ${CMAKE_CXX_COMPILER} -std=c++${CMAKE_CXX_STANDARD} -fsyntax-only
+            $<$<BOOL:${WARNING_FLAGS}>:${WARNING_FLAGS}>
+            ${CMAKE_SOURCE_DIR}/Src/Managers/manager_settings.h)
+set_tests_properties(SyntaxCheck_manager_settings PROPERTIES
+    LABELS "syntax"
+    PASS_REGULAR_EXPRESSION ""
+)
