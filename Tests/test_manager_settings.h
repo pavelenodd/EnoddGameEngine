@@ -2,7 +2,6 @@
 
 #include <any>
 #include <string>
-#include <typeinfo>
 
 #include "Managers/manager_settings.h"
 #include "engine_logging.h"
@@ -49,7 +48,27 @@ class TestManagerSettings {
       }
       case -97: {
         // проверка сохранения настроек
-        sucsess &= IsSaveSettings("Settings/Test/viewport_settings.jsonc");
+        sucsess &= IsSaveValidSettings(SettingsType::VIEWPORT_SETTINGS);
+        [[fallthrough]];
+      }
+      case -96: {
+        // проверка на невалидные данные при сохранении
+        sucsess &= IsSaveInValidSettings(SettingsType::NONE_TYPE);
+        [[fallthrough]];
+      }
+      case -95: {
+        // получение валидных значений
+        sucsess &= IsGetValidValue(SettingsType::VIEWPORT_SETTINGS, "title");
+        [[fallthrough]];
+      }
+      case -94: {
+        // получение невалидных значений
+        sucsess &= IsGetInValidValue(SettingsType::VIEWPORT_SETTINGS, "invalid_key");
+        [[fallthrough]];
+      }
+      case -93: {
+        // получение невалидных значений
+        sucsess &= IsGetInValidValue(SettingsType::NONE_TYPE, "title");
         [[fallthrough]];
       }
       case 0: {
@@ -72,50 +91,92 @@ class TestManagerSettings {
  private:
   inline void Test_Assert(bool condition, const std::string& msg) {
     if (condition) {
-      TEST_LOG::Info() << "[TEST][Settings] " << msg;
+      TEST_LOG::Info() << "[TEST][Settings] [Result] " << msg << "\n";
     } else {
-      TEST_LOG::Failed() << "[TEST][Settings] " << msg;
+      TEST_LOG::Failed() << "[TEST][Settings] [Result] " << msg << "\n";
     }
   };
 
   // чтение настроек (загрузка JSON)
   bool IsLoadValidSettings() {
-    bool L_ok = settings_manager_->LoadSettings(SettingsType::VIEWPORT_SETTINGS);
-    Test_Assert(L_ok, "Load valid settings");
-    return L_ok;
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start loading valid settings";
+    bool sucsess = settings_manager_->LoadSettings(SettingsType::VIEWPORT_SETTINGS);
+    Test_Assert(sucsess, "Load valid settings");
+    return sucsess;
   };
   // проверка загрузки не валидных настроек
   bool IsLoadInvalidSettingsWithoutType() {
-    bool L_ok = settings_manager_->LoadSettings();
-    Test_Assert(!L_ok, "Load invalid settings should fail");
-    return !L_ok;
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start loading invalid settings";
+    bool sucsess = settings_manager_->LoadSettings();
+    Test_Assert(!sucsess, "Load invalid settings should fail");
+    return !sucsess;
   };
 
   // сохранение настроек
-  bool IsSaveSettings(const std::string& path) {
-    bool L_ok = settings_manager_->SaveSettings(SettingsType::VIEWPORT_SETTINGS);
-    Test_Assert(L_ok, "Save to " + path);
-    return L_ok;
+  bool IsSaveValidSettings(SettingsType type = SettingsType::NONE_TYPE) {
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start saving valid settings";
+    bool sucsess = settings_manager_->SaveSettings(type);
+    Test_Assert(sucsess, "Save settings");
+    return sucsess;
+  };
+  bool IsSaveInValidSettings(SettingsType type = SettingsType::NONE_TYPE) {
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start saving invalid settings";
+    bool sucsess = (!settings_manager_->SaveSettings(type));
+    Test_Assert(sucsess, "Save settings");
+    return sucsess;
   };
 
+  bool IsSetValidValue(SettingsType type = SettingsType::NONE_TYPE,
+                       std::string key = "",
+                       const std::any& value = std::any()) {
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start setting valid value";
+    bool sucsess = settings_manager_->SetValue(type, key, value);
+    Test_Assert(sucsess, "Set settings");
+    return sucsess;
+  }
+
+  bool IsGetValidValue(SettingsType type = SettingsType::NONE_TYPE,
+                       std::string key = "") {
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start getting valid value";
+    bool sucsess = true;
+    auto L_value = settings_manager_->GetValue(type, key);
+    sucsess = (std::any_cast<std::string>(L_value) == "Main");
+    Test_Assert(sucsess, "Get settings");
+    return sucsess;
+  }
+
+  bool IsGetInValidValue(SettingsType type = SettingsType::NONE_TYPE,
+                         std::string key = "") {
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start getting invalid value";
+    bool sucsess = true;
+    auto L_value = settings_manager_->GetValue(type, key);
+    sucsess = (!(std::any_cast<std::string>(L_value) == "Main"));
+    Test_Assert(sucsess, "Get settings");
+    return sucsess;
+  }
   // проверка на дубликаты настроек (ожидается политика → минимум ошибка загрузки)
   bool IsDuplicateSettings(const std::string& path) {
-    bool L_ok = 1;
-    Test_Assert(!L_ok, "Duplicate settings should be rejected");
-    return !L_ok;
+    EDD::TEST_LOG::Info()
+        << "[TEST][Settings] [Start] Start checking for duplicate settings";
+    bool sucsess = 1;
+    Test_Assert(!sucsess, "Duplicate settings should be rejected");
+    return !sucsess;
   };
 
   // проверка граничных значений
   bool IsBoundaryValues() {
-    bool L_success = false;
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start checking boundary values";
+    bool sucsess = false;
 
-    return L_success;
+    return sucsess;
   };
   // проверка невалидных граничных значений
   bool IsInvalidBoundaryValues() {
-    bool L_success = false;
+    EDD::TEST_LOG::Info()
+        << "[TEST][Settings] [Start] Start checking invalid boundary values";
+    bool sucsess = false;
 
-    return L_success;
+    return sucsess;
   };
 };
 

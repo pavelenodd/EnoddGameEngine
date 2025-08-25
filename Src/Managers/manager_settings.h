@@ -29,7 +29,7 @@ class Settings : public Managers::Base {
   std::fstream file_stream_;
   std::map<SettingsType, nlohmann::json> settings_map_;
   std::map<SettingsType, std::string> settings_paths_ = {
-      {NONE_TYPE, ""}, {VIEWPORT_SETTINGS, "Settings/Test/viewport_settings.jsonc"}, {}};
+      {NONE_TYPE, ""}, {VIEWPORT_SETTINGS, "Settings/viewport_settings.jsonc"}, {}};
 
  public:
   explicit Settings() {}
@@ -50,9 +50,8 @@ class Settings : public Managers::Base {
       LOG::Error() << "Settings type is NONE_TYPE, cannot load settings";
       return false;
     }
-    if (IsOpenFile(settings_paths_.at(type))) {
-      settings_map_[type] = std::move(
-          nlohmann::json::parse(file_stream_, nullptr, true, true));
+    if (IsVerifityAndOpeFile(settings_paths_.at(type))) {
+      settings_map_[type] = nlohmann::json::parse(file_stream_, nullptr, true, true);
 
       CloseFile();
       LOG::Debug() << "Settings loaded from " << settings_paths_.at(type);
@@ -68,7 +67,7 @@ class Settings : public Managers::Base {
       return false;
     }
 
-    if (IsOpenFile(settings_paths_.at(type))) {
+    if (IsVerifityAndOpeFile(settings_paths_.at(type))) {
       file_stream_ << settings_map_.at(type).dump(4);
       CloseFile();
       LOG::Debug() << "Settings saved to " << settings_paths_.at(type);
@@ -80,11 +79,21 @@ class Settings : public Managers::Base {
     return false;
   }
 
-  bool SetValue(const std::string& key, const std::any& value) {
+  bool SetValue(SettingsType type = SettingsType::NONE_TYPE,
+                const std::string& key = "",
+                const std::any& value = std::any()) {
     return true;
   }
-  std::any GetValue(const std::string& key) {
-    return true;
+  std::any GetValue(SettingsType type = SettingsType::NONE_TYPE,
+                    const std::string& key = "") {
+    if (type == NONE_TYPE) {
+      LOG::Error() << "Settings type is NONE_TYPE, cannot get settings";
+      return std::any();
+    }
+    if (IsVerifityAndOpeFile(settings_paths_.at(type))) {
+      return settings_map_.at(type).at(key);
+    }
+    return std::any();
   }
 
   void Update() override {}
@@ -95,10 +104,17 @@ class Settings : public Managers::Base {
 
  private:
   /**
-   * @brief Проверяет, можно ли открыть файл по указанному пути
+   * @brief Проверяет, можно ли открыть файл по указанному пути и открывает его
    * @param file_path Путь к файлу
    */
-  bool IsOpenFile(const std::string& file_path) {
+  bool IsVerifityAndOpeFile(const std::string& file_path) {
+    if (file_path.empty()) {
+      LOG::Error() << "File path is empty";
+      return false;
+    }
+    if (file_stream_.is_open()) {
+      file_stream_.close();
+    }
     std::fstream file(file_path, std::ios::in | std::ios::out);
     file_stream_ = std::move(file);
     return file_stream_.is_open();
