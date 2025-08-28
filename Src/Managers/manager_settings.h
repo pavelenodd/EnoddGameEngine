@@ -106,6 +106,10 @@ class Settings : public Managers::Base {
       LOG::Error() << "GetValue: NONE_TYPE";
       return {};
     }
+    if (key.empty()) {
+      LOG::Error() << "GetValue: key is not bee empty";
+      return {};
+    }
     auto itType = settings_map_.find(type);
     if (itType == settings_map_.end()) {
       LOG::Error() << "GetValue: settings type not loaded";
@@ -121,20 +125,15 @@ class Settings : public Managers::Base {
       return {};
     }
     const nlohmann::json& node = root.at(key);
-
-    std::string expected_type;
-    const nlohmann::json* value_json = &node;
-
-    if (node.is_object()) {
-      if (node.contains("value")) {
-        value_json = &node["value"];
-      }
-      if (node.contains("type") && node["type"].is_string()) {
-        expected_type = node["type"].get<std::string>();
-      }
+    if (!node.is_object()) {
+      LOG::Error(__func__, __LINE__) << " GetValue: node is not object";
     }
 
-    return JsonToAny(*value_json, expected_type);
+    if (!node.contains("value")) {
+      LOG::Error(__func__, __LINE__) << " GetValue: node is not contains \"value\"";
+    }
+
+    return JsonToAny(node["value"], node["type"].get<std::string>());
   }
 
   void Update() override {}
