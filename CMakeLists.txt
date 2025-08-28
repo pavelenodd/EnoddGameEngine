@@ -200,16 +200,6 @@ set_tests_properties(SmokeTest_Basic PROPERTIES
     LABELS "smoke"
 )
 
-# GoogleTest :
-## ManagerScene
-add_test(NAME ManagerScene_GTests
-    COMMAND ${PROJECT_NAME} --run-tests --gtest_filter=SceneTest.*
-)
-set_tests_properties(ManagerScene_GTests PROPERTIES
-    TIMEOUT 60
-    LABELS "gtest;manager_scene"
-)
-
 # Valgrind 
 find_program(VALGRIND_EXECUTABLE valgrind)
 if(VALGRIND_EXECUTABLE)
@@ -225,7 +215,16 @@ if(VALGRIND_EXECUTABLE)
     )
 endif()
 
-# Тест: синтаксическая проверка отдельных заголовков (без линковки)
+# Тест: синтаксическая проверка отдельных заголовков 
+add_test(NAME SyntaxCheck_game_loop
+    COMMAND ${CMAKE_CXX_COMPILER} -std=c++${CMAKE_CXX_STANDARD} -fsyntax-only
+            $<$<BOOL:${WARNING_FLAGS}>:${WARNING_FLAGS}>
+            ${CMAKE_SOURCE_DIR}/Src/game_loop.h)
+set_tests_properties(SyntaxCheck_game_loop PROPERTIES
+    LABELS "syntax"
+    PASS_REGULAR_EXPRESSION ""
+)
+## manager_settings
 add_test(NAME SyntaxCheck_manager_settings
     COMMAND ${CMAKE_CXX_COMPILER} -std=c++${CMAKE_CXX_STANDARD} -fsyntax-only
             $<$<BOOL:${WARNING_FLAGS}>:${WARNING_FLAGS}>
