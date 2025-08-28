@@ -91,7 +91,7 @@ class TestManagerSettings {
  private:
   inline void Test_Assert(bool condition, const std::string& msg) {
     if (condition) {
-      TEST_LOG::Info() << "[TEST][Settings] [Result] " << msg << "\n";
+      TEST_LOG::Success() << "[TEST][Settings] [Result] " << msg << "\n";
     } else {
       TEST_LOG::Failed() << "[TEST][Settings] [Result] " << msg << "\n";
     }
@@ -141,7 +141,7 @@ class TestManagerSettings {
     bool sucsess = true;
     auto L_value = settings_manager_->GetValue(type, key);
     sucsess = (std::any_cast<std::string>(L_value) == "Main");
-    Test_Assert(sucsess, "Get settings");
+    Test_Assert(sucsess, "Getting settings");
     return sucsess;
   }
 

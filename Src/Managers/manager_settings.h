@@ -4,6 +4,7 @@
 #include <map>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <unordered_map>
 
 #include "../EngineError/engine_logging.h"
 #include "manager_base.h"
@@ -29,7 +30,12 @@ class Settings : public Managers::Base {
   std::fstream file_stream_;
   std::map<SettingsType, nlohmann::json> settings_map_;
   std::map<SettingsType, std::string> settings_paths_ = {
-      {NONE_TYPE, ""}, {VIEWPORT_SETTINGS, "Settings/viewport_settings.jsonc"}, {}};
+      {NONE_TYPE, ""},
+      {VIEWPORT_SETTINGS, "Settings/viewport_settings.jsonc"},
+      {AUDIO_SETTINGS, "Settings/audio_settings.jsonc"},
+      {GRAPHICS_SETTINGS, "Settings/graphics_settings.jsonc"},
+      {INPUT_SETTINGS, "Settings/input_settings.jsonc"},
+      {RENDER_SETTINGS, "Settings/render_settings.jsonc"}};
 
  public:
   explicit Settings() {}
@@ -51,7 +57,16 @@ class Settings : public Managers::Base {
       return false;
     }
     if (IsVerifityAndOpeFile(settings_paths_.at(type))) {
-      settings_map_[type] = nlohmann::json::parse(file_stream_, nullptr, true, true);
+      nlohmann::json parsed = nlohmann::json::parse(file_stream_, nullptr, true, true);
+      if (parsed.is_array()) {
+        if (!parsed.empty() && parsed.front().is_object()) {
+          parsed = parsed.front();
+        } else {
+          LOG::Error() << "Loaded JSON array is empty or not object";
+          parsed = nlohmann::json::object();
+        }
+      }
+      settings_map_[type] = std::move(parsed);
 
       CloseFile();
       LOG::Debug() << "Settings loaded from " << settings_paths_.at(type);
@@ -88,16 +103,38 @@ class Settings : public Managers::Base {
   std::any GetValue(SettingsType type = SettingsType::NONE_TYPE,
                     const std::string& key = "") {
     if (type == NONE_TYPE) {
-      LOG::Error() << "Settings type is NONE_TYPE, cannot get settings";
-      std::string err = "";
-      return err;
+      LOG::Error() << "GetValue: NONE_TYPE";
+      return {};
     }
-    if (settings_map_[type].contains(key)) {
-      return settings_map_[type].at(key);
-    } else {
-      std::string err = "";
-      return err;
+    auto itType = settings_map_.find(type);
+    if (itType == settings_map_.end()) {
+      LOG::Error() << "GetValue: settings type not loaded";
+      return {};
     }
+    auto& root = itType->second;
+    if (!root.is_object()) {
+      LOG::Error() << "GetValue: root json is not object";
+      return {};
+    }
+    if (!root.contains(key)) {
+      LOG::Error() << "GetValue: key not found: " << key;
+      return {};
+    }
+    const nlohmann::json& node = root.at(key);
+
+    std::string expected_type;
+    const nlohmann::json* value_json = &node;
+
+    if (node.is_object()) {
+      if (node.contains("value")) {
+        value_json = &node["value"];
+      }
+      if (node.contains("type") && node["type"].is_string()) {
+        expected_type = node["type"].get<std::string>();
+      }
+    }
+
+    return JsonToAny(*value_json, expected_type);
   }
 
   void Update() override {}
@@ -379,6 +416,102 @@ class Settings : public Managers::Base {
       if (to_bool_any(v)) j = v;
     }
     return j;
+  }
+  std::any JsonToAny(const nlohmann::json& j, const std::string& expected_type) const {
+    // TODO
+    //  !надо переписать тк должен быть стандартный способ использовать To lower в std
+    auto to_lower = [](std::string s) {
+      for (char& c : s) {
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      }
+      return s;
+    };
+
+    std::string et = to_lower(expected_type);
+
+    auto deduce_type = [&]() -> std::string {
+      if (!et.empty()) return et;
+      if (j.is_string()) return "string";
+      if (j.is_boolean()) return "bool";
+      if (j.is_number_integer() || j.is_number_unsigned()) return "int";
+      if (j.is_number_float()) return "double";
+      return "unknown";
+    };
+    et = deduce_type();
+
+    // Общие маленькие помощники
+    auto conv_string = [&]() -> std::any {
+      if (j.is_string()) return j.get<std::string>();
+      if (j.is_boolean())
+        return j.get<bool>() ? std::string("true") : std::string("false");
+      if (j.is_number()) return j.dump();  // число в текст
+      return {};
+    };
+    auto conv_bool = [&]() -> std::any {
+      if (j.is_boolean()) return j.get<bool>();
+      if (j.is_number()) return j.get<double>() != 0.0;
+      if (j.is_string()) {
+        auto s = to_lower(j.get<std::string>());
+        if (s == "true") return true;
+        if (s == "false") return false;
+      }
+      return {};
+    };
+    auto conv_int = [&]() -> std::any {
+      if (j.is_number_integer()) return static_cast<int>(j.get<long long>());
+      if (j.is_number_unsigned()) return static_cast<int>(j.get<unsigned long long>());
+      if (j.is_number_float()) return static_cast<int>(j.get<double>());
+      if (j.is_boolean()) return j.get<bool>() ? 1 : 0;
+      if (j.is_string()) {
+        try {
+          return std::stoi(j.get<std::string>());
+        } catch (...) {
+          return std::any{};
+        }
+      }
+      return {};
+    };
+    auto conv_double = [&]() -> std::any {
+      if (j.is_number()) return j.get<double>();
+      if (j.is_boolean()) return j.get<bool>() ? 1.0 : 0.0;
+      if (j.is_string()) {
+        try {
+          return std::stod(j.get<std::string>());
+        } catch (...) {
+          return std::any{};
+        }
+      }
+      return {};
+    };
+    auto conv_fallback = [&]() -> std::any {
+      if (j.is_string()) return j.get<std::string>();
+      if (j.is_boolean()) return j.get<bool>();
+      if (j.is_number_integer()) return static_cast<int>(j.get<long long>());
+      if (j.is_number_unsigned()) return static_cast<int>(j.get<unsigned long long>());
+      if (j.is_number_float()) return static_cast<int>(j.get<double>());
+      return {};
+    };
+
+    // Таблица обработчиков
+    const static std::unordered_map<std::string, std::function<std::any()>> handlers = {
+        {"string", [&]() { return conv_string(); }},
+        {"bool", [&]() { return conv_bool(); }},
+        {"int", [&]() { return conv_int(); }},
+        {"float", [&]() { return conv_double(); }},
+        {"double", [&]() { return conv_double(); }}};
+
+    try {
+      auto it = handlers.find(et);
+      if (it != handlers.end()) {
+        return it->second();
+      }
+      if (j.is_primitive()) {
+        return conv_fallback();
+      }
+    } catch (const std::exception& e) {
+      LOG::Error() << "JsonToAny: conversion error: " << e.what();
+      return {};
+    }
   }
 };
 
