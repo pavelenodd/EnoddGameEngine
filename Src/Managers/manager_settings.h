@@ -84,16 +84,20 @@ class Settings : public Managers::Base {
                 const std::any& value = std::any()) {
     return true;
   }
+
   std::any GetValue(SettingsType type = SettingsType::NONE_TYPE,
                     const std::string& key = "") {
     if (type == NONE_TYPE) {
       LOG::Error() << "Settings type is NONE_TYPE, cannot get settings";
-      return std::any();
+      std::string err = "";
+      return err;
     }
-    if (IsVerifityAndOpeFile(settings_paths_.at(type))) {
-      return settings_map_.at(type).at(key);
+    if (settings_map_[type].contains(key)) {
+      return settings_map_[type].at(key);
+    } else {
+      std::string err = "";
+      return err;
     }
-    return std::any();
   }
 
   void Update() override {}
@@ -108,10 +112,6 @@ class Settings : public Managers::Base {
    * @param file_path Путь к файлу
    */
   bool IsVerifityAndOpeFile(const std::string& file_path) {
-    if (file_path.empty()) {
-      LOG::Error() << "File path is empty";
-      return false;
-    }
     if (file_stream_.is_open()) {
       file_stream_.close();
     }

@@ -36,28 +36,28 @@ class TestManagerSettings {
     bool sucsess = true;
 
     switch (test_case_) {
+      // проверка загрузки не валидных настроек
       case -99: {
-        // проверка загрузки не валидных настроек
         sucsess &= IsLoadInvalidSettingsWithoutType();
         [[fallthrough]];
       }
+      // проверка загрузки  валидных настроек
       case -98: {
-        // проверка загрузки  валидных настроек
         sucsess &= IsLoadValidSettings();
         [[fallthrough]];
       }
+      // проверка сохранения настроек
       case -97: {
-        // проверка сохранения настроек
         sucsess &= IsSaveValidSettings(SettingsType::VIEWPORT_SETTINGS);
         [[fallthrough]];
       }
+      // проверка на невалидные данные при сохранении
       case -96: {
-        // проверка на невалидные данные при сохранении
         sucsess &= IsSaveInValidSettings(SettingsType::NONE_TYPE);
         [[fallthrough]];
       }
+      // получение валидных значений
       case -95: {
-        // получение валидных значений
         sucsess &= IsGetValidValue(SettingsType::VIEWPORT_SETTINGS, "title");
         [[fallthrough]];
       }
