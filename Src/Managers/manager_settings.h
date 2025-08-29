@@ -10,13 +10,20 @@
 #include "manager_base.h"
 
 namespace EDD {
+#ifdef DEBUG
+namespace Tests {
+struct SettingsInspector;
+}
+#endif
+
 enum SettingsType {
   NONE_TYPE = -1,
-  VIEWPORT_SETTINGS = 0,
-  AUDIO_SETTINGS = 1,
-  GRAPHICS_SETTINGS = 2,
-  INPUT_SETTINGS = 3,
-  RENDER_SETTINGS = 4
+  ALL_SETTINGS = 0,
+  VIEWPORT_SETTINGS = 1,
+  AUDIO_SETTINGS = 2,
+  GRAPHICS_SETTINGS = 3,
+  INPUT_SETTINGS = 4,
+  RENDER_SETTINGS = 5
 
 };
 /*
@@ -26,11 +33,16 @@ enum SettingsType {
       Настройки могут включать параметры окна, аудио и графики.
 */
 class Settings : public Managers::Base {
+#ifdef DEBUG
+  friend struct Tests::SettingsInspector;
+#endif
+
  private:
   std::fstream file_stream_;
   std::map<SettingsType, nlohmann::json> settings_map_;
   std::map<SettingsType, std::string> settings_paths_ = {
       {NONE_TYPE, ""},
+      {ALL_SETTINGS, ""},
       {VIEWPORT_SETTINGS, "Settings/viewport_settings.jsonc"},
       {AUDIO_SETTINGS, "Settings/audio_settings.jsonc"},
       {GRAPHICS_SETTINGS, "Settings/graphics_settings.jsonc"},
@@ -56,23 +68,18 @@ class Settings : public Managers::Base {
       LOG::Error() << "Settings type is NONE_TYPE, cannot load settings";
       return false;
     }
-    if (IsVerifityAndOpeFile(settings_paths_.at(type))) {
-      nlohmann::json parsed = nlohmann::json::parse(file_stream_, nullptr, true, true);
-      if (parsed.is_array()) {
-        if (!parsed.empty() && parsed.front().is_object()) {
-          parsed = parsed.front();
-        } else {
-          LOG::Error() << "Loaded JSON array is empty or not object";
-          parsed = nlohmann::json::object();
-        }
-      }
+    std::ifstream ifs(settings_paths_.at(type));
+    if (!ifs.is_open()) {
+      LOG::Error() << "Failed to open file for read: " << settings_paths_.at(type);
+      return false;
+    }
+    try {
+      nlohmann::json parsed = nlohmann::json::parse(ifs, nullptr, true, true);
       settings_map_[type] = std::move(parsed);
-
-      CloseFile();
       LOG::Debug() << "Settings loaded from " << settings_paths_.at(type);
       return true;
-    } else {
-      LOG::Error() << "Failed to open file: path not found " << settings_paths_.at(type);
+    } catch (const std::exception& e) {
+      LOG::Error() << "Parse error: " << e.what();
       return false;
     }
   }
@@ -81,22 +88,58 @@ class Settings : public Managers::Base {
       LOG::Error() << "Settings type is NONE_TYPE, cannot save settings";
       return false;
     }
-
-    if (IsVerifityAndOpeFile(settings_paths_.at(type))) {
-      file_stream_ << settings_map_.at(type).dump(4);
-      CloseFile();
-      LOG::Debug() << "Settings saved to " << settings_paths_.at(type);
-      return true;
-    } else {
-      LOG::Error() << "Failed to open file: path not found " << settings_paths_.at(type);
+    auto it = settings_map_.find(type);
+    if (it == settings_map_.end()) {
+      LOG::Error() << "No settings loaded for type";
       return false;
     }
-    return false;
+    std::ofstream ofs(settings_paths_.at(type), std::ios::out | std::ios::trunc);
+    if (!ofs.is_open()) {
+      LOG::Error() << "Failed to open file for write: " << settings_paths_.at(type);
+      return false;
+    }
+    ofs << it->second.dump(4) << '\n';
+    if (!ofs.good()) {
+      LOG::Error() << "Write error: " << settings_paths_.at(type);
+      return false;
+    }
+    LOG::Debug() << "Settings saved to " << settings_paths_.at(type);
+    return true;
   }
 
   bool SetValue(SettingsType type = SettingsType::NONE_TYPE,
                 const std::string& key = "",
                 const std::any& value = std::any()) {
+    if (type == NONE_TYPE) {
+      LOG::Error() << "GetValue: NONE_TYPE";
+      return false;
+    }
+    if (key.empty()) {
+      LOG::Error() << "GetValue: key is not bee empty";
+      return false;
+    }
+
+    auto& root = settings_map_.find(type)->second;
+    if (!root.is_object()) {
+      LOG::Error() << "GetValue: root json is not object";
+      return false;
+    }
+    if (!root.contains(key)) {
+      LOG::Error() << "GetValue: key not found: " << key;
+      return false;
+    }
+    const nlohmann::json& node = root.at(key);
+    if (!node.is_object()) {
+      LOG::Error(__func__, __LINE__) << " GetValue: node is not object";
+      return false;
+    }
+
+    if (!node.contains("value")) {
+      LOG::Error(__func__, __LINE__) << " GetValue: node is not contains \"value\"";
+      return false;
+    }
+    settings_map_.find(type)->second[key]["value"] = AnyToJson(
+        value, node["type"].get<std::string>());
     return true;
   }
 
@@ -110,12 +153,8 @@ class Settings : public Managers::Base {
       LOG::Error() << "GetValue: key is not bee empty";
       return {};
     }
-    auto itType = settings_map_.find(type);
-    if (itType == settings_map_.end()) {
-      LOG::Error() << "GetValue: settings type not loaded";
-      return {};
-    }
-    auto& root = itType->second;
+    auto it_type = settings_map_.find(type);
+    auto& root = it_type->second;
     if (!root.is_object()) {
       LOG::Error() << "GetValue: root json is not object";
       return {};
@@ -140,7 +179,9 @@ class Settings : public Managers::Base {
   void Init(std::vector<std::any> args) override {
     LOG::Debug() << "ManagerSettings initialized";
   }
-  void FreeResources() override {}
+  void FreeResources() override {
+    SaveSettings();
+  }
 
  private:
   /**
@@ -151,8 +192,9 @@ class Settings : public Managers::Base {
     if (file_stream_.is_open()) {
       file_stream_.close();
     }
-    std::fstream file(file_path, std::ios::in | std::ios::out);
+    std::fstream file(file_path, std::ios::in | std::ios::out | std::ios::trunc);
     file_stream_ = std::move(file);
+
     return file_stream_.is_open();
   }
   /**

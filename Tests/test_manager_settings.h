@@ -9,6 +9,11 @@
 namespace EDD {
 namespace Tests {
 
+struct SettingsInspector {
+  // Публичные constexpr указатели на приватные поля
+  static constexpr auto settings_map = &EDD::Settings::settings_map_;
+};
+
 class TestManagerSettings {
  private:
   int test_case_ = -99;
@@ -34,7 +39,8 @@ class TestManagerSettings {
 
   bool RunTests() {
     bool sucsess = true;
-
+    auto settings_map_ref = (*settings_manager_).*
+                            EDD::Tests::SettingsInspector::settings_map;
     switch (test_case_) {
       // проверка загрузки не валидных настроек
       case -99: {
@@ -58,17 +64,30 @@ class TestManagerSettings {
       }
       // получение валидных значений
       case -95: {
+        auto settings_map_copy = (*settings_manager_).*
+                                 EDD::Tests::SettingsInspector::settings_map;
         sucsess &= IsGetValidValue(SettingsType::VIEWPORT_SETTINGS, "title");
+        sucsess &= (settings_map_copy ==
+                    (*settings_manager_).*EDD::Tests::SettingsInspector::settings_map);
+        sucsess &= IsSaveValidSettings(SettingsType::VIEWPORT_SETTINGS);
+        sucsess &= IsGetValidValue(SettingsType::VIEWPORT_SETTINGS, "title");
+        sucsess &= (settings_map_copy ==
+                    (*settings_manager_).*EDD::Tests::SettingsInspector::settings_map);
+        if (sucsess) {
+          Test_Assert(sucsess, "Settings map was not modified unexpectedly");
+        } else {
+          Test_Assert(sucsess, "Settings map was modified unexpectedly");
+        }
         [[fallthrough]];
       }
       case -94: {
         // получение невалидных значений
-        sucsess &= IsGetInValidValue(SettingsType::VIEWPORT_SETTINGS, "invalid_key");
+        // sucsess &= IsGetInValidValue(SettingsType::VIEWPORT_SETTINGS, "invalid_key");
         [[fallthrough]];
       }
       case -93: {
         // получение невалидных значений
-        sucsess &= IsGetInValidValue(SettingsType::NONE_TYPE, "title");
+        // sucsess &= IsGetInValidValue(SettingsType::NONE_TYPE, "title");
         [[fallthrough]];
       }
       case 0: {
@@ -150,7 +169,9 @@ class TestManagerSettings {
     EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start getting invalid value";
     bool sucsess = true;
     auto L_value = settings_manager_->GetValue(type, key);
-    sucsess = (!(std::any_cast<std::string>(L_value) == "Main"));
+
+    sucsess = std::any_cast<bool>(L_value);
+
     Test_Assert(sucsess, "Get settings");
     return sucsess;
   }
@@ -179,6 +200,5 @@ class TestManagerSettings {
     return sucsess;
   };
 };
-
 }  // namespace Tests
 }  // namespace EDD

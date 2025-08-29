@@ -38,7 +38,6 @@ class Scene : public Managers::Base, public InterfaceKeyEvent {
  private:
   EDD::Data::Viewport viewport_;  // данные о вьюпорте
 #ifdef DEBUG
-
   friend struct ::EDD::Tests::SceneInspector;
 #endif
  public:
