@@ -29,8 +29,9 @@ enum SettingsType {
 /*
   Менеджер настроек отвечает за загрузку и сохранение настроек игры.
       Он может загружать настройки из файла JSON и сохранять их обратно в файл.
-      Автоматически проверяет тип данных со схемой, которая содержит тип переменной и её диапазон
-      Настройки могут включать параметры окна, аудио и графики.
+      Автоматически проверяет тип данных со схемой, которая содержит тип
+  переменной и её диапазон Настройки могут включать параметры окна, аудио и
+  графики.
 */
 class Settings : public Managers::Base {
 #ifdef DEBUG
@@ -56,13 +57,18 @@ class Settings : public Managers::Base {
     FreeResources();
     LOG::Debug() << "ManagerSettings destroyed";
   }
-  // Удаление лишних конструкторов
-  Settings(const Settings&) = delete;
-  Settings(Settings&&) = delete;
-  Settings& operator=(const Settings&) = delete;
-  Settings& operator=(Settings&&) = delete;
+  Settings(const Settings &) = delete;
+  Settings(Settings &&) = delete;
+  Settings &operator=(const Settings &) = delete;
+  Settings &operator=(Settings &&) = delete;
 
  public:
+  /**
+   * @brief Load settings from a JSON file.
+   *
+   * @param type The enum type of settings to load.
+   * @return bool True if settings were loaded successfully, false otherwise.
+   */
   bool LoadSettings(SettingsType type = NONE_TYPE) {
     if (type == NONE_TYPE) {
       LOG::Error() << "Settings type is NONE_TYPE, cannot load settings";
@@ -78,11 +84,17 @@ class Settings : public Managers::Base {
       settings_map_[type] = std::move(parsed);
       LOG::Debug() << "Settings loaded from " << settings_paths_.at(type);
       return true;
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
       LOG::Error() << "Parse error: " << e.what();
       return false;
     }
   }
+  /**
+   * @brief Save settings to a JSON file.
+   *
+   * @param type The enum type of settings to save.
+   * @return bool True if settings were saved successfully, false otherwise.
+   */
   bool SaveSettings(SettingsType type = NONE_TYPE) {
     if (type == NONE_TYPE) {
       LOG::Error() << "Settings type is NONE_TYPE, cannot save settings";
@@ -106,10 +118,17 @@ class Settings : public Managers::Base {
     LOG::Debug() << "Settings saved to " << settings_paths_.at(type);
     return true;
   }
-
+  /**
+   * @brief Set the Value object
+   *
+   * @param type The enum type of settings to modify.
+   * @param key The key of the setting to modify.
+   * @param value The new value to set.
+   * @return true if the value was set successfully, false otherwise.
+   */
   bool SetValue(SettingsType type = SettingsType::NONE_TYPE,
-                const std::string& key = "",
-                const std::any& value = std::any()) {
+                const std::string &key = "",
+                const std::any &value = std::any()) {
     if (type == NONE_TYPE) {
       LOG::Error() << "GetValue: NONE_TYPE";
       return false;
@@ -119,7 +138,7 @@ class Settings : public Managers::Base {
       return false;
     }
 
-    auto& root = settings_map_.find(type)->second;
+    auto &root = settings_map_.find(type)->second;
     if (!root.is_object()) {
       LOG::Error() << "GetValue: root json is not object";
       return false;
@@ -128,7 +147,7 @@ class Settings : public Managers::Base {
       LOG::Error() << "GetValue: key not found: " << key;
       return false;
     }
-    const nlohmann::json& node = root.at(key);
+    const nlohmann::json &node = root.at(key);
     if (!node.is_object()) {
       LOG::Error(__func__, __LINE__) << " GetValue: node is not object";
       return false;
@@ -138,13 +157,18 @@ class Settings : public Managers::Base {
       LOG::Error(__func__, __LINE__) << " GetValue: node is not contains \"value\"";
       return false;
     }
-    settings_map_.find(type)->second[key]["value"] = AnyToJson(
-        value, node["type"].get<std::string>());
+    settings_map_.find(type)->second[key]["value"] = AnyToJson(value, node["type"].get<std::string>());
     return true;
   }
-
-  std::any GetValue(SettingsType type = SettingsType::NONE_TYPE,
-                    const std::string& key = "") {
+  /**
+   * @brief Get the Value object
+   *
+   * @param type The enum type of settings to retrieve.
+   * @param key The key of the setting to retrieve.
+   * @return std::any The value of the setting, or an empty std::any if not
+   * found.
+   */
+  std::any GetValue(SettingsType type = SettingsType::NONE_TYPE, const std::string &key = "") {
     if (type == NONE_TYPE) {
       LOG::Error() << "GetValue: NONE_TYPE";
       return {};
@@ -154,7 +178,7 @@ class Settings : public Managers::Base {
       return {};
     }
     auto it_type = settings_map_.find(type);
-    auto& root = it_type->second;
+    auto &root = it_type->second;
     if (!root.is_object()) {
       LOG::Error() << "GetValue: root json is not object";
       return {};
@@ -163,7 +187,7 @@ class Settings : public Managers::Base {
       LOG::Error() << "GetValue: key not found: " << key;
       return {};
     }
-    const nlohmann::json& node = root.at(key);
+    const nlohmann::json &node = root.at(key);
     if (!node.is_object()) {
       LOG::Error(__func__, __LINE__) << " GetValue: node is not object";
     }
@@ -178,53 +202,38 @@ class Settings : public Managers::Base {
   void Update() override {}
   void Init(std::vector<std::any> args) override {
     LOG::Debug() << "ManagerSettings initialized";
+    LoadSettings(SettingsType::ALL_SETTINGS);
   }
   void FreeResources() override {
-    SaveSettings();
+    SaveSettings(SettingsType::ALL_SETTINGS);
   }
 
  private:
   /**
-   * @brief Проверяет, можно ли открыть файл по указанному пути и открывает его
-   * @param file_path Путь к файлу
+   * @brief Convert any value to JSON
+   *
+   * @param value The value to convert
+   * @param expected_type The expected type of the value
+   * @return nlohmann::json The JSON representation of the value
    */
-  bool IsVerifityAndOpeFile(const std::string& file_path) {
-    if (file_stream_.is_open()) {
-      file_stream_.close();
-    }
-    std::fstream file(file_path, std::ios::in | std::ios::out | std::ios::trunc);
-    file_stream_ = std::move(file);
-
-    return file_stream_.is_open();
-  }
-  /**
-   * @brief Закрывает файл, если он открыт
-   * @param file_path Путь к файлу для закрытия
-   */
-  void CloseFile() {
-    if (file_stream_.is_open()) {
-      file_stream_.close();
-    }
-  }
-
-  nlohmann::json AnyToJson(const std::any& value, const std::string& expected_type) {
+  nlohmann::json AnyToJson(const std::any &value, const std::string &expected_type) {
     nlohmann::json j = nullptr;
     if (!value.has_value()) return j;
-    const auto& et = expected_type;
-    const std::type_info& t = value.type();
+    const auto &et = expected_type;
+    const std::type_info &t = value.type();
 
     // string
-    auto to_string_any = [&](std::string& out) -> bool {
+    auto to_string_any = [&](std::string &out) -> bool {
       if (t == typeid(std::string)) {
-        out = std::any_cast<const std::string&>(value);
+        out = std::any_cast<const std::string &>(value);
         return true;
       }
-      if (t == typeid(const char*)) {
-        out = std::string(std::any_cast<const char*>(value));
+      if (t == typeid(const char *)) {
+        out = std::string(std::any_cast<const char *>(value));
         return true;
       }
-      if (t == typeid(char*)) {
-        out = std::string(std::any_cast<char*>(value));
+      if (t == typeid(char *)) {
+        out = std::string(std::any_cast<char *>(value));
         return true;
       }
       if (t == typeid(char)) {
@@ -275,7 +284,7 @@ class Settings : public Managers::Base {
     };
 
     // int
-    auto to_int_any = [&](long long& out) -> bool {
+    auto to_int_any = [&](long long &out) -> bool {
       if (t == typeid(int)) {
         out = std::any_cast<int>(value);
         return true;
@@ -321,7 +330,7 @@ class Settings : public Managers::Base {
         return true;
       }
       if (t == typeid(std::string)) {
-        const auto& s = std::any_cast<const std::string&>(value);
+        const auto &s = std::any_cast<const std::string &>(value);
         try {
           out = std::stoll(s);
           return true;
@@ -333,7 +342,7 @@ class Settings : public Managers::Base {
     };
 
     // double
-    auto to_double_any = [&](double& out) -> bool {
+    auto to_double_any = [&](double &out) -> bool {
       if (t == typeid(float)) {
         out = std::any_cast<float>(value);
         return true;
@@ -375,7 +384,7 @@ class Settings : public Managers::Base {
         return true;
       }
       if (t == typeid(std::string)) {
-        const auto& s = std::any_cast<const std::string&>(value);
+        const auto &s = std::any_cast<const std::string &>(value);
         try {
           out = std::stod(s);
           return true;
@@ -387,7 +396,7 @@ class Settings : public Managers::Base {
     };
 
     // bool
-    auto to_bool_any = [&](bool& out) -> bool {
+    auto to_bool_any = [&](bool &out) -> bool {
       if (t == typeid(bool)) {
         out = std::any_cast<bool>(value);
         return true;
@@ -429,7 +438,7 @@ class Settings : public Managers::Base {
         return true;
       }
       if (t == typeid(std::string)) {
-        const auto& s = std::any_cast<const std::string&>(value);
+        const auto &s = std::any_cast<const std::string &>(value);
         if (s == "true" || s == "1" || s == "TRUE" || s == "True") {
           out = true;
           return true;
@@ -458,11 +467,18 @@ class Settings : public Managers::Base {
     }
     return j;
   }
-  std::any JsonToAny(const nlohmann::json& j, const std::string& expected_type) const {
+  /**
+   * @brief Convert JSON to std::any
+   *
+   * @param j The JSON value to convert
+   * @param expected_type The expected type of the value
+   * @return std::any The converted value
+   */
+  std::any JsonToAny(const nlohmann::json &j, const std::string &expected_type) const {
     // TODO
-    //  !надо переписать тк должен быть стандартный способ использовать To lower в std
+    // !надо переписать тк должен быть стандартный способ использовать To lower в std
     auto to_lower = [](std::string s) {
-      for (char& c : s) {
+      for (char &c : s) {
         c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
       }
       return s;
@@ -480,11 +496,9 @@ class Settings : public Managers::Base {
     };
     et = deduce_type();
 
-    // Общие маленькие помощники
     auto conv_string = [&]() -> std::any {
       if (j.is_string()) return j.get<std::string>();
-      if (j.is_boolean())
-        return j.get<bool>() ? std::string("true") : std::string("false");
+      if (j.is_boolean()) return j.get<bool>() ? std::string("true") : std::string("false");
       if (j.is_number()) return j.dump();  // число в текст
       return {};
     };
@@ -549,10 +563,11 @@ class Settings : public Managers::Base {
       if (j.is_primitive()) {
         return conv_fallback();
       }
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
       LOG::Error() << "JsonToAny: conversion error: " << e.what();
       return {};
     }
+    return {};
   }
 };
 

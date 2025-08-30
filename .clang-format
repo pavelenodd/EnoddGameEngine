@@ -1,7 +1,7 @@
 ---
 Language: Cpp
 BasedOnStyle: Google  # Базовый стиль форматирования
-ColumnLimit: 90  # Установить ширину строки до 90 символов
+ColumnLimit: 110  # Установить ширину строки до 90 символов
 BinPackArguments: false  # Не упаковывать аргументы, переносить каждый на новую строку
 BinPackParameters: false # Не упаковывать параметры, переносить каждый на новую строку
 AllowShortFunctionsOnASingleLine: Empty # Разрешать только пустые функции на одной строке
