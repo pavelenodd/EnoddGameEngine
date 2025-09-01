@@ -20,4 +20,7 @@
 
 ## Менеджеры
 
+#### ManagerSettings
+
 - [ ] В Settings почистить методы AnyToJson и JsonToAny убрать лишние проверки типов
+- [ ] Дописать тесты на ManagerSettings
