@@ -74,6 +74,16 @@ class Settings : public Managers::Base {
       LOG::Error() << "Settings type is NONE_TYPE, cannot load settings";
       return false;
     }
+    if (type == ALL_SETTINGS) {
+      bool all_ok = true;
+      for (const auto &[key, value] : settings_paths_) {
+        if (key == NONE_TYPE || key == ALL_SETTINGS) continue;
+        if (!LoadSettings(key)) {
+          all_ok = false;
+        }
+      }
+      return all_ok;
+    }
     std::ifstream ifs(settings_paths_.at(type));
     if (!ifs.is_open()) {
       LOG::Error() << "Failed to open file for read: " << settings_paths_.at(type);
@@ -99,6 +109,15 @@ class Settings : public Managers::Base {
     if (type == NONE_TYPE) {
       LOG::Error() << "Settings type is NONE_TYPE, cannot save settings";
       return false;
+    }
+    if (type == ALL_SETTINGS) {
+      bool all_ok = true;
+      for (const auto &[key, value] : settings_map_) {
+        if (!SaveSettings(key)) {
+          all_ok = false;
+        }
+      }
+      return all_ok;
     }
     auto it = settings_map_.find(type);
     if (it == settings_map_.end()) {
