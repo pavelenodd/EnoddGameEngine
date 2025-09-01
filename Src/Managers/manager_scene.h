@@ -1,5 +1,6 @@
 #pragma once
 // менеджер созданя сцены и управлении окнами
+#include <algorithm>
 #include <cstdlib>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -7,6 +8,7 @@
 #include <any>
 #include <initializer_list>
 #include <tuple>
+#include <vector>
 
 #include "../EngineData/engine_data.h"
 #include "../EngineError/engine_logging.h"
@@ -34,9 +36,11 @@ namespace Managers {
   */
 
 using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
+
 class Scene : public Managers::Base, public InterfaceKeyEvent {
  private:
-  EDD::Data::Viewport viewport_;  // данные о вьюпорте
+  EDD::Data::Viewport* view_data_ = nullptr;  // данные о вьюпорте
+
 #ifdef DEBUG
   friend struct ::EDD::Tests::SceneInspector;
 #endif
@@ -47,7 +51,7 @@ class Scene : public Managers::Base, public InterfaceKeyEvent {
   }
   virtual void Update() override {}
   /**
-   * @brief Init manager scene
+   * @brief Init manager scene and create viewport
    *
    * @param args
    *         -args[0] - имя вьюпорта, ширина, высота,
@@ -73,31 +77,90 @@ class Scene : public Managers::Base, public InterfaceKeyEvent {
     }
   }
 
+  // Освобождение ресурсов
   virtual void FreeResources() override {
-    // Освобождение ресурсов
+    DestroyViewport();
+    delete view_data_;
+    view_data_ = nullptr;
     LOG::Debug() << "Scene manager resources freed.";
+  }
+  // Удаление вьюпорта
+  void DestroyViewport() {
+    if (view_data_) {
+      if (view_data_->viewport_window) {
+        glfwDestroyWindow(view_data_->viewport_window);
+        view_data_->viewport_window = nullptr;
+      }
+      glfwTerminate();
+    }
   }
 
  private:
+  /**
+   * @brief Initialize viewport settings
+   *
+   * @param view_params tuple of (name, width, height)
+   * @return true if success, false otherwise
+   */
   bool InitViewport(std::tuple<std::string, int, int> view_params) {
     if (std::get<0>(view_params) == "") {
       LOG::Fatal() << "Viewport name cannot be empty.";
       return false;
     } else {
-      viewport_.name = std::get<0>(view_params);
+      view_data_ = new EDD::Data::Viewport();
+      view_data_->name = std::get<0>(view_params);
     }
     if (std::get<1>(view_params) == 0 || std::get<2>(view_params) == 0) {
       LOG::Fatal() << "Viewport width and height cannot be zero.";
       return false;
     } else {
-      viewport_.w = std::get<1>(view_params);
-      viewport_.h = std::get<2>(view_params);
+      view_data_->w = std::get<1>(view_params);
+      view_data_->h = std::get<2>(view_params);
     }
 
-    LOG::Debug() << "Viewport name: " << viewport_.name << ", width: " << viewport_.w
-                 << ", height: " << viewport_.h;
+    LOG::Debug() << "Viewport name: " << view_data_->name << ", width: " << view_data_->w
+                 << ", height: " << view_data_->h;
 
     return true;
+  }
+  /**
+   * @brief Create a Viewport object using view_data or current settings
+   *
+   * @return true if success, false otherwise
+   */
+  EDD::Data::Viewport* CreateViewport(std::string title = "", int width = 0, int height = 0) {
+    if (!view_data_) {
+      LOG::Fatal() << "Viewport is not initialized.";
+      return view_data_;
+    }
+
+    if (!glfwInit()) {
+      LOG::Fatal() << "Failed to initialize GLFW.";
+      return nullptr;
+    }
+
+    // Важно: запрещаем GLFW создавать GL-контекст
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+    if (!title.empty()) {
+      view_data_->name = title;
+      if (width > 0 && height > 0) {
+        view_data_->viewport_window = glfwCreateWindow(
+            width, height, title.c_str(), nullptr, nullptr);
+      }
+    } else {
+      view_data_->viewport_window = glfwCreateWindow(
+          view_data_->w, view_data_->h, view_data_->name.c_str(), nullptr, nullptr);
+    }
+
+    if (!view_data_->viewport_window) {
+      LOG::Fatal() << "Failed to create GLFW window.";
+      glfwTerminate();
+      return nullptr;
+    }
+
+    LOG::Debug() << "Viewport created.";
+    return view_data_;
   }
 };
 }  // namespace Managers

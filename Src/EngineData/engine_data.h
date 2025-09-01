@@ -11,7 +11,7 @@ namespace EDD::Data {
  * @param h высота
  */
 struct Viewport {
-  GLFWwindow* wnd = nullptr;  // окно GLFW
+  GLFWwindow* viewport_window = nullptr;  // окно вьюпорта
   std::string name = "";      // имя вьюпорта
   int w = 800;                // ширина
   int h = 600;                // высота

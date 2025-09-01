@@ -15,7 +15,7 @@ namespace Tests {
 struct SettingsInspector;
 }
 #endif
-
+namespace Managers {
 enum SettingsType {
   NONE_TYPE = -1,
   ALL_SETTINGS = 0,
@@ -176,7 +176,8 @@ class Settings : public Managers::Base {
       LOG::Error(__func__, __LINE__) << " GetValue: node is not contains \"value\"";
       return false;
     }
-    settings_map_.find(type)->second[key]["value"] = AnyToJson(value, node["type"].get<std::string>());
+    settings_map_.find(type)->second[key]["value"] = AnyToJson(
+        value, node["type"].get<std::string>());
     return true;
   }
   /**
@@ -198,15 +199,9 @@ class Settings : public Managers::Base {
     }
     auto it_type = settings_map_.find(type);
     auto &root = it_type->second;
-    if (!root.is_object()) {
-      LOG::Error() << "GetValue: root json is not object";
-      return {};
-    }
-    if (!root.contains(key)) {
-      LOG::Error() << "GetValue: key not found: " << key;
-      return {};
-    }
+
     const nlohmann::json &node = root.at(key);
+
     if (!node.is_object()) {
       LOG::Error(__func__, __LINE__) << " GetValue: node is not object";
     }
@@ -589,5 +584,5 @@ class Settings : public Managers::Base {
     return {};
   }
 };
-
+}  // namespace Managers
 }  // namespace EDD

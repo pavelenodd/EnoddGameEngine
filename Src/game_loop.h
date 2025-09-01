@@ -42,7 +42,7 @@ class GameLoop {
   // TODO: надо перевести в пулл объектов
   //  список менеджеров
   std::unordered_map<std::string, Managers::Base *> managers_;
-  Settings *manager_settings_;  // менеджер настроек
+  Managers::Settings *manager_settings_;  // менеджер настроек
 
  public:
   explicit GameLoop() {
@@ -85,7 +85,7 @@ class GameLoop {
 
     //======================================================================
     // Зона создания менеджеров
-    manager_settings_ = new Settings();
+    manager_settings_ = new Managers::Settings();
 
     managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("entity", new Managers::Entity());
@@ -134,24 +134,19 @@ class GameLoop {
 #ifdef DEBUG
     // INFO место тестов
     {
+      test_manager_settings_->SetManager(
+          static_cast<Managers::Settings *>(managers_.at("settings")));
+      test_manager_scene_->SetManager(static_cast<Managers::Scene *>(managers_.at("scene")));
       // test_manager_inputs_->SetManager(
       //     static_cast<Inputs *>(managers_.at("inputs")));
-      // test_manager_scene_->SetManager(
-      //     static_cast<Scene *>(managers_.at("scene")));
-      test_manager_settings_->SetManager(
-          static_cast<Settings *>(managers_.at("settings")));
       // test_manager_resources_->SetManager(
       //     static_cast<Resource *>(managers_.at("resource")));
       // test_manager_render_->SetManager(
       //     static_cast<Render *>(managers_.at("render")));
 
-      if (
-          !test_manager_settings_->RunTests() || 
-          !test_manager_scene_->RunTests() ||
-          !test_manager_inputs_->RunTests() || 
-          !test_manager_resources_->RunTests() ||
-          !test_manager_render_->RunTests()
-        ) {
+      if (!test_manager_settings_->RunTests() || !test_manager_scene_->RunTests() ||
+          !test_manager_inputs_->RunTests() || !test_manager_resources_->RunTests() ||
+          !test_manager_render_->RunTests()) {
         abort();
       }
     }
@@ -182,11 +177,7 @@ class GameLoop {
       manager.second->FreeResources();  // Освобождаем память
     }
 
-    if (manager_settings_->SaveSettings(SettingsType::VIEWPORT_SETTINGS) &&
-        manager_settings_->SaveSettings(SettingsType::AUDIO_SETTINGS) &&
-        manager_settings_->SaveSettings(SettingsType::GRAPHICS_SETTINGS) &&
-        manager_settings_->SaveSettings(SettingsType::INPUT_SETTINGS) &&
-        manager_settings_->SaveSettings(SettingsType::RENDER_SETTINGS)) {
+    if (manager_settings_->SaveSettings(Managers::SettingsType::ALL_SETTINGS) == true) {
       LOG::Info(__FILE__) << "Settings saved successfully";
     } else {
       LOG::Fatal(__FILE__, __LINE__) << "Failed to save some settings";

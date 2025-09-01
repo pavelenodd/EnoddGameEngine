@@ -1,4 +1,4 @@
-[
+
     {
         "Mesh": {
             "path": "Resources/Meshes/"
@@ -25,4 +25,3 @@
             "path": "Resources/Scripts/"
         }
     }
-]

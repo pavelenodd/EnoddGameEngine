@@ -11,18 +11,18 @@ namespace Tests {
 
 struct SettingsInspector {
   // Публичные constexpr указатели на приватные поля
-  static constexpr auto settings_map = &EDD::Settings::settings_map_;
+  static constexpr auto settings_map = &Managers::Settings::settings_map_;
 };
 
 class TestManagerSettings {
  private:
   int test_case_ = -99;
-  EDD::Settings* settings_manager_ = nullptr;
+  Managers::Settings* settings_manager_ = nullptr;
 
  public:
   TestManagerSettings() {
     // Симулируем поведение при загрузке тестов
-    settings_manager_ = new EDD::Settings();
+    settings_manager_ = new Managers::Settings();
   }
   ~TestManagerSettings() {
     if (settings_manager_ != nullptr) {
@@ -30,7 +30,7 @@ class TestManagerSettings {
     }
   }
   // получение рефференса на менеджер настроек
-  void SetManager(EDD::Settings* manager) {
+  void SetManager(Managers::Settings* manager) {
     if (settings_manager_ != nullptr) {
       delete settings_manager_;
     }
@@ -39,8 +39,7 @@ class TestManagerSettings {
 
   bool RunTests() {
     bool sucsess = true;
-    auto settings_map_ref = (*settings_manager_).*
-                            EDD::Tests::SettingsInspector::settings_map;
+    auto settings_map_ref = (*settings_manager_).*EDD::Tests::SettingsInspector::settings_map;
     switch (test_case_) {
       // проверка загрузки не валидных настроек
       case -99: {
@@ -54,23 +53,23 @@ class TestManagerSettings {
       }
       // проверка сохранения настроек
       case -97: {
-        sucsess &= IsSaveValidSettings(SettingsType::VIEWPORT_SETTINGS);
+        sucsess &= IsSaveValidSettings(Managers::SettingsType::VIEWPORT_SETTINGS);
         [[fallthrough]];
       }
       // проверка на невалидные данные при сохранении
       case -96: {
-        sucsess &= IsSaveInValidSettings(SettingsType::NONE_TYPE);
+        sucsess &= IsSaveInValidSettings(Managers::SettingsType::NONE_TYPE);
         [[fallthrough]];
       }
       // получение валидных значений
       case -95: {
         auto settings_map_copy = (*settings_manager_).*
                                  EDD::Tests::SettingsInspector::settings_map;
-        sucsess &= IsGetValidValue(SettingsType::VIEWPORT_SETTINGS, "title");
+        sucsess &= IsGetValidValue(Managers::SettingsType::VIEWPORT_SETTINGS, "title");
         sucsess &= (settings_map_copy ==
                     (*settings_manager_).*EDD::Tests::SettingsInspector::settings_map);
-        sucsess &= IsSaveValidSettings(SettingsType::VIEWPORT_SETTINGS);
-        sucsess &= IsGetValidValue(SettingsType::VIEWPORT_SETTINGS, "title");
+        sucsess &= IsSaveValidSettings(Managers::SettingsType::VIEWPORT_SETTINGS);
+        sucsess &= IsGetValidValue(Managers::SettingsType::VIEWPORT_SETTINGS, "title");
         sucsess &= (settings_map_copy ==
                     (*settings_manager_).*EDD::Tests::SettingsInspector::settings_map);
         if (sucsess) {
@@ -91,11 +90,12 @@ class TestManagerSettings {
         [[fallthrough]];
       }
       case 0: {
-        if (sucsess) {
-          TEST_LOG::Success() << "[TEST][Settings] All test cases passed";
-        } else {
-          TEST_LOG::Failed() << "[TEST][Settings] cases FAILED";
-        }
+        Test_Assert(sucsess, "All one-time test cases passed");
+
+        std::cout << "\n "
+                     "------------------------------------------------------------------------"
+                     "------------------------------------------------------------------------"
+                     " \n";
         test_case_ = 1;
         break;  // INFO: пока break потом будет проваливание если нужно
       }
@@ -119,7 +119,7 @@ class TestManagerSettings {
   // чтение настроек (загрузка JSON)
   bool IsLoadValidSettings() {
     EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start loading valid settings";
-    bool sucsess = settings_manager_->LoadSettings(SettingsType::VIEWPORT_SETTINGS);
+    bool sucsess = settings_manager_->LoadSettings(Managers::SettingsType::VIEWPORT_SETTINGS);
     Test_Assert(sucsess, "Load valid settings");
     return sucsess;
   };
@@ -132,20 +132,20 @@ class TestManagerSettings {
   };
 
   // сохранение настроек
-  bool IsSaveValidSettings(SettingsType type = SettingsType::NONE_TYPE) {
+  bool IsSaveValidSettings(Managers::SettingsType type = Managers::SettingsType::NONE_TYPE) {
     EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start saving valid settings";
     bool sucsess = settings_manager_->SaveSettings(type);
     Test_Assert(sucsess, "Save settings");
     return sucsess;
   };
-  bool IsSaveInValidSettings(SettingsType type = SettingsType::NONE_TYPE) {
+  bool IsSaveInValidSettings(Managers::SettingsType type = Managers::SettingsType::NONE_TYPE) {
     EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start saving invalid settings";
     bool sucsess = (!settings_manager_->SaveSettings(type));
     Test_Assert(sucsess, "Save settings");
     return sucsess;
   };
 
-  bool IsSetValidValue(SettingsType type = SettingsType::NONE_TYPE,
+  bool IsSetValidValue(Managers::SettingsType type = Managers::SettingsType::NONE_TYPE,
                        std::string key = "",
                        const std::any& value = std::any()) {
     EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start setting valid value";
@@ -154,7 +154,7 @@ class TestManagerSettings {
     return sucsess;
   }
 
-  bool IsGetValidValue(SettingsType type = SettingsType::NONE_TYPE,
+  bool IsGetValidValue(Managers::SettingsType type = Managers::SettingsType::NONE_TYPE,
                        std::string key = "") {
     EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start getting valid value";
     bool sucsess = true;
@@ -164,7 +164,7 @@ class TestManagerSettings {
     return sucsess;
   }
 
-  bool IsGetInValidValue(SettingsType type = SettingsType::NONE_TYPE,
+  bool IsGetInValidValue(Managers::SettingsType type = Managers::SettingsType::NONE_TYPE,
                          std::string key = "") {
     EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start getting invalid value";
     bool sucsess = true;
@@ -177,8 +177,7 @@ class TestManagerSettings {
   }
   // проверка на дубликаты настроек (ожидается политика → минимум ошибка загрузки)
   bool IsDuplicateSettings(const std::string& path) {
-    EDD::TEST_LOG::Info()
-        << "[TEST][Settings] [Start] Start checking for duplicate settings";
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start checking for duplicate settings";
     bool sucsess = 1;
     Test_Assert(!sucsess, "Duplicate settings should be rejected");
     return !sucsess;
@@ -193,12 +192,15 @@ class TestManagerSettings {
   };
   // проверка невалидных граничных значений
   bool IsInvalidBoundaryValues() {
-    EDD::TEST_LOG::Info()
-        << "[TEST][Settings] [Start] Start checking invalid boundary values";
+    EDD::TEST_LOG::Info() << "[TEST][Settings] [Start] Start checking invalid boundary values";
     bool sucsess = false;
 
     return sucsess;
   };
 };
+
 }  // namespace Tests
 }  // namespace EDD
+
+
+
