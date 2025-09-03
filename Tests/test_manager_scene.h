@@ -50,6 +50,7 @@ class TestManagerScene {
         [[fallthrough]];
       }
       case -98: {
+        scene_manager_->DestroyViewport();
         [[fallthrough]];
       }
       case -97: {
@@ -99,9 +100,9 @@ class TestManagerScene {
  private:
   inline void Test_Assert(bool condition, const std::string& msg) {
     if (condition) {
-      TEST_LOG::Success() << "[TEST][Scene] [Result] " << msg << "\n";
+      TEST_LOG::SuccessMessage() << "[TEST][Scene] [Result] " << msg << "\n";
     } else {
-      TEST_LOG::Failed() << "[TEST][Scene] [Result] " << msg << "\n";
+      TEST_LOG::FailedMessage() << "[TEST][Scene] [Result] " << msg << "\n";
     }
   }
   // Создание вьюпорта со стандартными настройками

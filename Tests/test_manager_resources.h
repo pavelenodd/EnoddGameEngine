@@ -12,9 +12,10 @@ class TestManagerResources {
  private:
   inline void Test_Assert(bool condition, const std::string& msg) {
     if (condition) {
-      TEST_LOG::Success() << "[TEST][Resources] Assert passed: " << msg;
+      TEST_LOG::SuccessMessage() << "[TEST][Resources] Assert passed: " << msg;
     } else {
-      TEST_LOG::Failed(__FILE__, __LINE__) << "[TEST][Resources] Assert failed: " << msg;
+      TEST_LOG::FailedMessage(__FILE__, __LINE__)
+          << "[TEST][Resources] Assert failed: " << msg;
     }
   };
 };

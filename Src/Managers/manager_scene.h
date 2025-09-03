@@ -1,8 +1,5 @@
 #pragma once
 // менеджер созданя сцены и управлении окнами
-#include <algorithm>
-#include <cstdlib>
-#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include <any>
@@ -75,6 +72,7 @@ class Scene : public Managers::Base, public InterfaceKeyEvent {
       LOG::Fatal() << "Failed to initialize viewport.";
       abort();
     }
+    CreateViewport();
   }
 
   // Освобождение ресурсов
@@ -93,6 +91,10 @@ class Scene : public Managers::Base, public InterfaceKeyEvent {
       }
       glfwTerminate();
     }
+  }
+  EDD::Data::Viewport* GetWindowRef() const {
+    if (view_data_->viewport_window != nullptr) return view_data_;
+    return nullptr;
   }
 
  private:

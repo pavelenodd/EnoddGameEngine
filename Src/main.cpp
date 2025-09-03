@@ -11,7 +11,8 @@ int main(int argc, char** argv) {
 
 #endif
   EDD::GameLoop game_loop;
-  SnakeGame test_game(game_loop);
+  game_loop.StartLoop();
+  // SnakeGame test_game(game_loop);
 
   return 0;
 }

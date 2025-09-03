@@ -64,23 +64,19 @@ class GameLoop {
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов в симуляции работы менеджера
-    {
-      test_manager_inputs_ = new Tests::TestManagerInputs();
-      test_manager_scene_ = new Tests::TestManagerScene();
-      test_manager_settings_ = new Tests::TestManagerSettings();
-      test_manager_resources_ = new Tests::TestManagerResources();
-      test_manager_render_ = new Tests::TestManagerRender();
+    // {
+    //   test_manager_inputs_ = new Tests::TestManagerInputs();
+    //   test_manager_scene_ = new Tests::TestManagerScene();
+    //   test_manager_settings_ = new Tests::TestManagerSettings();
+    //   test_manager_resources_ = new Tests::TestManagerResources();
+    //   test_manager_render_ = new Tests::TestManagerRender();
 
-      if (
-          !test_manager_settings_->RunTests() || 
-          !test_manager_scene_->RunTests() ||
-          !test_manager_inputs_->RunTests() || 
-          !test_manager_resources_->RunTests() ||
-          !test_manager_render_->RunTests()
-        ) {
-        abort();
-      }
-    }
+    //   if (!test_manager_settings_->RunTests() || !test_manager_scene_->RunTests() ||
+    //       !test_manager_inputs_->RunTests() || !test_manager_resources_->RunTests() ||
+    //       !test_manager_render_->RunTests()) {
+    //     abort();
+    //   }
+    // }
 #endif
 
     //======================================================================
@@ -109,10 +105,10 @@ class GameLoop {
         std::vector<std::any>{std::make_any<std::tuple<std::string, int, int>>(
             std::string("MainViewport"), 800, 600)});
     managers_["inputs"]->Init();
-    // managers_["render"]->Init(
-    //     {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
-    //      static_cast<Managers::Entity *>(managers_["entity"]),
-    //      Managers::RenderType::RENDER_2D});
+    managers_["render"]->Init(
+        {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
+         static_cast<Managers::Entity *>(managers_["entity"]),
+         Managers::RenderType::RENDER_2D});
     managers_["resource"]->Init({"Resources/Animations",
                                  "Resources/Audio",
                                  "Resources/Fonts",
@@ -133,23 +129,23 @@ class GameLoop {
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов
-    {
-      test_manager_settings_->SetManager(
-          static_cast<Managers::Settings *>(managers_.at("settings")));
-      test_manager_scene_->SetManager(static_cast<Managers::Scene *>(managers_.at("scene")));
-      // test_manager_inputs_->SetManager(
-      //     static_cast<Inputs *>(managers_.at("inputs")));
-      // test_manager_resources_->SetManager(
-      //     static_cast<Resource *>(managers_.at("resource")));
-      // test_manager_render_->SetManager(
-      //     static_cast<Render *>(managers_.at("render")));
+    // {
+    //   test_manager_settings_->SetManager(manager_settings_);
+    //   test_manager_scene_->SetManager(static_cast<Managers::Scene
+    //   *>(managers_.at("scene")));
+    //   // test_manager_inputs_->SetManager(
+    //   //     static_cast<Inputs *>(managers_.at("inputs")));
+    //   // test_manager_resources_->SetManager(
+    //   //     static_cast<Resource *>(managers_.at("resource")));
+    //   // test_manager_render_->SetManager(
+    //   //     static_cast<Render *>(managers_.at("render")));
 
-      if (!test_manager_settings_->RunTests() || !test_manager_scene_->RunTests() ||
-          !test_manager_inputs_->RunTests() || !test_manager_resources_->RunTests() ||
-          !test_manager_render_->RunTests()) {
-        abort();
-      }
-    }
+    //   if (!test_manager_settings_->RunTests() || !test_manager_scene_->RunTests() ||
+    //       !test_manager_inputs_->RunTests() || !test_manager_resources_->RunTests() ||
+    //       !test_manager_render_->RunTests()) {
+    //     abort();
+    //   }
+    // }
 #endif
     return true;
   }

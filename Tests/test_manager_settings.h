@@ -110,9 +110,9 @@ class TestManagerSettings {
  private:
   inline void Test_Assert(bool condition, const std::string& msg) {
     if (condition) {
-      TEST_LOG::Success() << "[TEST][Settings] [Result] " << msg << "\n";
+      TEST_LOG::SuccessMessage() << "[TEST][Settings] [Result] " << msg << "\n";
     } else {
-      TEST_LOG::Failed() << "[TEST][Settings] [Result] " << msg << "\n";
+      TEST_LOG::FailedMessage() << "[TEST][Settings] [Result] " << msg << "\n";
     }
   };
 

@@ -95,34 +95,34 @@ inline DATA::StreamLogger Fatal(const std::string& message = "") {
                             EDD::LOG::DATA::Colors::RED + EDD::LOG::DATA::Colors::BOLD);
 }
 
-// Перегрузки для __FILE__ и __LINE__
-inline DATA::StreamLogger Fatal(const char* file, int line = 0) {
-  return DATA::StreamLogger("[ Fatal\t] " + std::string(file) + ":" +
-                                std::to_string(line) + " ",
+// Перегрузки для __func__ и __LINE__
+inline DATA::StreamLogger Fatal(const char* func, int line = 0) {
+  return DATA::StreamLogger("[ Fatal\t] " + std::string(func) + ":" + std::to_string(line) +
+                                " ",
                             EDD::LOG::DATA::Colors::RED + EDD::LOG::DATA::Colors::BOLD);
 }
 
-inline DATA::StreamLogger Error(const char* file, int line = 0) {
-  return DATA::StreamLogger("[ Error\t] " + std::string(file) + ":" +
-                                std::to_string(line) + " ",
+inline DATA::StreamLogger Error(const char* func, int line = 0) {
+  return DATA::StreamLogger("[ Error\t] " + std::string(func) + ":" + std::to_string(line) +
+                                " ",
                             EDD::LOG::DATA::Colors::RED);
 }
 
-inline DATA::StreamLogger Warning(const char* file, int line = 0) {
-  return DATA::StreamLogger("[ Warning\t] " + std::string(file) + ":" +
-                                std::to_string(line) + " ",
+inline DATA::StreamLogger Warning(const char* func, int line = 0) {
+  return DATA::StreamLogger("[ Warning\t] " + std::string(func) + ":" + std::to_string(line) +
+                                " ",
                             EDD::LOG::DATA::Colors::YELLOW);
 }
 
-inline DATA::StreamLogger Debug(const char* file, int line = 0) {
-  return DATA::StreamLogger("[ Debug\t] " + std::string(file) + ":" +
-                                std::to_string(line) + " ",
+inline DATA::StreamLogger Debug(const char* func, int line = 0) {
+  return DATA::StreamLogger("[ Debug\t] " + std::string(func) + ":" + std::to_string(line) +
+                                " ",
                             EDD::LOG::DATA::Colors::BLUE);
 }
 
-inline DATA::StreamLogger Info(const char* file, int line = 0) {
-  return DATA::StreamLogger("[ Info\t] " + std::string(file) + ":" +
-                                std::to_string(line) + " ",
+inline DATA::StreamLogger Info(const char* func, int line = 0) {
+  return DATA::StreamLogger("[ Info\t] " + std::string(func) + ":" + std::to_string(line) +
+                                " ",
                             EDD::LOG::DATA::Colors::GREEN);
 }
 
@@ -134,14 +134,14 @@ inline LOG::DATA::StreamLogger Info(const std::string& message = "") {
                                  EDD::LOG::DATA::Colors::WHITE);
 }
 
-inline LOG::DATA::StreamLogger Success(const std::string& message = "") {
+inline LOG::DATA::StreamLogger SuccessMessage(const std::string& message = "") {
   return LOG::DATA::StreamLogger("[ Test Success ] " + message,
                                  EDD::LOG::DATA::Colors::GREEN +
                                      EDD::LOG::DATA::Colors::UNDERLINE);
 }
 
-inline LOG::DATA::StreamLogger Failed(const std::string& message = "",
-                                      const int line = 0) {
+inline LOG::DATA::StreamLogger FailedMessage(const std::string& message = "",
+                                             const int line = 0) {
   return LOG::DATA::StreamLogger(
       "[ Test Failed ] " + message + ":" + std::to_string(line) + " ",
       EDD::LOG::DATA::Colors::RED + EDD::LOG::DATA::Colors::BOLD);
