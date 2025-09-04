@@ -1,170 +1,143 @@
 #pragma once
-// менеджер созданя сцены и управлении окнами
-#include <GLFW/glfw3.h>
-
 #include <any>
-#include <initializer_list>
+#include <string>
 #include <tuple>
 #include <vector>
 
-#include "../EngineData/engine_data.h"
-#include "../EngineError/engine_logging.h"
-#include "../Tools/interface.h"
+// #include "../Tests/test_manager_scene.h"
+#include "EngineError/engine_logging.h"
 #include "manager_base.h"
-#include "manager_inputs.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
-// Forward-declare инспектора для тестов
+#include "EngineData/engine_data.h"  // defines EDD::Data::Viewport
+
 namespace EDD {
-
-#ifdef DEBUG
-namespace Tests {
-struct SceneInspector;
-}
-#endif
-
 namespace Managers {
 
-/*
-  Менеджер сцены отвечает за создание и управление сценами(вьюпортами)
-  в игре обеспечивает корректность, шэринг ресурсов.
-      принимает настройки вьюпорта (размеры окна, имя вьюпорта, .......)
-      принимает интерфейс для обработки событий
-      принимает делегат для срочного выполнения
-  */
+class Scene : public Base {
+  // friend struct EDD::Tests::SceneInspector;
 
-using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
-
-class Scene : public Managers::Base, public InterfaceKeyEvent {
  private:
-  EDD::Data::Viewport* view_data_ = nullptr;  // данные о вьюпорте
+  EDD::Data::Viewport* view_data_ = nullptr;
+  std::vector<EDD::Data::Viewport*> viewports_;
+  inline static bool glfw_initialized_ = false;
 
-#ifdef DEBUG
-  friend struct ::EDD::Tests::SceneInspector;
-#endif
- public:
-  Scene() {}
-  ~Scene() {
-    FreeResources();
-  }
-  virtual void Update() override {}
-  /**
-   * @brief Init manager scene and create viewport
-   *
-   * @param args
-   *         -args[0] - имя вьюпорта, ширина, высота,
-   *         -args[1] - ,
-   *         -args[2] -
-   */
-  virtual void Init(std::vector<std::any> args = {
-                        std::tuple<std::string, int, int>("", 0, 0)}) override {
-    // Инициализация менеджера сцены
-    LOG::Debug() << "Scene manager initialized.";
-    if (args.size() < 1) {
-      LOG::Fatal() << "Not enough arguments for Scene manager initialization.";
-      abort();
-    }
-    const auto& vp = std::any_cast<std::tuple<std::string, int, int>>(&args[0]);
-    if (!vp) {
-      LOG::Fatal() << "Init expects args[0] to be std::tuple<std::string,int,int>.";
-      abort();
-    }
-    if (!InitViewport(*vp)) {
-      LOG::Fatal() << "Failed to initialize viewport.";
-      abort();
-    }
-    CreateViewport();
-  }
-
-  // Освобождение ресурсов
-  virtual void FreeResources() override {
-    DestroyViewport();
-    delete view_data_;
-    view_data_ = nullptr;
-    LOG::Debug() << "Scene manager resources freed.";
-  }
-  // Удаление вьюпорта
-  void DestroyViewport() {
-    if (view_data_) {
-      if (view_data_->viewport_window) {
-        glfwDestroyWindow(view_data_->viewport_window);
-        view_data_->viewport_window = nullptr;
+  // Create a new viewport (window) with given title and dimensions
+  EDD::Data::Viewport* CreateViewport(const std::string& title, int width, int height) {
+    if (!glfw_initialized_) {
+      if (!glfwInit()) {
+        LOG::Fatal(__FILE__, __LINE__) << "GLFW initialization failed";
+        return nullptr;
       }
-      glfwTerminate();
+      glfw_initialized_ = true;
     }
-  }
-  EDD::Data::Viewport* GetWindowRef() const {
-    if (view_data_->viewport_window != nullptr) return view_data_;
-    return nullptr;
-  }
-
- private:
-  /**
-   * @brief Initialize viewport settings
-   *
-   * @param view_params tuple of (name, width, height)
-   * @return true if success, false otherwise
-   */
-  bool InitViewport(std::tuple<std::string, int, int> view_params) {
-    if (std::get<0>(view_params) == "") {
-      LOG::Fatal() << "Viewport name cannot be empty.";
-      return false;
-    } else {
-      view_data_ = new EDD::Data::Viewport();
-      view_data_->name = std::get<0>(view_params);
-    }
-    if (std::get<1>(view_params) == 0 || std::get<2>(view_params) == 0) {
-      LOG::Fatal() << "Viewport width and height cannot be zero.";
-      return false;
-    } else {
-      view_data_->w = std::get<1>(view_params);
-      view_data_->h = std::get<2>(view_params);
-    }
-
-    LOG::Debug() << "Viewport name: " << view_data_->name << ", width: " << view_data_->w
-                 << ", height: " << view_data_->h;
-
-    return true;
-  }
-  /**
-   * @brief Create a Viewport object using view_data or current settings
-   *
-   * @return true if success, false otherwise
-   */
-  EDD::Data::Viewport* CreateViewport(std::string title = "", int width = 0, int height = 0) {
-    if (!view_data_) {
-      LOG::Fatal() << "Viewport is not initialized.";
-      return view_data_;
-    }
-
-    if (!glfwInit()) {
-      LOG::Fatal() << "Failed to initialize GLFW.";
-      return nullptr;
-    }
-
-    // Важно: запрещаем GLFW создавать GL-контекст
+    // Ensure no OpenGL context is created, as rendering will be handled by bgfx
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    if (!title.empty()) {
-      view_data_->name = title;
-      if (width > 0 && height > 0) {
-        view_data_->viewport_window = glfwCreateWindow(
-            width, height, title.c_str(), nullptr, nullptr);
-      }
-    } else {
-      view_data_->viewport_window = glfwCreateWindow(
-          view_data_->w, view_data_->h, view_data_->name.c_str(), nullptr, nullptr);
-    }
-
-    if (!view_data_->viewport_window) {
-      LOG::Fatal() << "Failed to create GLFW window.";
-      glfwTerminate();
+    GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    if (!window) {
+      LOG::Fatal(__FILE__, __LINE__) << "Failed to create GLFW window";
       return nullptr;
     }
+    // Allocate and populate viewport data
+    EDD::Data::Viewport* vp = new EDD::Data::Viewport();
+    vp->viewport_window = window;
+    vp->name = title;
+    vp->w = width;
+    vp->h = height;
+    // If this is the first viewport, mark it as the main viewport
+    if (viewports_.empty()) {
+      view_data_ = vp;
+    }
+    viewports_.push_back(vp);
+    return vp;
+  }
 
-    LOG::Debug() << "Viewport created.";
-    return view_data_;
+ public:
+  Scene() = default;
+  ~Scene() override = default;
+
+  void Init(std::vector<std::any> args = {}) override {
+    // Initialize the scene by creating the main viewport (window)
+    if (!args.empty()) {
+      for (auto& arg : args) {
+        if (arg.type() == typeid(std::tuple<std::string, int, int>)) {
+          auto cfg = std::any_cast<std::tuple<std::string, int, int>>(arg);
+          std::string title = std::get<0>(cfg);
+          int width = std::get<1>(cfg);
+          int height = std::get<2>(cfg);
+          EDD::Data::Viewport* vp = CreateViewport(title, width, height);
+          if (!vp) {
+            // return false;  // Window creation failed
+          }
+          // Only create the first viewport from params (ignore additional if provided)
+          break;
+        }
+      }
+    } else {
+      // No parameters provided, create a default main viewport
+      EDD::Data::Viewport* vp = CreateViewport("MainViewport", 800, 600);
+      if (!vp) {
+        // return false;
+      }
+    }
+    // return true;
+  }
+
+  void Update() override {
+    // Poll OS events for the window every frame
+    glfwPollEvents();
+    // Optionally handle window close event
+    if (view_data_ && glfwWindowShouldClose(view_data_->viewport_window)) {
+      // Main window is requested to close (could signal GameLoop to stop here if needed)
+      LOG::Info(__FILE__) << "Main window close requested";
+    }
+  }
+
+  void FreeResources() override {
+    // Destroy all remaining viewports and terminate GLFW
+    DestroyAllViewport();
+    if (glfw_initialized_) {
+      glfwTerminate();
+      glfw_initialized_ = false;
+    }
+  }
+
+  // Destroy the most recently created viewport (if any)
+  void DestroyViewport() {
+    if (!viewports_.empty()) {
+      EDD::Data::Viewport* vp = viewports_.back();
+      glfwDestroyWindow(vp->viewport_window);
+      delete vp;
+      viewports_.pop_back();
+      // Update main viewport pointer if needed
+      if (viewports_.empty()) {
+        view_data_ = nullptr;
+      } else {
+        // Keep the first created viewport as main
+        view_data_ = viewports_.front();
+      }
+    }
+  }
+
+  // Destroy all created viewports
+  void DestroyAllViewport() {
+    for (EDD::Data::Viewport* vp : viewports_) {
+      if (vp->viewport_window) {
+        glfwDestroyWindow(vp->viewport_window);
+      }
+      delete vp;
+    }
+    viewports_.clear();
+    view_data_ = nullptr;
+  }
+
+  // Get the GLFW window handle of the main viewport
+  GLFWwindow* GetWindowRef() const {
+    return view_data_ ? view_data_->viewport_window : nullptr;
   }
 };
-}  // namespace Managers
 
+}  // namespace Managers
 }  // namespace EDD

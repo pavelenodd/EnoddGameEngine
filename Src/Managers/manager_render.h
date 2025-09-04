@@ -1,168 +1,178 @@
 #pragma once
-
-#include <GLFW/glfw3.h>
-
-// Подключаем нативные функции только под нужную платформу
-#if defined(_WIN32)
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-#elif defined(__linux__)
-#define GLFW_EXPOSE_NATIVE_X11
-#include <GLFW/glfw3native.h>
-#elif defined(__APPLE__)
-#define GLFW_EXPOSE_NATIVE_COCOA
-#include <GLFW/glfw3native.h>
-#endif
-
-#include <GLFW/glfw3.h>
-#include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
-#include <bx/math.h>
-
 #include <any>
+#include <cstdint>
+#include <vector>
 
-#include "EngineData/engine_data.h"
-#include "Items/Components/comp_render2D.h"
-#include "Items/Components/comp_render3D.h"
-#include "engine_logging.h"
+#include "EngineError/engine_logging.h"
 #include "manager_base.h"
 #include "manager_entity.h"
-#include "manager_resource.h"
+// Forward declare the Entity manager to avoid heavy includes
+namespace Managers {
+class Entity;
+}
 
-namespace EDD::Managers {
-enum RenderType { NONE, RENDER_2D, RENDER_3D };
-/*
-  Менеджер рендера отвечает за отрисовку игровых объектов на экране.
-      Рендерит в предоставленном окне менеджером сцен объекты
-      >принимает объекты от менеджера сущностей (Entity)
-      >принимает ресурсы от менеджера ресурсов(Resource)
-      >передает объединённые данные в активное окно для отрисовки
-      (3D + 2D) на bgfx, окно — GLFW
-*/
-class Render : public Managers::Base {
+#include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
+
+// Include GLFW and its native access for window handles
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_WAYLAND
+#elif BX_PLATFORM_OSX
+#define GLFW_EXPOSE_NATIVE_COCOA
+#elif BX_PLATFORM_WINDOWS
+#define GLFW_EXPOSE_NATIVE_WIN32
+#endif
+#include <GLFW/glfw3native.h>
+
+namespace EDD {
+namespace Managers {
+
+// Supported rendering types
+enum class RenderType { RENDER_2D = 0, RENDER_3D = 1 };
+
+class Render : public Base {
  private:
-  RenderType render_type_ = RenderType::NONE;
-  EDD::Data::Viewport* viewport_ = nullptr;  // ссылка на данные вьюпорта
-  Render2D* render_2d_ = nullptr;
-  Render3D* render_3d_ = nullptr;
-  Managers::Entity* entity_manager_ = nullptr;
+  GLFWwindow* window_handle_ = nullptr;  // Window handle from Scene
+  EDD::Managers::Entity*
+      entity_manager_ = nullptr;  // Entity manager (for future use in rendering)
+  RenderType render_type_ = RenderType::RENDER_2D;
+  uint32_t window_width_ = 0;
+  uint32_t window_height_ = 0;
 
  public:
-  void Init(std::vector<std::any> args) override {
-    LOG::Debug() << "Render manager initialized.";
+  Render() = default;
+  ~Render() override = default;
+
+  void Init(std::vector<std::any> args = {}) override {
+    // Expect parameters: [GLFWwindow*, Entity*, RenderType]
     if (args.size() < 3) {
-      LOG::Fatal(__func__, __LINE__) << "Render: not enough arguments";
-      abort();
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - insufficient parameters";
+      // return false;
     }
-
-    // [0] Viewport*
     try {
-      if (std::any_cast<EDD::Data::Viewport*>(args[0])->viewport_window != nullptr) {
-        viewport_ = std::any_cast<EDD::Data::Viewport*>(args[0]);
-      } else {
-        LOG::Fatal(__func__, __LINE__) << "Viewport window is null";
-        abort();
-      }
+      window_handle_ = std::any_cast<GLFWwindow*>(args[0]);
     } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__func__, __LINE__) << "First argument must be EDD::Data::Viewport*";
-      abort();
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid window handle parameter";
+      // return false;
     }
-
-    // [1] Entity*
     try {
       entity_manager_ = std::any_cast<Managers::Entity*>(args[1]);
     } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__func__, __LINE__) << "Second argument must be Managers::Entity*";
-      abort();
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid entity manager parameter";
+      // return false;
     }
-
-    // [2] RenderType
     try {
       render_type_ = std::any_cast<RenderType>(args[2]);
     } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__func__, __LINE__) << "Third argument must be RenderType";
-      abort();
+      // If stored as an int, convert to RenderType
+      try {
+        render_type_ = static_cast<RenderType>(std::any_cast<int>(args[2]));
+      } catch (...) {
+        LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid render type parameter";
+        // return false;
+      }
     }
 
-    if (render_type_ == RenderType::NONE) {
-      LOG::Fatal(__func__, __LINE__) << "Render type NONE is invalid here";
-      abort();
+    if (!window_handle_) {
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - window handle is null";
+      // return false;
     }
 
-    InitBgfx();
-    InitRenderer();
+    // Determine initial window dimensions
+    int fbWidth = 0, fbHeight = 0;
+    glfwGetFramebufferSize(window_handle_, &fbWidth, &fbHeight);
+    if (fbWidth <= 0 || fbHeight <= 0) {
+      // Fallback to window size or default if framebuffer size is zero (e.g., not yet shown)
+      int winWidth = 0, winHeight = 0;
+      glfwGetWindowSize(window_handle_, &winWidth, &winHeight);
+      fbWidth = (winWidth > 0 ? winWidth : 800);
+      fbHeight = (winHeight > 0 ? winHeight : 600);
+    }
+    window_width_ = static_cast<uint32_t>(fbWidth);
+    window_height_ = static_cast<uint32_t>(fbHeight);
+
+    // Setup native platform data for bgfx (for Vulkan rendering)
+    bgfx::PlatformData pd;
+    pd.context = nullptr;
+    pd.backBuffer = nullptr;
+    pd.backBufferDS = nullptr;
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+    // On Linux, decide between X11 or Wayland at runtime (GLFW 3.4+)
+#if GLFW_VERSION_MAJOR > 3 || (GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 4)
+    if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND) {
+      pd.ndt = glfwGetWaylandDisplay();
+      pd.nwh = glfwGetWaylandWindow(window_handle_);
+    } else {
+      pd.ndt = glfwGetX11Display();
+      pd.nwh = (void*)(uintptr_t)glfwGetX11Window(window_handle_);
+    }
+#else
+    // If GLFW platform query not available, assume X11 by default
+    pd.ndt = glfwGetX11Display();
+    pd.nwh = (void*)(uintptr_t)glfwGetX11Window(window_handle_);
+#endif
+#elif BX_PLATFORM_OSX
+    pd.ndt = NULL;
+    pd.nwh = glfwGetCocoaWindow(window_handle_);
+#elif BX_PLATFORM_WINDOWS
+    pd.ndt = NULL;
+    pd.nwh = glfwGetWin32Window(window_handle_);
+#else
+    pd.ndt = NULL;
+    pd.nwh = nullptr;
+#endif
+
+    // Initialize bgfx with Vulkan renderer
+    bgfx::setPlatformData(pd);
+    bgfx::Init init_cfg{};
+    init_cfg.type = bgfx::RendererType::Count;
+    init_cfg.resolution.width = window_width_;
+    init_cfg.resolution.height = window_height_;
+    init_cfg.resolution.reset = BGFX_RESET_VSYNC;
+    init_cfg.platformData = pd;
+    if (!bgfx::init(init_cfg)) {
+      LOG::Fatal(__FILE__, __LINE__) << "Failed to initialize bgfx (Vulkan)";
+      // return false;
+    }
+
+    // Configure default view (id 0) clear color and viewport
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030FF, 1.0f, 0);
+    bgfx::setViewRect(0, 0, 0, window_width_, window_height_);
+
+    // return true;
   }
 
   void Update() override {
-    if (!viewport_ || !entity_manager_) return;
-
-    switch (render_type_) {
-      case RENDER_2D:
-        render_2d_->Render_All(*entity_manager_);
-        break;
-      case RENDER_3D:
-        // render_3d_->Render_All(*entity_manager_);
-        break;
-      default:
-        break;
+    if (!window_handle_) {
+      return;
+    }
+    // Check if window size has changed (e.g., resized)
+    int newFbWidth = 0, newFbHeight = 0;
+    glfwGetFramebufferSize(window_handle_, &newFbWidth, &newFbHeight);
+    if (newFbWidth > 0 && newFbHeight > 0 &&
+        (newFbWidth != static_cast<int>(window_width_) ||
+         newFbHeight != static_cast<int>(window_height_))) {
+      // Update bgfx with new resolution
+      window_width_ = static_cast<uint32_t>(newFbWidth);
+      window_height_ = static_cast<uint32_t>(newFbHeight);
+      bgfx::reset(window_width_, window_height_, BGFX_RESET_VSYNC);
+      bgfx::setViewRect(0, 0, 0, window_width_, window_height_);
     }
 
+    // If no other rendering commands submitted, touch the view to trigger clear
+    bgfx::touch(0);
+    // Advance to the next frame
     bgfx::frame();
   }
 
   void FreeResources() override {
-    if (render_type_ == RENDER_2D && render_2d_) {
-      delete render_2d_;
-      render_2d_ = nullptr;
-    } else if (render_type_ == RENDER_3D && render_3d_) {
-      delete render_3d_;
-      render_3d_ = nullptr;
-    }
+    // Shut down bgfx and free rendering resources
     bgfx::shutdown();
-    LOG::Debug(__func__) << "Render manager resources freed.";
-  }
-
- private:
-  void InitBgfx() {
-    bgfx::Init init;
-    bgfx::PlatformData pd{};
-
-#if defined(_WIN32)
-    pd.nwh = glfwGetWin32Window(viewport_->viewport_window);
-#elif defined(__linux__)
-    pd.ndt = glfwGetX11Display();
-    pd.nwh = (void*)(uintptr_t)glfwGetX11Window(viewport_->viewport_window);
-    init.type = bgfx::RendererType::Vulkan;
-#elif defined(__APPLE__)
-    pd.nwh = glfwGetCocoaWindow(viewport_->viewport_window);
-#endif
-
-    init.platformData = pd;
-    init.resolution.width = viewport_->w;
-    init.resolution.height = viewport_->h;
-    init.resolution.reset = BGFX_RESET_VSYNC;
-
-    if (!bgfx::init(init)) {
-      LOG::Fatal(__func__, __LINE__) << "Failed to init bgfx";
-      abort();
-    }
-  }
-
-  void InitRenderer() {
-    switch (render_type_) {
-      case RENDER_2D:
-        render_2d_ = new Render2D();
-        render_2d_->Set_EntityManager(entity_manager_);
-        render_2d_->Init();
-        break;
-      case RENDER_3D:
-        // render_3d_ = new Render3D();
-        // render_3d_->Init();
-        break;
-      default:
-        break;
-    }
   }
 };
 
-}  // namespace EDD::Managers
+}  // namespace Managers
+}  // namespace EDD
