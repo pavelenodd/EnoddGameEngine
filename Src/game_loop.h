@@ -1,7 +1,6 @@
 // game_loop.h
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <algorithm>
 #include <any>
 #include <string>
 #include <tuple>
@@ -102,11 +101,11 @@ class GameLoop {
 
     // Инициализация всех менеджеров
     managers_["scene"]->Init(
-        std::vector<std::any>{std::make_any<std::tuple<std::string, int, int>>(
+        std::vector<std::any>{std::make_any<std::tuple<std::string, uint16_t, uint16_t>>(
             std::string("MainViewport"), 800, 600)});
     managers_["inputs"]->Init();
     managers_["render"]->Init(
-        {static_cast<Managers::Scene *>(managers_["scene"])->GetWindowRef(),
+        {static_cast<Managers::Scene *>(managers_["scene"])->GetAllViewports(),
          static_cast<Managers::Entity *>(managers_["entity"]),
          Managers::RenderType::RENDER_2D});
     managers_["resource"]->Init({"Resources/Animations",

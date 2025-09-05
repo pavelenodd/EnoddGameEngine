@@ -3,16 +3,10 @@
 #include <cstdint>
 #include <vector>
 
+#include "EngineData/engine_data.h"
 #include "EngineError/engine_logging.h"
 #include "manager_base.h"
 #include "manager_entity.h"
-// Forward declare the Entity manager to avoid heavy includes
-namespace Managers {
-class Entity;
-}
-
-#include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
 
 // Include GLFW and its native access for window handles
 #define GLFW_INCLUDE_NONE
@@ -26,6 +20,15 @@ class Entity;
 #define GLFW_EXPOSE_NATIVE_WIN32
 #endif
 #include <GLFW/glfw3native.h>
+#include <bgfx/platform.h>
+
+#include <cstdio>
+
+#include "bgfx/bgfx.h"
+
+namespace Managers {
+class Entity;
+}
 
 namespace EDD {
 namespace Managers {
@@ -35,142 +38,97 @@ enum class RenderType { RENDER_2D = 0, RENDER_3D = 1 };
 
 class Render : public Base {
  private:
-  GLFWwindow* window_handle_ = nullptr;  // Window handle from Scene
-  EDD::Managers::Entity*
-      entity_manager_ = nullptr;  // Entity manager (for future use in rendering)
+  std::vector<EDD::Data::Viewport*> viewports_ = {};
+  EDD::Managers::Entity* entity_manager_ = nullptr;
   RenderType render_type_ = RenderType::RENDER_2D;
-  uint32_t window_width_ = 0;
-  uint32_t window_height_ = 0;
 
  public:
   Render() = default;
   ~Render() override = default;
 
-  void Init(std::vector<std::any> args = {}) override {
-    // Expect parameters: [GLFWwindow*, Entity*, RenderType]
+  void Init(std::vector<std::any> args) override {
     if (args.size() < 3) {
       LOG::Fatal(__FILE__, __LINE__) << "Render::Init - insufficient parameters";
-      // return false;
+      return;
     }
     try {
-      window_handle_ = std::any_cast<GLFWwindow*>(args[0]);
-    } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid window handle parameter";
-      // return false;
-    }
-    try {
+      viewports_ = std::any_cast<std::vector<EDD::Data::Viewport*>>(args[0]);
       entity_manager_ = std::any_cast<Managers::Entity*>(args[1]);
-    } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid entity manager parameter";
-      // return false;
-    }
-    try {
       render_type_ = std::any_cast<RenderType>(args[2]);
     } catch (const std::bad_any_cast&) {
-      // If stored as an int, convert to RenderType
-      try {
-        render_type_ = static_cast<RenderType>(std::any_cast<int>(args[2]));
-      } catch (...) {
-        LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid render type parameter";
-        // return false;
-      }
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid parameter types";
+      return;
     }
-
-    if (!window_handle_) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - window handle is null";
-      // return false;
+    if (viewports_.empty()) {
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - no viewports provided";
+      return;
     }
-
-    // Determine initial window dimensions
-    int fbWidth = 0, fbHeight = 0;
-    glfwGetFramebufferSize(window_handle_, &fbWidth, &fbHeight);
-    if (fbWidth <= 0 || fbHeight <= 0) {
-      // Fallback to window size or default if framebuffer size is zero (e.g., not yet shown)
-      int winWidth = 0, winHeight = 0;
-      glfwGetWindowSize(window_handle_, &winWidth, &winHeight);
-      fbWidth = (winWidth > 0 ? winWidth : 800);
-      fbHeight = (winHeight > 0 ? winHeight : 600);
+    if (!entity_manager_) {
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - entity manager is null";
+      return;
     }
-    window_width_ = static_cast<uint32_t>(fbWidth);
-    window_height_ = static_cast<uint32_t>(fbHeight);
-
-    // Setup native platform data for bgfx (for Vulkan rendering)
-    bgfx::PlatformData pd;
-    pd.context = nullptr;
-    pd.backBuffer = nullptr;
-    pd.backBufferDS = nullptr;
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-    // On Linux, decide between X11 or Wayland at runtime (GLFW 3.4+)
-#if GLFW_VERSION_MAJOR > 3 || (GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 4)
-    if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND) {
-      pd.ndt = glfwGetWaylandDisplay();
-      pd.nwh = glfwGetWaylandWindow(window_handle_);
-    } else {
-      pd.ndt = glfwGetX11Display();
-      pd.nwh = (void*)(uintptr_t)glfwGetX11Window(window_handle_);
+    if (!InitBGFX()) {
+      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - failed to initialize bgfx";
+      return;
     }
-#else
-    // If GLFW platform query not available, assume X11 by default
-    pd.ndt = glfwGetX11Display();
-    pd.nwh = (void*)(uintptr_t)glfwGetX11Window(window_handle_);
-#endif
-#elif BX_PLATFORM_OSX
-    pd.ndt = NULL;
-    pd.nwh = glfwGetCocoaWindow(window_handle_);
-#elif BX_PLATFORM_WINDOWS
-    pd.ndt = NULL;
-    pd.nwh = glfwGetWin32Window(window_handle_);
-#else
-    pd.ndt = NULL;
-    pd.nwh = nullptr;
-#endif
-
-    // Initialize bgfx with Vulkan renderer
-    bgfx::setPlatformData(pd);
-    bgfx::Init init_cfg{};
-    init_cfg.type = bgfx::RendererType::Count;
-    init_cfg.resolution.width = window_width_;
-    init_cfg.resolution.height = window_height_;
-    init_cfg.resolution.reset = BGFX_RESET_VSYNC;
-    init_cfg.platformData = pd;
-    if (!bgfx::init(init_cfg)) {
-      LOG::Fatal(__FILE__, __LINE__) << "Failed to initialize bgfx (Vulkan)";
-      // return false;
-    }
-
-    // Configure default view (id 0) clear color and viewport
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030FF, 1.0f, 0);
-    bgfx::setViewRect(0, 0, 0, window_width_, window_height_);
-
-    // return true;
+    return;
   }
 
   void Update() override {
-    if (!window_handle_) {
-      return;
-    }
-    // Check if window size has changed (e.g., resized)
-    int newFbWidth = 0, newFbHeight = 0;
-    glfwGetFramebufferSize(window_handle_, &newFbWidth, &newFbHeight);
-    if (newFbWidth > 0 && newFbHeight > 0 &&
-        (newFbWidth != static_cast<int>(window_width_) ||
-         newFbHeight != static_cast<int>(window_height_))) {
-      // Update bgfx with new resolution
-      window_width_ = static_cast<uint32_t>(newFbWidth);
-      window_height_ = static_cast<uint32_t>(newFbHeight);
-      bgfx::reset(window_width_, window_height_, BGFX_RESET_VSYNC);
-      bgfx::setViewRect(0, 0, 0, window_width_, window_height_);
-    }
+    // Очистка экрана
+    ClearView(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+    SetViewRect(0, 0, 0, viewports_[0]->w, viewports_[0]->h);
+    Touch(0);
 
-    // If no other rendering commands submitted, touch the view to trigger clear
-    bgfx::touch(0);
-    // Advance to the next frame
-    bgfx::frame();
+    // Рендеринг кадра
+    Frame();
+
+    // Обмен буферов
+    glfwSwapBuffers(viewports_[0]->viewport_window);
+
+    // Обработка событий GLFW
+    glfwPollEvents();
   }
 
   void FreeResources() override {
-    // Shut down bgfx and free rendering resources
     bgfx::shutdown();
+    glfwDestroyWindow(viewports_[0]->viewport_window);
+    glfwTerminate();
+  }
+
+ private:
+  bool InitBGFX() {
+    if (viewports_.empty()) {
+      LOG::Fatal(__FILE__, __LINE__) << "Render::InitBGFX - no viewports available";
+      return false;
+    }
+    for (const auto& viewport : viewports_) {
+      if (viewport && viewport->viewport_window) {
+        bgfx::Init init;
+        init.type = bgfx::RendererType::Noop;  // Используем Noop для тестирования
+                                               // без рендеринга
+        init.resolution.width = viewport->w;
+        init.resolution.height = viewport->h;
+        init.resolution.reset = BGFX_RESET_VSYNC;
+        if (!bgfx::init(init)) {
+          printf("bgfx::init failed\n");
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  void ClearView(uint8_t viewId, uint16_t flags, uint32_t rgba, float depth, uint8_t stencil) {
+    bgfx::setViewClear(viewId, flags, rgba, depth, stencil);
+  }
+  void SetViewRect(uint8_t viewId, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+    bgfx::setViewRect(viewId, x, y, width, height);
+  }
+  void Touch(uint8_t viewId) {
+    bgfx::touch(viewId);
+  }
+  void Frame() {
+    bgfx::frame();
   }
 };
 

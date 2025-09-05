@@ -1,7 +1,6 @@
 // Managers/manager_resourse.h
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include <map>
 #include <string>
 
@@ -34,7 +33,7 @@ class Resource : public Managers::Base {
  public:
  private:
   std::string resource_path_;  // основной путь к ресурсам
-  std::map<std::string, sf::Texture> textures_;  // хранилище текстур
+  // std::map<std::string, sf::Texture> textures_;  // хранилище текстур
 
  public:
   Resource() {}
@@ -47,7 +46,7 @@ class Resource : public Managers::Base {
   virtual void Init(std::vector<std::any> args) override {
     LOG::Debug() << "Resource manager initialized.";
     std::string L_path;
-    for (int i = 0; i < args.size(); ++i) {
+    for (uint16_t i = 0; i <= args.size(); ++i) {
       switch (i) {
         case ResourceType::Animation: {
           L_path = std::any_cast<const char*>(args[i]);
@@ -101,9 +100,6 @@ class Resource : public Managers::Base {
     LOG::Info() << "Resource loading completed.";
   }
   virtual void FreeResources() override {}
-  sf::Texture* GetTexture(const std::string& name) {
-    return &textures_.at(name);
-  }
 
  private:
   void LoadAnimation(const std::string& path) {}
@@ -115,6 +111,14 @@ class Resource : public Managers::Base {
   void LoadScript(const std::string& path) {}
   void LoadShader(const std::string& path) {}
 
+  void LoadTexture(const std::string& path) {
+    // std::string L_texture_name = NormalizeFileName(path);
+
+    // sf::Texture L_texture;
+    // if (L_texture.loadFromFile(path)) {
+    //   textures_.insert({L_texture_name, std::move(L_texture)});
+    // }
+  }
   /**
    * @brief Normalization of the file name
    *
@@ -125,20 +129,6 @@ class Resource : public Managers::Base {
     std::string L_texture_name = path.substr(path.find_last_of('/') + 1);
     L_texture_name = L_texture_name.substr(0, L_texture_name.find_last_of('.'));
     return L_texture_name;
-  }
-
-  /**
-   * @brief Texture load
-   *
-   * @param path Way to the Texture file
-   */
-  void LoadTexture(const std::string& path) {
-    std::string L_texture_name = NormalizeFileName(path);
-
-    sf::Texture L_texture;
-    if (L_texture.loadFromFile(path)) {
-      textures_.insert({L_texture_name, std::move(L_texture)});
-    }
   }
 };
 }  // namespace EDD::Managers

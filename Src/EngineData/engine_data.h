@@ -1,6 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 
+#include <cstdint>
 #include <string>
 
 namespace EDD::Data {
@@ -12,9 +13,9 @@ namespace EDD::Data {
  */
 struct Viewport {
   GLFWwindow* viewport_window = nullptr;  // окно вьюпорта
-  std::string name = "";      // имя вьюпорта
-  int w = 800;                // ширина
-  int h = 600;                // высота
+  std::string title = "";                 // имя вьюпорта
+  uint16_t w = 800;                       // ширина
+  uint16_t h = 600;                       // высота
 };
 
 }  // namespace EDD::Data
