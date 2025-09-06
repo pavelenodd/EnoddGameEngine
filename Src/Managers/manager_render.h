@@ -47,6 +47,7 @@ class Render : public Base {
   ~Render() override = default;
 
   void Init(std::vector<std::any> args) override {
+    LOG::Debug() << "Render::Init called";
     if (args.size() < 3) {
       LOG::Fatal(__FILE__, __LINE__) << "Render::Init - insufficient parameters";
       return;
@@ -71,6 +72,7 @@ class Render : public Base {
       LOG::Fatal(__FILE__, __LINE__) << "Render::Init - failed to initialize bgfx";
       return;
     }
+    LOG::Debug() << "Render::Init completed successfully";
     return;
   }
 

@@ -5,26 +5,22 @@
 #include "Managers/manager_scene.h"
 #include "engine_data.h"
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
 namespace EDD {
 namespace Tests {
 
 // Инспектор приватных полей (см. friend в менеджере)
-// struct SceneInspector {
-//   static const EDD::Data::Viewport& Get_Viewport_(Managers::Scene& scene) {
-//     return *(scene.view_data_);
-//   }
+struct SceneInspector {
+  static const std::vector<EDD::Data::Viewport*>& Get_Viewport_(Managers::Scene& scene) {
+    return scene.viewports_;
+  }
 
-//   static EDD::Data::Viewport* Call_CreateViewport(Managers::Scene& scene,
-//                                                   const std::string& title,
-//                                                   int width,
-//                                                   int height) {
-//     // return scene.CreateViewport(title, width, height);
-//     return nullptr;
-//   }
-// };
+  static EDD::Data::Viewport* Call_CreateViewport(Managers::Scene& scene,
+                                                  std::string title,
+                                                  uint16_t width,
+                                                  uint16_t height) {
+    return scene.CreateViewport(title, width, height);
+  }
+};
 
 class TestManagerScene {
  private:
@@ -44,15 +40,22 @@ class TestManagerScene {
     switch (test_case_) {
       // ===== Одноразовые =====
       case -99: {
-        // scene_manager_ = new Managers::Scene();
-        // scene_manager_->Init(
-        //     std::vector<std::any>{std::make_any<std::tuple<std::string, int, int>>(
-        //         std::string("MainViewport"), 100, 50)});
-        // success &= CreateViewport();
+        scene_manager_ = new Managers::Scene();
+        scene_manager_->Init(std::vector<std::any>{
+            std::make_any<std::tuple<const std::string, uint16_t, uint16_t>>(
+                std::string("MainViewport"), 100, 50)});
+        scene_manager_->DestroyViewport("MainViewport");
+        success &= scene_manager_->GetAllViewports().empty();
+
+        Test_Assert(success, "Create and Destroy  Test Viewport to title");
         [[fallthrough]];
       }
       case -98: {
-        // scene_manager_->DestroyViewport();
+        success &= CreateViewport("TestViewport", 640, 480);
+        scene_manager_->DestroyAllViewport();
+        success &= scene_manager_->GetAllViewports().empty();
+
+        Test_Assert(success, "Create and Destroy  all Viewport`s");
         [[fallthrough]];
       }
       case -97: {
@@ -108,20 +111,19 @@ class TestManagerScene {
     }
   }
   // Создание вьюпорта со стандартными настройками
-  bool CreateViewport() {
-    // EDD::Data::Viewport* vp = SceneInspector::Call_CreateViewport(
-    //     *scene_manager_, "Main", 800, 600);
+  bool CreateViewport(const std::string& name, uint16_t width, uint16_t height) {
+    EDD::Data::Viewport* vp = SceneInspector::Call_CreateViewport(
+        *scene_manager_, name, width, height);
 
-    // bool condition = (vp != nullptr);
-    // Test_Assert(condition, "CreateViewport");
-    // return condition;
+    bool condition = (vp != nullptr);
+    return condition;
   }
   // Уничтожение всех вьюпортов
   void DestroyAllViewport() {
-    // scene_manager_->DestroyViewport();
+    scene_manager_->DestroyAllViewport();
   }
   void FreeResources() {
-    // scene_manager_->FreeResources();
+    scene_manager_->FreeResources();
   }
 };
 

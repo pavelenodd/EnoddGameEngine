@@ -63,19 +63,23 @@ class GameLoop {
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов в симуляции работы менеджера
-    // {
-    //   test_manager_inputs_ = new Tests::TestManagerInputs();
-    //   test_manager_scene_ = new Tests::TestManagerScene();
-    //   test_manager_settings_ = new Tests::TestManagerSettings();
-    //   test_manager_resources_ = new Tests::TestManagerResources();
-    //   test_manager_render_ = new Tests::TestManagerRender();
+    {
+      test_manager_inputs_ = new Tests::TestManagerInputs();
+      test_manager_scene_ = new Tests::TestManagerScene();
+      test_manager_settings_ = new Tests::TestManagerSettings();
+      test_manager_resources_ = new Tests::TestManagerResources();
+      test_manager_render_ = new Tests::TestManagerRender();
 
-    //   if (!test_manager_settings_->RunTests() || !test_manager_scene_->RunTests() ||
-    //       !test_manager_inputs_->RunTests() || !test_manager_resources_->RunTests() ||
-    //       !test_manager_render_->RunTests()) {
-    //     abort();
-    //   }
-    // }
+      if (!test_manager_settings_->RunTests() ||  //
+          !test_manager_scene_->RunTests()
+          // ||     //
+          // !test_manager_inputs_->RunTests() ||     //
+          // !test_manager_resources_->RunTests() ||  //
+          // !test_manager_render_->RunTests()        //
+      ) {
+        abort();
+      }
+    }
 #endif
 
     //======================================================================
@@ -101,7 +105,7 @@ class GameLoop {
 
     // Инициализация всех менеджеров
     managers_["scene"]->Init(
-        std::vector<std::any>{std::make_any<std::tuple<std::string, uint16_t, uint16_t>>(
+        std::vector<std::any>{std::make_any<std::tuple<const std::string, uint16_t, uint16_t>>(
             std::string("MainViewport"), 800, 600)});
     managers_["inputs"]->Init();
     managers_["render"]->Init(

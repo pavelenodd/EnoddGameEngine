@@ -15,10 +15,16 @@
 #include "manager_base.h"
 
 namespace EDD {
-namespace Managers {
 
+#if defined(DEBUG)
+namespace Tests {
+struct SceneInspector;  // forward declaration
+}
+#endif
+
+namespace Managers {
 class Scene : public Base {
-  // friend struct EDD::Tests::SceneInspector;
+  friend struct EDD::Tests::SceneInspector;
 
  private:
   std::vector<EDD::Data::Viewport*> viewports_;  // List of created viewports
@@ -28,14 +34,21 @@ class Scene : public Base {
   Scene() = default;
   ~Scene() override = default;
 
+  /**
+   * @brief Initialize the scene with the given parameters
+   *
+   * @param args A vector of any type containing initialization parameters
+   */
   void Init(std::vector<std::any> args = {}) override {
+    LOG::Debug() << "Scene::Init called";
     if (args.size() < 1) {
       LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - insufficient parameters";
       return;
     }
     std::tuple<std::string, uint16_t, uint16_t> L_viewport_params;
     try {
-      L_viewport_params = std::any_cast<std::tuple<std::string, uint16_t, uint16_t>>(args[0]);
+      L_viewport_params = std::any_cast<std::tuple<const std::string, uint16_t, uint16_t>>(
+          args[0]);
     } catch (const std::bad_any_cast&) {
       LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - invalid viewport parameters";
       return;
@@ -51,12 +64,14 @@ class Scene : public Base {
       return;
     }
     viewports_.push_back(viewport);
+    LOG::Debug() << "Scene::Init completed successfully";
     return;
   }
-
-  void Update() override {
-
-  }
+  /**
+   * @brief Not used in the scene manager
+   *
+   */
+  void Update() override {}
 
   /**
    * @brief Free all resources used by the scene manager
@@ -66,6 +81,11 @@ class Scene : public Base {
     DestroyAllViewport();
   }
 
+  /**
+   * @brief Destroy a viewport by its title
+   *
+   * @param title The title of the viewport to destroy
+   */
   void DestroyViewport(const std::string& title) {
     for (auto& it : viewports_) {
       if (it->title == title) {
@@ -77,7 +97,10 @@ class Scene : public Base {
     }
   }
 
-  // Destroy all created viewports
+  /**
+   * @brief Destroy all created viewports
+   *
+   */
   void DestroyAllViewport() {
     for (auto& it : viewports_) {
       delete it;

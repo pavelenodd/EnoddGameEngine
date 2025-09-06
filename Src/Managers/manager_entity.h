@@ -48,6 +48,7 @@ class Entity : public Base {
    *
    */
   virtual void Init(std::vector<std::any> args) override {
+    LOG::Debug() << "Entity::Init called";
     if (args.size() > 2) {
       named_entities_.reserve(std::any_cast<std::size_t>(args[0]));
       auto& names = std::any_cast<std::vector<std::string>&>(args[1]);
@@ -55,8 +56,8 @@ class Entity : public Base {
         named_entities_[name] = entt::null;  // Изначально сущности не созданы
       }
     }
-    LOG::Debug() << "Entity manager initialized with " << named_entities_.size()
-                 << " named entities.";
+    LOG::Debug() << "Entity::Init completed successfully";
+    return;
   }
 
   virtual void FreeResources() override {
