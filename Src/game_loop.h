@@ -126,8 +126,8 @@ class GameLoop {
 
     // Подписска на `input` события
     {
-      // static_cast<Managers::Inputs *>(managers_.at("inputs"))
-      //     ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
+      static_cast<Managers::Inputs *>(managers_.at("inputs"))
+          ->Subscribe(static_cast<Managers::Scene *>(managers_.at("scene")));
     }
     //=====================================================================
 #ifdef DEBUG

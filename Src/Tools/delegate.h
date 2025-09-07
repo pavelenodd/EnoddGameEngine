@@ -3,7 +3,6 @@
 #include <vector>
 
 namespace EDD::Tools {
-#include "event_type.h"
 template <typename... Args>
 class Delegate {
  private:

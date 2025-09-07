@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "EngineData/engine_data.h"
+#include "event_type.h"
+#include "interface.h"
 #include "manager_base.h"
 
 namespace EDD {
@@ -18,7 +20,8 @@ struct SceneInspector;  // forward declaration
 #endif
 
 namespace Managers {
-class Scene : public Base {
+using InterfaceKeyEvent = Tools::Interface<Tools::EventTypes::KeyEvent>;
+class Scene : public Base, public InterfaceKeyEvent {
 #if defined(DEBUG)
   friend struct EDD::Tests::SceneInspector;
 #endif

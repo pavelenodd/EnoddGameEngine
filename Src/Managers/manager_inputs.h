@@ -18,6 +18,7 @@ struct InputsInspector;
 
 namespace Managers {
 class Scene;  // Предварительное объявление класса Scene
+
 /*
   Менеджер ввода отвечает за обработку событий ввода от пользователя.
   все события, которые он принимает передаётся в интерфейс Tools::Interface<KeyEvent>.
