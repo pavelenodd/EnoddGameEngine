@@ -79,6 +79,10 @@ class Scene : public Base {
    */
   void FreeResources() override {
     DestroyAllViewport();
+    if (viewports_.empty() && glfw_initialized_) {
+      glfwTerminate();
+      glfw_initialized_ = false;
+    }
   }
 
   /**
@@ -89,6 +93,7 @@ class Scene : public Base {
   void DestroyViewport(const std::string& title) {
     for (auto& it : viewports_) {
       if (it->title == title) {
+        glfwDestroyWindow(it->viewport_window);
         delete it;
         viewports_.erase(std::remove(viewports_.begin(), viewports_.end(), it),
                          viewports_.end());
@@ -103,6 +108,7 @@ class Scene : public Base {
    */
   void DestroyAllViewport() {
     for (auto& it : viewports_) {
+      glfwDestroyWindow(it->viewport_window);
       delete it;
     }
     viewports_.clear();
