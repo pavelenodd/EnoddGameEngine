@@ -84,7 +84,8 @@ set(ENGINE_SRC
     Src/Managers/manager_base.h
 
     Src/Managers/manager_inputs.h
-
+    Src/Managers/manager_inputs.cpp
+    
     Src/Managers/manager_physics.h
 
     Src/Managers/manager_resource.h
@@ -94,6 +95,8 @@ set(ENGINE_SRC
     Src/Managers/Items/texture.h
 
     Src/Managers/manager_scene.h
+    Src/Managers/manager_scene.cpp
+    
     Src/Managers/manager_render.h
     Src/Managers/manager_entity.h
 

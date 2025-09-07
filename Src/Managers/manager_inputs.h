@@ -3,7 +3,6 @@
 
 #include <unordered_set>
 
-#include "EngineError/engine_logging.h"
 #include "Tools/event_type.h"
 #include "Tools/interface.h"
 #include "manager_base.h"
@@ -40,24 +39,25 @@ class Inputs : public Base, public InterfaceKeyEvent {
     FreeResources();
   }
 
-  virtual void Update() override {}
+  virtual void Update() override;
 
-  // Подписаться/отписаться на события
-  void Subscribe(InterfaceKeyEvent* observers = nullptr) {
-    if (observers != nullptr) {
-      observers_.insert(observers);
-    }
-  }
-  void Unsubscribe(InterfaceKeyEvent* observers = nullptr) {
-    if (observers != nullptr) {
-      observers_.erase(observers);
-    }
-  }
+  /**
+   * @brief Subscribe to key event notifications.
+   *        If observers is nullptr, subscribe the current instance.
+   *
+   * @param observers Pointer to the observer to subscribe.
+   */
+  void Subscribe(InterfaceKeyEvent* observers = nullptr);
 
-  virtual void Init(std::vector<std::any> args) override {
-    // Инициализация обработчика ввода
-    LOG::Debug() << "Input manager initialized.";
-  }
+  /**
+   * @brief Unsubscribe from key event notifications.
+   *        If observers is nullptr, unsubscribe the current instance.
+   *
+   * @param observers Pointer to the observer to unsubscribe.
+   */
+  void Unsubscribe(InterfaceKeyEvent* observers = nullptr);
+
+  virtual void Init(std::vector<std::any> args) override;
 
  private:
   // Освобождение ресурсов

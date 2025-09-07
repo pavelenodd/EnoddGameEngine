@@ -8,7 +8,7 @@
 
 namespace EDD {
 namespace Tests {
-
+#if defined(DEBUG)
 struct SettingsInspector {
   // Публичные constexpr указатели на приватные поля
   static constexpr auto settings_map = &Managers::Settings::settings_map_;
@@ -198,6 +198,7 @@ class TestManagerSettings {
     return sucsess;
   };
 };
+#endif
 
 }  // namespace Tests
 }  // namespace EDD

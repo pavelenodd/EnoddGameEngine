@@ -7,7 +7,7 @@
 
 namespace EDD {
 namespace Tests {
-
+#if defined(DEBUG)
 // Инспектор приватных полей (см. friend в менеджере)
 struct SceneInspector {
   static const std::vector<EDD::Data::Viewport*>& Get_Viewport_(Managers::Scene& scene) {
@@ -126,6 +126,7 @@ class TestManagerScene {
     scene_manager_->FreeResources();
   }
 };
+#endif
 
 }  // namespace Tests
 }  // namespace EDD
