@@ -17,7 +17,6 @@ struct InputsInspector;
 #endif
 
 namespace Managers {
-class Scene;  // Предварительное объявление класса Scene
 
 /*
   Менеджер ввода отвечает за обработку событий ввода от пользователя.
@@ -26,7 +25,6 @@ class Scene;  // Предварительное объявление класс�
 using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
 class Inputs : public Base, public InterfaceKeyEvent {
  private:
-  Scene* scene_manager_ = nullptr;  // указатель на менеджер сцены
 #ifdef DEBUG
 
   friend struct ::EDD::Tests::InputsInspector;

@@ -4,6 +4,7 @@
 
 #include <any>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "EngineData/engine_data.h"
@@ -29,6 +30,7 @@ class Scene : public Base, public InterfaceKeyEvent {
  private:
   std::vector<EDD::Data::Viewport*> viewports_;  // List of created viewports
   inline static bool glfw_initialized_ = false;  // Track if GLFW is initialized
+  std::unordered_map<int, bool> key_states_;
 
  public:
   Scene() = default;
@@ -89,6 +91,8 @@ class Scene : public Base, public InterfaceKeyEvent {
    * @return EDD::Data::Viewport*
    */
   EDD::Data::Viewport* CreateViewport(std::string& title, uint16_t width, uint16_t height);
+
+  static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 };
 
 }  // namespace Managers

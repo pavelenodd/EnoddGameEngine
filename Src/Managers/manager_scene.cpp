@@ -35,7 +35,9 @@ void Scene::Init(std::vector<std::any> args) {
   return;
 }
 
-void Scene::Update() {}
+void Scene::Update() {
+  glfwPollEvents();
+}
 
 void Scene::FreeResources() {
   DestroyAllViewport();
@@ -112,5 +114,22 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
     return nullptr;
   }
   glfwMakeContextCurrent(viewport->viewport_window);
+  glfwSetWindowUserPointer(viewport->viewport_window, this);
+  glfwSetKeyCallback(viewport->viewport_window, &KeyCallback);
   return viewport;
+}
+
+void Scene::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  Scene* scene = static_cast<Scene*>(glfwGetWindowUserPointer(window));
+  if (scene) {
+    // Update key states for simultaneous presses
+    if (action == GLFW_PRESS) {
+      scene->key_states_[key] = true;
+    } else if (action == GLFW_RELEASE) {
+      scene->key_states_[key] = false;
+    }
+    // Keep interface_args_ for backward compatibility or single events
+    scene->interface_args_ = {key, scancode, action, mods};
+    LOG::Debug() << "Key event: " << key << " action: " << action;
+  }
 }
