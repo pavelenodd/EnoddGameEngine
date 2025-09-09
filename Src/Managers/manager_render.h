@@ -1,30 +1,15 @@
 #pragma once
 #include <any>
-#include <cstdint>
+#include <optional>
 #include <vector>
+#include <cstdint>
+
+#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
 
 #include "EngineData/engine_data.h"
-#include "EngineError/engine_logging.h"
 #include "manager_base.h"
 #include "manager_entity.h"
-
-// Include GLFW and its native access for window handles
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-#define GLFW_EXPOSE_NATIVE_X11
-#define GLFW_EXPOSE_NATIVE_WAYLAND
-#elif BX_PLATFORM_OSX
-#define GLFW_EXPOSE_NATIVE_COCOA
-#elif BX_PLATFORM_WINDOWS
-#define GLFW_EXPOSE_NATIVE_WIN32
-#endif
-#include <GLFW/glfw3native.h>
-#include <bgfx/platform.h>
-
-#include <cstdio>
-
-#include "bgfx/bgfx.h"
 
 namespace Managers {
 class Entity;
@@ -33,7 +18,6 @@ class Entity;
 namespace EDD {
 namespace Managers {
 
-// Supported rendering types
 enum class RenderType { RENDER_2D = 0, RENDER_3D = 1 };
 
 class Render : public Base {
@@ -42,107 +26,82 @@ class Render : public Base {
   EDD::Managers::Entity* entity_manager_ = nullptr;
   RenderType render_type_ = RenderType::RENDER_2D;
 
+  // Vulkan core
+  VkInstance instance_ = VK_NULL_HANDLE;
+  VkSurfaceKHR surface_ = VK_NULL_HANDLE;
+  VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+  VkDevice device_ = VK_NULL_HANDLE;
+  VkQueue graphics_queue_ = VK_NULL_HANDLE;
+  VkQueue present_queue_ = VK_NULL_HANDLE;
+
+  // Swapchain
+  VkSwapchainKHR swapchain_ = VK_NULL_HANDLE;
+  VkFormat swapchain_image_format_{};
+  VkExtent2D swapchain_extent_{};
+  std::vector<VkImage> swapchain_images_;
+  std::vector<VkImageView> swapchain_image_views_;
+
+  // Render pass / framebuffers
+  VkRenderPass render_pass_ = VK_NULL_HANDLE;
+  std::vector<VkFramebuffer> framebuffers_;
+
+  // Commands
+  VkCommandPool command_pool_ = VK_NULL_HANDLE;
+  std::vector<VkCommandBuffer> command_buffers_;
+
+  // Sync
+  static constexpr uint32_t kMaxFramesInFlight = 2;
+  uint32_t current_frame_ = 0;
+  std::vector<VkSemaphore> image_available_;
+  std::vector<VkSemaphore> render_finished_;
+  std::vector<VkFence> in_flight_;
+
+  bool initialized_ = false;
+
  public:
   Render() = default;
   ~Render() override = default;
 
-  void Init(std::vector<std::any> args) override {
-    LOG::Debug() << "Render::Init called";
-    if (args.size() < 3) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - insufficient parameters";
-      return;
-    }
-    try {
-      viewports_ = std::any_cast<std::vector<EDD::Data::Viewport*>>(args[0]);
-      entity_manager_ = std::any_cast<Managers::Entity*>(args[1]);
-      render_type_ = std::any_cast<RenderType>(args[2]);
-    } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - invalid parameter types";
-      return;
-    }
-    if (viewports_.empty()) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - no viewports provided";
-      return;
-    }
-    if (!entity_manager_) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - entity manager is null";
-      return;
-    }
-    if (!InitBGFX()) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::Init - failed to initialize bgfx";
-      return;
-    }
-    LOG::Debug() << "Render::Init completed successfully";
-    return;
-  }
-
-  void Update() override {
-    // Очистка экрана
-    ClearView(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
-    SetViewRect(0, 0, 0, viewports_[0]->w, viewports_[0]->h);
-    Touch(0);
-
-    // Рендеринг кадра
-    Frame();
-
-    // Обмен буферов
-    glfwSwapBuffers(viewports_[0]->viewport_window);
-
-    // Обработка событий GLFW
-    glfwPollEvents();
-  }
-
-  void FreeResources() override {
-    bgfx::shutdown();
-    glfwDestroyWindow(viewports_[0]->viewport_window);
-    glfwTerminate();
-  }
+  void Init(std::vector<std::any> args) override;
+  void Update() override;
+  void FreeResources() override;
 
  private:
-  bool InitBGFX() {
-    if (viewports_.empty()) {
-      LOG::Fatal(__FILE__, __LINE__) << "Render::InitBGFX - no viewports available";
-      return false;
-    }
-#if defined(GLFW_EXPOSE_NATIVE_X11)
-    LOG::Debug() << "GLFW native: X11";
-#elif defined(GLFW_EXPOSE_NATIVE_WAYLAND)
-#if defined(ENODD_WAYLAND_USE_EGL)
-    LOG::Debug() << "GLFW native: Wayland + EGL(OpenGL)";
-#else
-    LOG::Debug() << "GLFW native: Wayland + Vulkan";
-#endif
-#else
-    LOG::Debug() << "GLFW native: <undefined>";
-#endif
-    for (const auto& viewport : viewports_) {
-      if (viewport && viewport->viewport_window) {
-        bgfx::Init init;
-        init.type = bgfx::RendererType::Count;  // Используем Noop для тестирования
-                                                // без рендеринга
-        init.resolution.width = viewport->w;
-        init.resolution.height = viewport->h;
-        init.resolution.reset = BGFX_RESET_VSYNC;
-        if (!bgfx::init(init)) {
-          printf("bgfx::init failed\n");
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-  void ClearView(uint8_t viewId, uint16_t flags, uint32_t rgba, float depth, uint8_t stencil) {
-    bgfx::setViewClear(viewId, flags, rgba, depth, stencil);
-  }
-  void SetViewRect(uint8_t viewId, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-    bgfx::setViewRect(viewId, x, y, width, height);
-  }
-  void Touch(uint8_t viewId) {
-    bgfx::touch(viewId);
-  }
-  void Frame() {
-    bgfx::frame();
-  }
+  bool InitVulkan();
+
+  // Steps
+  bool CreateInstance();
+  bool CreateSurface();
+  bool PickPhysicalDevice();
+  bool CreateLogicalDevice();
+  bool CreateSwapchain();
+  bool CreateImageViews();
+  bool CreateRenderPass();
+  bool CreateFramebuffers();
+  bool CreateCommandPool();
+  bool AllocateCommandBuffers();
+  bool RecordAllCommandBuffers();
+  bool CreateSyncObjects();
+
+  void DrawFrame();
+  void CleanupVulkan();
+
+  // Helpers
+  struct QueueFamilies {
+    std::optional<uint32_t> graphics;
+    std::optional<uint32_t> present;
+    bool Complete() const { return graphics.has_value() && present.has_value(); }
+  };
+  QueueFamilies FindQueueFamilies(VkPhysicalDevice dev);
+  struct SwapSupport {
+    VkSurfaceCapabilitiesKHR caps{};
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> present_modes;
+  };
+  SwapSupport QuerySwapSupport(VkPhysicalDevice dev);
+  VkSurfaceFormatKHR ChooseFormat(const std::vector<VkSurfaceFormatKHR>& fmts);
+  VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR>& modes);
+  VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& caps, GLFWwindow* wnd);
 };
 
 }  // namespace Managers

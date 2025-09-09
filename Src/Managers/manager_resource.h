@@ -1,11 +1,10 @@
 // Managers/manager_resourse.h
 #pragma once
 
-#include <map>
 #include <string>
 
-#include "engine_logging.h"
-#include "manager_base.h"
+#include "EngineError/engine_logging.h"
+#include "Managers/manager_base.h"
 namespace EDD::Managers {
 enum ResourceType {
   Animation = 0,

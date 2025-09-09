@@ -4,7 +4,7 @@
 #include <string>
 
 #include "Managers/manager_settings.h"
-#include "engine_logging.h"
+#include "EngineError/engine_logging.h"
 
 namespace EDD {
 namespace Tests {

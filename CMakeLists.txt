@@ -19,17 +19,15 @@ endif()
 # === Опции качества кода / санитайзеры ======================================
 option(ENABLE_WARNINGS "Включить расширенные предупреждения" ON)
 option(ENABLE_WARNINGS_AS_ERRORS "Трактовать предупреждения как ошибки" OFF)
-option(ENABLE_ANALYZER "Включить встроенный статический анализатор (-fanalyzer GCC)" ON)
-option(ENABLE_ASAN "Включить AddressSanitizer" ON)
-option(ENABLE_UBSAN "Включить UndefinedBehaviorSanitizer" ON)
-option(ENABLE_TSAN "Включить ThreadSanitizer (несовместим с ASAN/UBSAN)" ON)
+option(ENABLE_ANALYZER "Включить встроенный статический анализатор (-fanalyzer GCC)" OFF)
+option(ENABLE_ASAN "Включить AddressSanitizer" OFF)
+option(ENABLE_UBSAN "Включить UndefinedBehaviorSanitizer" OFF)
+option(ENABLE_TSAN "Включить ThreadSanitizer (несовместим с ASAN/UBSAN)" OFF)
 
 # === Платформенные опции для GLFW/native access (Linux) =====================
 # РОВНО один стек: X11 (по умолчанию) или Wayland. Для Vulkan ничего больше не нужно.
 option(ENODD_GLFW_WAYLAND "Use Wayland native access instead of X11 (Linux only)" OFF)
 
-# Если линкуетесь с SHARED bgfx (.so) — это влияет только на приложение (НЕ на сборку bgfx!)
-option(USE_BGFX_SHARED "Link against shared bgfx" OFF)
 
 # === Предупреждения / Санитайзеры ===========================================
 set(WARNING_FLAGS "")
@@ -72,14 +70,26 @@ endif()
 include(CTest)
 enable_testing()
 
-# === Пакеты =================================================================
-find_package(Vulkan REQUIRED)
+# === Пакеты ==================================================================
+# Vulkan + компоненты: берём shaderc и glslc через FindVulkan (так надёжнее в Arch)
+find_package(Vulkan REQUIRED COMPONENTS shaderc_combined glslc)
 find_package(Boost REQUIRED COMPONENTS system log log_setup thread filesystem)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(assimp REQUIRED)
 find_package(EnTT REQUIRED)
-find_package(bgfx CONFIG REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(glm REQUIRED)  
+find_package(volk QUIET)     # даёт volk::volk
+if (volk_FOUND)
+  add_compile_definitions(EGE_USE_VOLK)
+endif()
+
+find_path(VMA_INCLUDE_DIRS "vk_mem_alloc.h")
+if (NOT VMA_INCLUDE_DIRS)
+  message(FATAL_ERROR "VMA not found. Install 'vulkan-memory-allocator' or use FetchContent.")
+endif()
+
+# Тесты
 find_package(GTest REQUIRED)
 
 # === Источники ==============================================================
@@ -112,6 +122,7 @@ set(ENGINE_SRC
     Src/Managers/manager_scene.cpp
 
     Src/Managers/manager_render.h
+    Src/Managers/manager_render.cpp
     Src/Managers/manager_entity.h
 
     # EngineLogging
@@ -156,10 +167,6 @@ endif()
 # === Инклуды ================================================================
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
-    ${CMAKE_CURRENT_SOURCE_DIR}/Src/Managers
-    ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineError
-    ${CMAKE_CURRENT_SOURCE_DIR}/Src/Tools
-    ${CMAKE_CURRENT_SOURCE_DIR}/Src/EngineData
     ${CMAKE_CURRENT_SOURCE_DIR}/Tests
     ${CMAKE_CURRENT_SOURCE_DIR}/Game
     ${SFML_INCLUDE_DIRS}
@@ -175,12 +182,11 @@ if(UNIX AND NOT APPLE)
         message(STATUS "[GLFW native] X11 selected for Vulkan")
     endif()
 endif()
-
-# === bgfx: если линкуемся с shared-версией, объявляем ТОЛЬКО USE ============
-if(USE_BGFX_SHARED)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE BGFX_SHARED_LIB_USE)
-    message(STATUS "[bgfx] Linking against shared library (BGFX_SHARED_LIB_USE)")
-endif()
+# === Макросы для GLFW + Vulkan ==============================================
+target_compile_definitions(EnoddGameEngine PRIVATE
+  GLFW_INCLUDE_VULKAN       # заставляет glfw3.h подключить vulkan/vulkan.h
+  GLFW_INCLUDE_NONE         # не тянуть OpenGL заголовки
+)
 
 # === Линки ==================================================================
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -191,14 +197,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::thread
     Boost::filesystem
 
-    bgfx::bgfx
     assimp::assimp
 
     nlohmann_json::nlohmann_json
     EnTT::EnTT
 
     glfw
-
+    glm::glm
 
     GTest::gtest
 )

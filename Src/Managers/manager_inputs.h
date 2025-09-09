@@ -3,9 +3,9 @@
 
 #include <unordered_set>
 
-#include "Tools/event_type.h"
+#include "EngineData/event_type.h"
 #include "Tools/interface.h"
-#include "manager_base.h"
+#include "Managers/manager_base.h"
 
 namespace EDD {
 

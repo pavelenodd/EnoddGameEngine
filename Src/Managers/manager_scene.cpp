@@ -1,7 +1,6 @@
 // manager_scene.cpp
 #include "manager_scene.h"
 
-#include <cstdio>
 #include <tuple>
 
 #include "EngineError/engine_logging.h"
@@ -93,14 +92,18 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
     }
     glfw_initialized_ = true;
   }
-  auto existing = GetViewportRef(title);
-  if (existing) {
+
+  // Имена уникализируем по твоей логике
+  if (GetViewportRef(title)) {
     title += " (copy)";
   }
 
-  EDD::Data::Viewport* viewport = new EDD::Data::Viewport();
+
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+  auto* viewport = new EDD::Data::Viewport();
   if (!viewport) {
-    LOG::Fatal(__FILE__, __LINE__) << "Failed to create viewport";
+    LOG::Fatal(__FILE__, __LINE__) << "Failed to allocate Viewport";
     return nullptr;
   }
 
@@ -108,17 +111,18 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
   viewport->w = width;
   viewport->h = height;
 
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwCreateWindow(viewport->w, viewport->h, viewport->title.c_str(), nullptr, nullptr);
+  // СОЗДАЁМ ОДИН РАЗ и сохраняем хэндл!
+  viewport->viewport_window = glfwCreateWindow(
+      viewport->w, viewport->h, viewport->title.c_str(), nullptr, nullptr);
 
   if (!viewport->viewport_window) {
-    glfwTerminate();
+    LOG::Fatal(__FILE__, __LINE__) << "glfwCreateWindow failed";
+    delete viewport;
     return nullptr;
   }
 
   glfwSetWindowUserPointer(viewport->viewport_window, this);
   glfwSetKeyCallback(viewport->viewport_window, &KeyCallback);
-
   return viewport;
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "../EngineError/engine_logging.h"
+#include "EngineError/engine_logging.h"
 namespace EDD {
 namespace Tests {
 class TestManagerRender {

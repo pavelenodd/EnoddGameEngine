@@ -8,9 +8,9 @@
 #include <vector>
 
 #include "EngineData/engine_data.h"
-#include "event_type.h"
-#include "interface.h"
-#include "manager_base.h"
+#include "EngineData/event_type.h"
+#include "Tools/interface.h"
+#include "Managers/manager_base.h"
 
 namespace EDD {
 
