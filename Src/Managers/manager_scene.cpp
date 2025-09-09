@@ -1,3 +1,4 @@
+// manager_scene.cpp
 #include "manager_scene.h"
 
 #include <cstdio>
@@ -107,15 +108,17 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
   viewport->w = width;
   viewport->h = height;
 
-  viewport->viewport_window = glfwCreateWindow(
-      viewport->w, viewport->h, viewport->title.c_str(), NULL, NULL);
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+  glfwCreateWindow(viewport->w, viewport->h, viewport->title.c_str(), nullptr, nullptr);
+
   if (!viewport->viewport_window) {
     glfwTerminate();
     return nullptr;
   }
-  glfwMakeContextCurrent(viewport->viewport_window);
+
   glfwSetWindowUserPointer(viewport->viewport_window, this);
   glfwSetKeyCallback(viewport->viewport_window, &KeyCallback);
+
   return viewport;
 }
 

@@ -104,11 +104,22 @@ class Render : public Base {
       LOG::Fatal(__FILE__, __LINE__) << "Render::InitBGFX - no viewports available";
       return false;
     }
+#if defined(GLFW_EXPOSE_NATIVE_X11)
+    LOG::Debug() << "GLFW native: X11";
+#elif defined(GLFW_EXPOSE_NATIVE_WAYLAND)
+#if defined(ENODD_WAYLAND_USE_EGL)
+    LOG::Debug() << "GLFW native: Wayland + EGL(OpenGL)";
+#else
+    LOG::Debug() << "GLFW native: Wayland + Vulkan";
+#endif
+#else
+    LOG::Debug() << "GLFW native: <undefined>";
+#endif
     for (const auto& viewport : viewports_) {
       if (viewport && viewport->viewport_window) {
         bgfx::Init init;
-        init.type = bgfx::RendererType::Noop;  // Используем Noop для тестирования
-                                               // без рендеринга
+        init.type = bgfx::RendererType::Count;  // Используем Noop для тестирования
+                                                // без рендеринга
         init.resolution.width = viewport->w;
         init.resolution.height = viewport->h;
         init.resolution.reset = BGFX_RESET_VSYNC;
