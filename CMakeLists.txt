@@ -109,7 +109,10 @@ set(ENGINE_SRC
 
     Src/Managers/manager_inputs.h
     Src/Managers/manager_inputs.cpp
-
+    
+    Src/Managers/manager_settings.h
+    Src/Managers/manager_settings.cpp
+    
     Src/Managers/manager_physics.h
 
     Src/Managers/manager_resource.h
