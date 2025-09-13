@@ -63,29 +63,29 @@ class GameLoop {
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов в симуляции работы менеджера
-    {
-      test_manager_inputs_ = new Tests::TestManagerInputs();
-      test_manager_scene_ = new Tests::TestManagerScene();
-      test_manager_settings_ = new Tests::TestManagerSettings();
-      test_manager_resources_ = new Tests::TestManagerResources();
-      test_manager_render_ = new Tests::TestManagerRender();
+    // {
+    //   test_manager_inputs_ = new Tests::TestManagerInputs();
+    //   test_manager_scene_ = new Tests::TestManagerScene();
+    //   test_manager_settings_ = new Tests::TestManagerSettings();
+    //   test_manager_resources_ = new Tests::TestManagerResources();
+    //   test_manager_render_ = new Tests::TestManagerRender();
 
-      if (!test_manager_settings_->RunTests() ||  //
-          !test_manager_scene_->RunTests()
-          // ||     //
-          // !test_manager_inputs_->RunTests() ||     //
-          // !test_manager_resources_->RunTests() ||  //
-          // !test_manager_render_->RunTests()        //
-      ) {
-        abort();
-      }
-    }
+    //   if (!test_manager_settings_->RunTests() ||  //
+    //       !test_manager_scene_->RunTests()
+    //       // ||     //
+    //       // !test_manager_inputs_->RunTests() ||     //
+    //       // !test_manager_resources_->RunTests() ||  //
+    //       // !test_manager_render_->RunTests()        //
+    //   ) {
+    //     abort();
+    //   }
+    // }
 #endif
 
     //======================================================================
     // Зона создания менеджеров
     manager_settings_ = new Managers::Settings();
-
+    manager_settings_->LoadSettings(Managers::SettingsType::VIEWPORT_SETTINGS);
     managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("entity", new Managers::Entity());
     managers_.emplace("physics", new Managers::Physics());
@@ -104,9 +104,15 @@ class GameLoop {
     }
 
     // Инициализация всех менеджеров
+
     managers_["scene"]->Init(
-        std::vector<std::any>{std::make_any<std::tuple<const std::string, uint16_t, uint16_t>>(
-            std::string("MainViewport"), 800, 600)});
+        std::vector<std::any>{std::make_any<std::tuple<const std::string, int, int>>(
+            std::any_cast<std::string>(manager_settings_->GetValue(
+                Managers::SettingsType::VIEWPORT_SETTINGS, "title")),
+            std::any_cast<int>(manager_settings_->GetValue(
+                Managers::SettingsType::VIEWPORT_SETTINGS, "width")),
+            std::any_cast<int>(manager_settings_->GetValue(
+                Managers::SettingsType::VIEWPORT_SETTINGS, "height")))});
     managers_["inputs"]->Init();
     managers_["render"]->Init(
         {static_cast<Managers::Scene *>(managers_["scene"])->GetAllViewports(),

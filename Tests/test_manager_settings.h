@@ -91,7 +91,7 @@ class TestManagerSettings {
       }
       case 0: {
         Test_Assert(sucsess, "All one-time test cases passed");
-
+        settings_manager_->FreeResources();
         std::cout << "\n "
                      "------------------------------------------------------------------------"
                      "------------------------------------------------------------------------"

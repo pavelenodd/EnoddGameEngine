@@ -43,8 +43,8 @@ class TestManagerScene {
         scene_manager_ = new Managers::Scene();
         scene_manager_->Init(std::vector<std::any>{
             std::make_any<std::tuple<const std::string, uint16_t, uint16_t>>(
-                std::string("MainViewport"), 100, 50)});
-        scene_manager_->DestroyViewport("MainViewport");
+                std::string("TestMainViewport"), 100, 50)});
+        scene_manager_->DestroyViewport("TestMainViewport");
         success &= scene_manager_->GetAllViewports().empty();
 
         Test_Assert(success, "Create and Destroy  Test Viewport to title");

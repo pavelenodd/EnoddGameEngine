@@ -14,8 +14,7 @@ void Scene::Init(std::vector<std::any> args) {
   }
   std::tuple<std::string, uint16_t, uint16_t> L_viewport_params;
   try {
-    L_viewport_params = std::any_cast<std::tuple<const std::string, uint16_t, uint16_t>>(
-        args[0]);
+    L_viewport_params = std::any_cast<std::tuple<const std::string, int, int>>(args[0]);
   } catch (const std::bad_any_cast&) {
     LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - invalid viewport parameters";
     return;

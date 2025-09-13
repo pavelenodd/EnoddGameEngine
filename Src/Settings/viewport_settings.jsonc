@@ -2,7 +2,7 @@
     {
         "title": { //Node title
             "type": "string",
-            "value": "Main",
+            "value": "MainViewport",
             "description": "The title of the viewport"
         },
         "width": {
