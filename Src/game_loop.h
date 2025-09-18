@@ -86,12 +86,12 @@ class GameLoop {
     // Зона создания менеджеров
     manager_settings_ = new Managers::Settings();
     manager_settings_->LoadSettings(Managers::SettingsType::VIEWPORT_SETTINGS);
-    managers_.emplace("inputs", new Managers::Inputs());
     managers_.emplace("entity", new Managers::Entity());
     managers_.emplace("physics", new Managers::Physics());
     managers_.emplace("resource", new Managers::Resource());
-    managers_.emplace("render", new Managers::Render());
     managers_.emplace("scene", new Managers::Scene());
+    managers_.emplace("inputs", new Managers::Inputs());
+    managers_.emplace("render", new Managers::Render());
 
     if (managers_.empty()) {
       LOG::Fatal(__FILE__, __LINE__) << "managers list is empty";
@@ -106,13 +106,16 @@ class GameLoop {
     // Инициализация всех менеджеров
 
     managers_["scene"]->Init(
-        std::vector<std::any>{std::make_any<std::tuple<const std::string, int, int>>(
-            std::any_cast<std::string>(manager_settings_->GetValue(
-                Managers::SettingsType::VIEWPORT_SETTINGS, "title")),
-            std::any_cast<int>(manager_settings_->GetValue(
-                Managers::SettingsType::VIEWPORT_SETTINGS, "width")),
-            std::any_cast<int>(manager_settings_->GetValue(
-                Managers::SettingsType::VIEWPORT_SETTINGS, "height")))});
+        //! надо подумать как передавать параметры что бы было явно и безопасно по типизации
+        //! !!!
+        std::vector<std::any>{std::make_any<std::tuple<const std::string, uint16_t, uint16_t>>(
+                                  std::any_cast<std::string>(manager_settings_->GetValue(
+                                      Managers::SettingsType::VIEWPORT_SETTINGS, "title")),
+                                  std::any_cast<int>(manager_settings_->GetValue(
+                                      Managers::SettingsType::VIEWPORT_SETTINGS, "width")),
+                                  std::any_cast<int>(manager_settings_->GetValue(
+                                      Managers::SettingsType::VIEWPORT_SETTINGS, "height"))),
+                              &is_gameloop_enabled_});
     managers_["inputs"]->Init();
     managers_["render"]->Init(
         {static_cast<Managers::Scene *>(managers_["scene"])->GetAllViewports(),

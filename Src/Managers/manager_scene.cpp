@@ -4,25 +4,28 @@
 #include <tuple>
 
 #include "EngineError/engine_logging.h"
+
 using namespace EDD::Managers;
 
 void Scene::Init(std::vector<std::any> args) {
   LOG::Debug() << "Scene::Init called";
-  if (args.size() < 1) {
+  if (args.size() <= 1) {
     LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - insufficient parameters";
     return;
   }
-  std::tuple<std::string, uint16_t, uint16_t> L_viewport_params;
-  try {
-    L_viewport_params = std::any_cast<std::tuple<const std::string, int, int>>(args[0]);
-  } catch (const std::bad_any_cast&) {
-    LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - invalid viewport parameters";
-    return;
-  }
+  {  // init viewport params
+    std::tuple<std::string, uint16_t, uint16_t> L_viewport_params;
+    try {
+      L_viewport_params = std::any_cast<std::tuple<const std::string, uint16_t, uint16_t>>(
+          args[0]);
+    } catch (const std::bad_any_cast&) {
+      LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - invalid viewport parameters";
+      return;
+    }
 
   std::string title = std::get<0>(L_viewport_params);
-  int width = std::get<1>(L_viewport_params);
-  int height = std::get<2>(L_viewport_params);
+  uint16_t width = std::get<1>(L_viewport_params);
+  uint16_t height = std::get<2>(L_viewport_params);
 
   auto viewport = CreateViewport(title, width, height);
   if (!viewport) {
@@ -31,6 +34,16 @@ void Scene::Init(std::vector<std::any> args) {
   }
   viewports_.push_back(viewport);
   LOG::Debug() << "Scene::Init completed successfully";
+  }
+  {  // init gameloop flag
+    try {
+      is_gameloop_enabled_ = std::any_cast<bool*>(args[1]);
+    } catch (const std::bad_any_cast&) {
+      LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - invalid gameloop flag parameter";
+      return;
+    }
+  }
+
   return;
 }
 
@@ -120,8 +133,17 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
     return nullptr;
   }
 
-  glfwSetWindowUserPointer(viewport->viewport_window, this);
+  // подключение glfw колбеки
   glfwSetKeyCallback(viewport->viewport_window, &KeyCallback);
+  // glfwSetWindowUserPointer(viewport->viewport_window, this);
+  glfwSetWindowCloseCallback(viewport->viewport_window, &WindowCloseCallback);
+  // glfwSetWindowFocusCallback(viewport->viewport_window, &WindowFocusCallback);
+  // glfwSetCursorPosCallback(viewport->viewport_window, &CursorPosCallback);
+  // glfwSetMouseButtonCallback(viewport->viewport_window, &MouseButtonCallback);
+  // glfwSetScrollCallback(viewport->viewport_window, &ScrollCallback);
+  // glfwSetCharModsCallback(viewport->viewport_window, &CharModsCallback);
+  // glfwSetDropCallback(viewport->viewport_window, &DropCallback);
+
   return viewport;
 }
 
@@ -135,7 +157,39 @@ void Scene::KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
       scene->key_states_[key] = false;
     }
     // Keep interface_args_ for backward compatibility or single events
-    scene->interface_args_ = {key, scancode, action, mods};
-    LOG::Debug() << "Key event: " << key << " action: " << action;
+    scene->interface_args_.push_back({key, scancode, action, mods});
   }
 }
+void Scene::WindowCloseCallback(GLFWwindow* window) {
+  EDD::LOG::Debug() << "Window close requested";
+  *is_gameloop_enabled_ = false;
+}
+void Scene::WindowFocusCallback(GLFWwindow* window, int focused) {
+  if (focused) {
+    std::cout << "[DEBUG] Window gained focus" << std::endl;
+  } else {
+    std::cout << "[DEBUG] Window lost focus" << std::endl;
+  }
+}
+void Scene::CursorPosCallback(GLFWwindow* window, double x_pos, double y_pos) {
+  std::cout << "[DEBUG] Cursor position: (" << x_pos << ", " << y_pos << ")" << std::endl;
+}
+void Scene::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+  if (action == GLFW_PRESS) {
+    std::cout << "[DEBUG] Mouse button pressed: " << button << std::endl;
+  } else if (action == GLFW_RELEASE) {
+    std::cout << "[DEBUG] Mouse button released: " << button << std::endl;
+  }
+}
+void Scene::ScrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
+  std::cout << "[DEBUG] Scroll: (" << x_offset << ", " << y_offset << ")" << std::endl;
+};
+void Scene::CharModsCallback(GLFWwindow* window, unsigned int codepoint, int mods) {
+  std::cout << "[DEBUG] Char input with mods: " << static_cast<char>(codepoint)
+            << " mods=" << mods << std::endl;
+};
+void Scene::DropCallback(GLFWwindow* window, int count, const char** paths) {
+  for (int i = 0; i < count; i++) {
+    std::cout << "[DEBUG] File dropped: " << paths[i] << std::endl;
+  }
+};

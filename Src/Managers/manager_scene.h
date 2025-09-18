@@ -31,6 +31,7 @@ class Scene : public Base, public InterfaceKeyEvent {
   std::vector<EDD::Data::Viewport*> viewports_;  // List of created viewports
   inline static bool glfw_initialized_ = false;  // Track if GLFW is initialized
   std::unordered_map<int, bool> key_states_;
+  inline static bool* is_gameloop_enabled_ = nullptr;
 
  public:
   Scene() = default;
@@ -92,7 +93,16 @@ class Scene : public Base, public InterfaceKeyEvent {
    */
   EDD::Data::Viewport* CreateViewport(std::string& title, uint16_t width, uint16_t height);
 
+ private:
+  // GLFW Callbacks
   static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+  static void WindowCloseCallback(GLFWwindow* window);
+  static void WindowFocusCallback(GLFWwindow* window, int focused);
+  static void CursorPosCallback(GLFWwindow* window, double x_pos, double y_pos);
+  static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+  static void ScrollCallback(GLFWwindow* window, double x_offset, double y_offset);
+  static void CharModsCallback(GLFWwindow* window, unsigned int code_point, int mods);
+  static void DropCallback(GLFWwindow* window, int count, const char** paths);
 };
 
 }  // namespace Managers
