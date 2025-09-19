@@ -1,27 +1,43 @@
 
     {
         "Mesh": {
-            "path": "Resources/Meshes/"
+            "standard_path": "Assets/Meshes/",
+            "is_custom_path": false,
+            "custom_path": ""
         },
         "Texture": {
-            "path": "Resources/Textures/"
+            "standard_path": "Assets/Textures/",
+            "is_custom_path": false,
+            "custom_path": ""
         },
         "Audio": {
-            "path": "Resources/Audio/"
+            "standard_path": "Assets/Audio/",
+            "is_custom_path": false,
+            "custom_path": ""
         },
         "Font": {
-            "path": "Resources/Fonts/"
+            "standard_path": "Assets/Fonts/",
+            "is_custom_path": false,
+            "custom_path": ""
         },
         "Model": {
-            "path": "Resources/Models/"
+            "standard_path": "Assets/Models/",
+            "is_custom_path": false,
+            "custom_path": ""
         },
         "Animation": {
-            "path": "Resources/Animations/"
+            "standard_path": "Assets/Animations/",
+            "is_custom_path": false,
+            "custom_path": ""
         },
         "Shader": {
-            "path": "Resources/Shaders/"
+            "standard_path": "Assets/Shaders/",
+            "is_custom_path": false,
+            "custom_path": ""
         },
         "Script": {
-            "path": "Resources/Scripts/"
+            "standard_path": "Assets/Scripts/",
+            "is_custom_path": false,
+            "custom_path": ""
         }
     }

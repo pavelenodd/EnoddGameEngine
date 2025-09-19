@@ -5,6 +5,8 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 //
 // #include "EngineData/engine_data.h"
 #include "EngineError/engine_logging.h"
@@ -116,20 +118,31 @@ class GameLoop {
                                   std::any_cast<int>(manager_settings_->GetValue(
                                       Managers::SettingsType::VIEWPORT_SETTINGS, "height"))),
                               &is_gameloop_enabled_});
-    managers_["inputs"]->Init();
     managers_["render"]->Init(
         {static_cast<Managers::Scene *>(managers_["scene"])->GetAllViewports(),
          static_cast<Managers::Entity *>(managers_["entity"]),
          Managers::RenderType::RENDER_2D});
-    managers_["resource"]->Init({"Resources/Animations",
-                                 "Resources/Audio",
-                                 "Resources/Fonts",
-                                 "Resources/Images",
-                                 "Resources/Meshs",
-                                 "Resources/Models",
-                                 "Resources/Scripts",
-                                 "Resources/Shaders",
-                                 {"Resources/Textures/test.png"}});
+    managers_["resource"]->Init(std::vector<std::any>{
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Animation,
+                                                        "Assets/Animations/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Audio,
+                                                        "Assets/Audio/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Font,
+                                                        "Assets/Fonts/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Image,
+                                                        "Assets/Images/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Mesh,
+                                                        "Assets/Meshes/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Model,
+                                                        "Assets/Models/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Script,
+                                                        "Assets/Scripts/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Shader,
+                                                        "Assets/Shaders/"}},
+        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Texture,
+                                                        "Assets/Textures/"}},
+    });
+    managers_["entity"]->Init();
     managers_["entity"]->Init();
     managers_["physics"]->Init();
 

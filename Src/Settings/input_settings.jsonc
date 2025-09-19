@@ -1,0 +1,19 @@
+{ //бинды на перефирию 
+    "engine_binds": {
+        "keyboard": {},
+        "mouse": {}
+    },
+    "game_binds": {
+        "keyboard": {
+            "up": "W",
+            "down": "S",
+            "left": "A",
+            "right": "D",
+            "action": "SPACE"
+        },
+        "mouse": {
+            "sensitivity": 1.0,
+            "invert_y": false
+        }
+    }
+}

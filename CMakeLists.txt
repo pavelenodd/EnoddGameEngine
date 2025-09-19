@@ -79,6 +79,20 @@ find_package(assimp REQUIRED)
 find_package(EnTT REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)  
+find_path(STB_INCLUDE_DIR stb/stb_image.h)
+
+# ! это пример по которому надо ориентироваться на подключение библиотек
+# ! если библиотека не найдена, то либо ставим её в систему, либо используем FetchContent
+if (NOT STB_INCLUDE_DIR)
+  message(FATAL_ERROR "stb headers not found. Install libstb-dev.")
+endif()
+add_library(stb INTERFACE)
+add_library(stb::stb ALIAS stb)
+target_include_directories(stb INTERFACE ${STB_INCLUDE_DIR})
+message(STATUS "stb include dir: ${STB_INCLUDE_DIR}")
+
+
+
 find_package(volk QUIET)     # даёт volk::volk
 if (volk_FOUND)
   add_compile_definitions(EGE_USE_VOLK)
@@ -116,6 +130,8 @@ set(ENGINE_SRC
     Src/Managers/manager_physics.h
 
     Src/Managers/manager_resource.h
+    Src/Managers/manager_resource.cpp
+
     Src/Managers/Items/audio.h
     Src/Managers/Items/font.h
     Src/Managers/Items/model.h
@@ -204,7 +220,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
     nlohmann_json::nlohmann_json
     EnTT::EnTT
-
+    stb::stb
     glfw
     glm::glm
 
@@ -224,10 +240,10 @@ add_custom_command(
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/build/Engine/Resources
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/build/Engine/Assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/Src/Resources
-            ${CMAKE_SOURCE_DIR}/build/Engine/Resources
+            ${CMAKE_SOURCE_DIR}/Src/Assets
+            ${CMAKE_SOURCE_DIR}/build/Engine/Assets
 )
 
 # === Тесты ==================================================================
