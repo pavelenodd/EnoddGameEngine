@@ -70,13 +70,13 @@ class Resource : public Managers::Base {
   virtual void Init(std::vector<std::any> args) override {
     LOG::Debug() << "Resource manager initialized.";
     if (args.size() < 1) {
-      EDD::LOG::Fatal(__FILE__, __LINE__)
+      EDD::LOG::Fatal(__PRETTY_FUNCTION__, __LINE__)
           << "Resource manager initialization failed. No resource paths provided.";
       abort();
     }
     for (const auto& arg : args) {
       if (arg.type() != typeid(std::pair<ResourceType, std::string>)) {
-        EDD::LOG::Fatal(__FILE__, __LINE__)
+        EDD::LOG::Fatal(__PRETTY_FUNCTION__, __LINE__)
             << "Resource manager initialization failed. Invalid argument type.";
         continue;
       }
@@ -85,7 +85,7 @@ class Resource : public Managers::Base {
       search_paths_[type] = path;
     }
     if (search_paths_[ResourceType::Texture].empty()) {
-      EDD::LOG::Fatal(__FILE__, __LINE__)
+      EDD::LOG::Fatal(__PRETTY_FUNCTION__, __LINE__)
           << "Resource manager initialization failed. No texture path provided.";
       abort();
     }
@@ -119,7 +119,7 @@ class Resource : public Managers::Base {
           LoadTexture(path);
           break;
         default:
-          EDD::LOG::Warning(__FILE__, __LINE__) << "Unknown resource type.";
+          EDD::LOG::Warning(__PRETTY_FUNCTION__, __LINE__) << "Unknown resource type.";
           break;
       }
     }

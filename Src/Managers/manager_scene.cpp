@@ -10,7 +10,7 @@ using namespace EDD::Managers;
 void Scene::Init(std::vector<std::any> args) {
   LOG::Debug() << "Scene::Init called";
   if (args.size() <= 1) {
-    LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - insufficient parameters";
+    LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Scene::Init - insufficient parameters";
     return;
   }
   {  // init viewport params
@@ -19,7 +19,7 @@ void Scene::Init(std::vector<std::any> args) {
       L_viewport_params = std::any_cast<std::tuple<const std::string, uint16_t, uint16_t>>(
           args[0]);
     } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - invalid viewport parameters";
+      LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Scene::Init - invalid viewport parameters";
       return;
     }
 
@@ -29,7 +29,7 @@ void Scene::Init(std::vector<std::any> args) {
 
   auto viewport = CreateViewport(title, width, height);
   if (!viewport) {
-    LOG::Fatal(__FILE__, __LINE__) << "Failed to create initial viewport";
+    LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Failed to create initial viewport";
     return;
   }
   viewports_.push_back(viewport);
@@ -39,7 +39,7 @@ void Scene::Init(std::vector<std::any> args) {
     try {
       is_gameloop_enabled_ = std::any_cast<bool*>(args[1]);
     } catch (const std::bad_any_cast&) {
-      LOG::Fatal(__FILE__, __LINE__) << "Scene::Init - invalid gameloop flag parameter";
+      LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Scene::Init - invalid gameloop flag parameter";
       return;
     }
   }
@@ -88,7 +88,7 @@ EDD::Data::Viewport* Scene::GetViewportRef(const std::string& title) const {
 
 std::vector<EDD::Data::Viewport*> Scene::GetAllViewports() const {
   if (viewports_.empty()) {
-    LOG::Warning(__FILE__, __LINE__) << "No viewports available";
+    LOG::Warning(__PRETTY_FUNCTION__, __LINE__) << "No viewports available";
     return {};
   }
   return viewports_;
@@ -99,7 +99,7 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
                                            uint16_t height) {
   if (!glfw_initialized_) {
     if (!glfwInit()) {
-      LOG::Fatal(__FILE__, __LINE__) << "Failed to initialize GLFW";
+      LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Failed to initialize GLFW";
       return nullptr;
     }
     glfw_initialized_ = true;
@@ -115,7 +115,7 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
 
   auto* viewport = new EDD::Data::Viewport();
   if (!viewport) {
-    LOG::Fatal(__FILE__, __LINE__) << "Failed to allocate Viewport";
+    LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Failed to allocate Viewport";
     return nullptr;
   }
 
@@ -128,7 +128,7 @@ EDD::Data::Viewport* Scene::CreateViewport(std::string& title,
       viewport->w, viewport->h, viewport->title.c_str(), nullptr, nullptr);
 
   if (!viewport->viewport_window) {
-    LOG::Fatal(__FILE__, __LINE__) << "glfwCreateWindow failed";
+    LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "glfwCreateWindow failed";
     delete viewport;
     return nullptr;
   }

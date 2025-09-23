@@ -14,7 +14,7 @@ class TestManagerResources {
     if (condition) {
       TEST_LOG::SuccessMessage() << "[TEST][Resources] Assert passed: " << msg;
     } else {
-      TEST_LOG::FailedMessage(__FILE__, __LINE__)
+      TEST_LOG::FailedMessage(__PRETTY_FUNCTION__, __LINE__)
           << "[TEST][Resources] Assert failed: " << msg;
     }
   };

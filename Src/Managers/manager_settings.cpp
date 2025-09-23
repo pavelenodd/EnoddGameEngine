@@ -21,18 +21,18 @@ bool Settings::LoadSettings(SettingsType type) {
     }
     return all_ok;
   }
-  std::ifstream ifs(settings_paths_.at(type));
-  if (!ifs.is_open()) {
+  std::ifstream L_ifs(settings_paths_.at(type));
+  if (!L_ifs.is_open()) {
     LOG::Error() << "Failed to open file for read: " << settings_paths_.at(type);
     return false;
   }
   try {
-    nlohmann::json parsed = nlohmann::json::parse(ifs, nullptr, true, true);
-    settings_map_[type] = std::move(parsed);
+    nlohmann::json L_parsed = nlohmann::json::parse(L_ifs, nullptr, true, true);
+    settings_map_[type] = std::move(L_parsed);
     LOG::Debug() << "Settings loaded from " << settings_paths_.at(type);
     return true;
-  } catch (const std::exception &e) {
-    LOG::Error() << "Parse error: " << e.what();
+  } catch (const std::exception &L_e) {
+    LOG::Error() << "Parse error: " << L_e.what();
     return false;
   }
 }
@@ -42,26 +42,26 @@ bool Settings::SaveSettings(SettingsType type) {
     return false;
   }
   if (type == ALL_SETTINGS) {
-    bool all_ok = true;
-    for (const auto &[key, value] : settings_map_) {
-      if (!SaveSettings(key)) {
-        all_ok = false;
+    bool L_all_ok = true;
+    for (const auto &[L_key, L_value] : settings_map_) {
+      if (!SaveSettings(L_key)) {
+        L_all_ok = false;
       }
     }
-    return all_ok;
+    return L_all_ok;
   }
-  auto it = settings_map_.find(type);
-  if (it == settings_map_.end()) {
+  auto L_it = settings_map_.find(type);
+  if (L_it == settings_map_.end()) {
     LOG::Error() << "No settings loaded for type";
     return false;
   }
-  std::ofstream ofs(settings_paths_.at(type), std::ios::out | std::ios::trunc);
-  if (!ofs.is_open()) {
+  std::ofstream L_ofs(settings_paths_.at(type), std::ios::out | std::ios::trunc);
+  if (!L_ofs.is_open()) {
     LOG::Error() << "Failed to open file for write: " << settings_paths_.at(type);
     return false;
   }
-  ofs << it->second.dump(4) << '\n';
-  if (!ofs.good()) {
+  L_ofs << L_it->second.dump(4) << '\n';
+  if (!L_ofs.good()) {
     LOG::Error() << "Write error: " << settings_paths_.at(type);
     return false;
   }
@@ -92,12 +92,12 @@ bool Settings::SetValue(SettingsType type,
   }
   const nlohmann::json &node = root.at(key);
   if (!node.is_object()) {
-    LOG::Error(__func__, __LINE__) << " GetValue: node is not object";
+    LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not object";
     return false;
   }
 
   if (!node.contains("value")) {
-    LOG::Error(__func__, __LINE__) << " GetValue: node is not contains \"value\"";
+    LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not contains \"value\"";
     return false;
   }
   settings_map_.find(type)->second[key]["value"] = AnyToJson(value,
@@ -120,11 +120,11 @@ std::any Settings::GetValue(SettingsType type, const std::string &key) {
   const nlohmann::json &node = root.at(key);
 
   if (!node.is_object()) {
-    LOG::Error(__func__, __LINE__) << " GetValue: node is not object";
+    LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not object";
   }
 
   if (!node.contains("value")) {
-    LOG::Error(__func__, __LINE__) << " GetValue: node is not contains \"value\"";
+    LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not contains \"value\"";
   }
 
   return JsonToAny(node["value"], node["type"].get<std::string>());

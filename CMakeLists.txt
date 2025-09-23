@@ -156,6 +156,21 @@ set(ENGINE_SRC
     Src/Tools/json_reader.h
 )
 
+# Compile shaders
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.vert.spv
+    COMMAND Vulkan::glslc ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.vert -o ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.vert.spv
+    DEPENDS ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.vert
+    COMMENT "Compiling vertex shader"
+)
+
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.frag.spv
+    COMMAND Vulkan::glslc ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.frag -o ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.frag.spv
+    DEPENDS ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.frag
+    COMMENT "Compiling fragment shader"
+)
+
 set(TEST_ENGINE_SRC
     Tests/test_manager_inputs.h
     Tests/test_manager_render.h
@@ -172,6 +187,8 @@ add_executable(${PROJECT_NAME}
     ${ENGINE_SRC}
     ${TEST_ENGINE_SRC}
     ${TEST_GAME_SRC}
+    ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.vert.spv
+    ${CMAKE_SOURCE_DIR}/Src/Assets/Shaders/simple.frag.spv
 )
 
 # === Флаги/Опции компиляции =================================================

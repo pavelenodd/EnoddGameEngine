@@ -48,7 +48,7 @@ class GameLoop {
  public:
   explicit GameLoop() {
     if (!Init()) {
-      LOG::Fatal(__FILE__, __LINE__) << "game loop initialization failed";
+      LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "game loop initialization failed";
       abort();
     }
   }
@@ -96,12 +96,12 @@ class GameLoop {
     managers_.emplace("render", new Managers::Render());
 
     if (managers_.empty()) {
-      LOG::Fatal(__FILE__, __LINE__) << "managers list is empty";
+      LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "managers list is empty";
       abort();
     }
 
     if (!manager_settings_) {
-      LOG::Fatal(__FILE__, __LINE__) << "manager_settings_ is null";
+      LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "manager_settings_ is null";
       abort();
     }
 
@@ -154,23 +154,27 @@ class GameLoop {
     //=====================================================================
 #ifdef DEBUG
     // INFO место тестов
-    // {
-    //   test_manager_settings_->SetManager(manager_settings_);
-    //   test_manager_scene_->SetManager(static_cast<Managers::Scene
-    //   *>(managers_.at("scene")));
-    //   // test_manager_inputs_->SetManager(
-    //   //     static_cast<Inputs *>(managers_.at("inputs")));
-    //   // test_manager_resources_->SetManager(
-    //   //     static_cast<Resource *>(managers_.at("resource")));
-    //   // test_manager_render_->SetManager(
-    //   //     static_cast<Render *>(managers_.at("render")));
+    {
+      //   test_manager_settings_->SetManager(manager_settings_);
+      //   test_manager_scene_->SetManager(static_cast<Managers::Scene
+      //   *>(managers_.at("scene")));
+      //   // test_manager_inputs_->SetManager(
+      //   //     static_cast<Inputs *>(managers_.at("inputs")));
+      //   // test_manager_resources_->SetManager(
+      //   //     static_cast<Resource *>(managers_.at("resource")));
+      //   // test_manager_render_->SetManager(
+      //   //     static_cast<Render *>(managers_.at("render")));
 
-    //   if (!test_manager_settings_->RunTests() || !test_manager_scene_->RunTests() ||
-    //       !test_manager_inputs_->RunTests() || !test_manager_resources_->RunTests() ||
-    //       !test_manager_render_->RunTests()) {
-    //     abort();
-    //   }
-    // }
+      //   if (!test_manager_settings_->RunTests() || !test_manager_scene_->RunTests() ||
+      //       !test_manager_inputs_->RunTests() || !test_manager_resources_->RunTests() ||
+      //       !test_manager_render_->RunTests()) {
+      //     abort();
+      //   }
+      Coord testCoord(
+          0.0f, 10.0f, 10.0f, 0, 100, 100, 255);  // Красный цвет (R=255, G=0, B=0, A=255)
+      static_cast<Managers::Entity *>(managers_.at("entity"))
+          ->CreateEntityWithCoord("TestEntity", testCoord);
+    }
 #endif
     return true;
   }
@@ -199,9 +203,9 @@ class GameLoop {
     }
 
     if (manager_settings_->SaveSettings(Managers::SettingsType::ALL_SETTINGS) == true) {
-      LOG::Info(__FILE__) << "Settings saved successfully";
+      LOG::Info(__PRETTY_FUNCTION__) << "Settings saved successfully";
     } else {
-      LOG::Fatal(__FILE__, __LINE__) << "Failed to save some settings";
+      LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Failed to save some settings";
     }
     manager_settings_->FreeResources();  // Освобождаем память
   }
