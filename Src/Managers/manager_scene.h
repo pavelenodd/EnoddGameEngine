@@ -22,6 +22,9 @@ struct SceneInspector;  // forward declaration
 
 namespace Managers {
 using InterfaceKeyEvent = Tools::Interface<Tools::EventTypes::KeyEvent>;
+// <- [WARNING]
+//       множественное наследование может привести к Diamond Problem,
+//       высокое связывание с GLFW API, статическое состояние затрудняет тестирование
 class Scene : public Base, public InterfaceKeyEvent {
 #if defined(DEBUG)
   friend struct EDD::Tests::SceneInspector;
@@ -31,6 +34,9 @@ class Scene : public Base, public InterfaceKeyEvent {
   std::vector<EDD::Data::Viewport*> viewports_;  // List of created viewports
   inline static bool glfw_initialized_ = false;  // Track if GLFW is initialized
   std::unordered_map<int, bool> key_states_;
+  // <- [WARNING]
+  //       глобальное статическое состояние через указатель, потенциальные race conditions,
+  //       нарушение инкапсуляции - внешний код управляет внутренним состоянием
   inline static bool* is_gameloop_enabled_ = nullptr;
 
  public:
@@ -94,6 +100,9 @@ class Scene : public Base, public InterfaceKeyEvent {
   EDD::Data::Viewport* CreateViewport(std::string& title, uint16_t width, uint16_t height);
 
  private:
+  // <- [WARNING]
+  //       статические callback функции усложняют доступ к состоянию объекта,
+  //       отсутствует типобезопасность при glfwSetWindowUserPointer/glfwGetWindowUserPointer
   // GLFW Callbacks
   static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
   static void WindowCloseCallback(GLFWwindow* window);

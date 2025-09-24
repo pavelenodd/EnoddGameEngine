@@ -22,6 +22,8 @@ namespace Managers {
   Менеджер ввода отвечает за обработку событий ввода от пользователя.
   все события, которые он принимает передаётся в интерфейс Tools::Interface<KeyEvent>.
   */
+// <- [WARNING] класс объединяет Observer и Subject паттерны, рассмотреть разделение
+// обязанностей
 using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
 class Inputs : public Base, public InterfaceKeyEvent {
  private:

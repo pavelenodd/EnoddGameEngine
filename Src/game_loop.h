@@ -30,16 +30,18 @@ class GameLoop {
  private:
   //======================================================================
 #ifdef DEBUG
-  Tests::TestManagerInputs *test_manager_inputs_;  // тесты менеджера ввода
-  Tests::TestManagerScene *test_manager_scene_;    // тесты менеджера сцены
+  Tests::TestManagerInputs *test_manager_inputs_;        // тесты менеджера ввода
+  Tests::TestManagerScene *test_manager_scene_;          // тесты менеджера сцены
   Tests::TestManagerSettings *test_manager_settings_;    // тесты менеджера настроек
   Tests::TestManagerResources *test_manager_resources_;  // тесты менеджера ресурсов
   Tests::TestManagerRender *test_manager_render_;        // тесты менеджера рендеринга
 #endif
   //======================================================================
  public:
-  bool is_gameloop_enabled_ = false;  // флаг активности игрового цикла
+  bool is_gameloop_enabled = false;  // флаг активности игрового цикла
 
+  // <- [WARNING] нарушение принципа единственной ответственности, GameLoop выполняет слишком
+  // много обязанностей
   // TODO: надо перевести в пулл объектов
   //  список менеджеров
   std::unordered_map<std::string, Managers::Base *> managers_;
@@ -61,6 +63,8 @@ class GameLoop {
   GameLoop &operator=(GameLoop &&) = delete;
 
  private:
+  // <- [WARNING] множественные обязанности в Init() - создание менеджеров, инициализация,
+  // подписка на события
   bool Init() {
     //=====================================================================
 #ifdef DEBUG
@@ -117,7 +121,7 @@ class GameLoop {
                                       Managers::SettingsType::VIEWPORT_SETTINGS, "width")),
                                   std::any_cast<int>(manager_settings_->GetValue(
                                       Managers::SettingsType::VIEWPORT_SETTINGS, "height"))),
-                              &is_gameloop_enabled_});
+                              &is_gameloop_enabled});
     managers_["render"]->Init(
         {static_cast<Managers::Scene *>(managers_["scene"])->GetAllViewports(),
          static_cast<Managers::Entity *>(managers_["entity"]),
@@ -142,6 +146,7 @@ class GameLoop {
         {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Texture,
                                                         "Assets/Textures/"}},
     });
+    // <- [WARNING] дублирование кода managers_["entity"]->Init() вызывается дважды
     managers_["entity"]->Init();
     managers_["entity"]->Init();
     managers_["physics"]->Init();
@@ -179,18 +184,18 @@ class GameLoop {
     return true;
   }
 
-  // TODO сделать вывод отладки у менеджеров для проверки работы
+  // <- [WARNING] высокая цикломатическая сложность, рассмотреть разбиение на подфункции
   void EngineLoop() {
-    while (is_gameloop_enabled_) {
-      for (auto manager : managers_) {
-        manager.second->Update();
+    while (is_gameloop_enabled) {
+      for (auto L_manager : managers_) {
+        L_manager.second->Update();
 #ifdef DEBUG
         {
           // // Запуск тестов
-          // if (dynamic_cast<Managers::Inputs *>(manager.second)) {
+          // if (dynamic_cast<Managers::Inputs *>(L_manager.second)) {
           //   test_manager_inputs_->RunTests();
           // }
-          // if (dynamic_cast<Managers::Scene *>(manager.second)) {
+          // if (dynamic_cast<Managers::Scene *>(L_manager.second)) {
           //   test_manager_scene_->RunTests();
           // }
         }
@@ -198,10 +203,9 @@ class GameLoop {
       }
     }
 
-    for (auto manager : managers_) {
-      manager.second->FreeResources();  // Освобождаем память
+    for (auto L_manager : managers_) {
+      L_manager.second->FreeResources();  // Освобождаем память
     }
-
     if (manager_settings_->SaveSettings(Managers::SettingsType::ALL_SETTINGS) == true) {
       LOG::Info(__PRETTY_FUNCTION__) << "Settings saved successfully";
     } else {
@@ -213,12 +217,12 @@ class GameLoop {
   // INFO методы для управления игровым циклом
  public:
   void StartLoop() {
-    is_gameloop_enabled_ = true;
+    is_gameloop_enabled = true;
     EngineLoop();
   }
 
   void StopLoop() {
-    is_gameloop_enabled_ = false;
+    is_gameloop_enabled = false;
   }
   Managers::Inputs *GetInputsManager() {
     return static_cast<Managers::Inputs *>(managers_.at("inputs"));

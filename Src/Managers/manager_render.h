@@ -1,28 +1,72 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 #include <any>
 #include <cstdint>
+#include <glm/glm.hpp>
+#include <string>
 #include <vector>
 
 #include "EngineData/engine_data.h"
 #include "manager_base.h"
 #include "manager_entity.h"
+#include "manager_resource.h"
 
 namespace Managers {
 class Entity;
 }
-
 namespace EDD {
 namespace Managers {
 
+/**
+ * @brief Типы рендеринга
+ *
+ */
 enum class RenderType { RENDER_2D = 0, RENDER_3D = 1 };
 
+/**
+ * @brief Настройки рендеринга полученные из конфигурационного файла
+ *
+ */
+struct RenderSettings {
+  // Цвет очистки экрана (RGBA, 0.0-1.0)
+  glm::vec4 clear_color = {0.0f, 0.0f, 0.0f, 1.0f};  // Черный по умолчанию
+
+  // Пути к шейдерам
+  std::string vertex_shader_path = "Assets/Shaders/simple.vert.spv";
+  std::string fragment_shader_path = "Assets/Shaders/simple.frag.spv";
+
+  // Настройки pipeline
+  VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+  // Режим отсечения (culling)
+  VkCullModeFlags cull_mode = VK_CULL_MODE_BACK_BIT;
+  // Режим смешивания (blending)
+  VkBool32 blend_enable = VK_FALSE;
+  // Флаг мультисэмплинга(антиалиасинг)
+  VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_4_BIT;  // Для MSAA
+
+  // Вершинные данные (для простоты, массив glm::vec2 позиций + glm::vec3 цветов)
+  std::vector<glm::vec2> vertex_positions = {
+      {-0.5f, -0.5f}, {0.5f, -0.5f}, {0.5f, 0.5f}, {-0.5f, 0.5f}};
+  std::vector<glm::vec3> vertex_colors = {
+      {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}};
+
+  // Дополнительно: можно добавить настройки multisampling, depth и т.д.
+};
+
+// <- [WARNING]
+//       чрезмерно большой класс (40+ приватных полей), нарушение принципа единственной
+//       ответственности, высокое связывание с Vulkan API, рассмотреть разделение на
+//       VulkanDevice, VulkanSwapchain, VulkanPipeline
 class Render : public Base {
  private:
   std::vector<EDD::Data::Viewport*> viewports_ = {};  // список вьюпортов
+
   EDD::Managers::Entity* entity_manager_ = nullptr;   // менеджер сущностей
+  EDD::Managers::Resource* resource_manager_ = nullptr;  // менеджер ресурсов
   RenderType render_type_ = RenderType::RENDER_2D;    // тип рендера
   bool initialized_ = false;                          // флаг инициализации менеджера
 
@@ -47,6 +91,11 @@ class Render : public Base {
   std::vector<VkFence> in_flight_fences_;
   uint32_t graphics_queue_family_index_ = UINT32_MAX;
   uint32_t present_queue_family_index_ = UINT32_MAX;
+
+  // MSAA resources
+  std::vector<VkImage> multisample_images_;
+  std::vector<VkDeviceMemory> multisample_image_memories_;
+  std::vector<VkImageView> multisample_image_views_;
 
   // Graphics pipeline resources
   VkShaderModule vert_shader_module_ = VK_NULL_HANDLE;
@@ -186,7 +235,7 @@ class Render : public Base {
    * @param properties свойства памяти
    * @return uint32_t индекс типа памяти
    */
-  uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+  uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
   /**
    * @brief Отрисовка кадра
@@ -194,6 +243,20 @@ class Render : public Base {
    */
   void DrawFrame();
 
+  /**
+   * @brief Отрисовка экрана
+   *
+   * @param viewport_index индекс вьюпорта
+   */
+  void RenderScreen(size_t viewport_index);
+
+  /**
+   * @brief Отрисовка сущностей
+   *
+   * @param command_buffer командный буфер
+   * @param viewport_index индекс вьюпорта
+   */
+  void RenderEntities(VkCommandBuffer command_buffer, size_t viewport_index);
   /**
    * @brief Очистка кадра
    *

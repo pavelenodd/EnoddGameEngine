@@ -18,6 +18,11 @@ namespace EDD::Managers {
   Менеджер сущностей (Entity Manager)
      Отвечает за создание, удаление, поиск и управление компонентами сущностей.
  */
+/*
+Рекомендация: Разделить на подклассы (EntityCreator, ComponentManager, EntityQuery)
+*/
+// <- [WARNING] потенциально высокое количество методов, рассмотреть разделение обязанностей на
+// подклассы
 class Entity : public Base {
  private:
   entt::registry registry_;  ///< Основной реестр EnTT
@@ -51,9 +56,9 @@ class Entity : public Base {
     LOG::Debug() << "Entity::Init called";
     if (args.size() > 2) {
       named_entities_.reserve(std::any_cast<std::size_t>(args[0]));
-      auto& names = std::any_cast<std::vector<std::string>&>(args[1]);
-      for (const auto& name : names) {
-        named_entities_[name] = entt::null;  // Изначально сущности не созданы
+      auto& L_names = std::any_cast<std::vector<std::string>&>(args[1]);
+      for (const auto& L_name : L_names) {
+        named_entities_[L_name] = entt::null;  // Изначально сущности не созданы
       }
     }
     LOG::Debug() << "Entity::Init completed successfully";
@@ -80,11 +85,11 @@ class Entity : public Base {
       LOG::Debug("Entity created without name.");
       return registry_.create();
     }
-    auto entity = registry_.create();
-    named_entities_[name] = entity;
+    auto L_entity = registry_.create();
+    named_entities_[name] = L_entity;
     LOG::Debug("Entity '" + name +
-               "' created with name: " + std::to_string(entt::to_integral(entity)));
-    return entity;
+               "' created with name: " + std::to_string(entt::to_integral(L_entity)));
+    return L_entity;
   }
   /**
    * @brief Создать именованную сущность с компонентом координат
@@ -93,32 +98,33 @@ class Entity : public Base {
    * @return Идентификатор созданной сущности
    */
   entt::entity CreateEntityWithCoord(const std::string& name, Coord coords) {
-    auto entity = CreateEntity(name);
-    AddComponent<Coord>(entity, coords);
-    return entity;
+    auto L_entity = CreateEntity(name);
+    AddComponent<Coord>(L_entity, coords);
+    return L_entity;
   }
 
   bool DestroyEntityByName(const std::string& name) {
-    auto entity = GetEntityByName(name);
-    if (entity == entt::null) {
+    auto L_entity = GetEntityByName(name);
+    if (L_entity == entt::null) {
       LOG::Debug("Entity with name '" + name + "' not found.");
       return false;
     }
-    auto it = std::find_if(named_entities_.begin(),
-                           named_entities_.end(),
-                           [entity](const auto& pair) { return pair.second == entity; });
-    named_entities_.erase(it);
+    auto L_it = std::find_if(named_entities_.begin(),
+                             named_entities_.end(),
+                             [L_entity](const auto& pair) { return pair.second == L_entity; });
+    named_entities_.erase(L_it);
 
-    DestroyEntity(entity);
+    DestroyEntity(L_entity);
     LOG::Debug("Entity with name '" + name + "' destroyed.");
     return true;
   }
   std::list<entt::entity> GetAllEntities() const {
-    std::list<entt::entity> entities;
-    for (auto&& entt : *registry_.storage<entt::entity>()) {
-      entities.push_back(entt);
+    // <- [WARNING] алгоритмическая сложность O(n), рассмотреть кэширование для частых вызовов
+    std::list<entt::entity> L_entities;
+    for (auto&& L_entt : *registry_.storage<entt::entity>()) {
+      L_entities.push_back(L_entt);
     }
-    return entities;
+    return L_entities;
   }
   /**
    * @brief Найти сущность по имени
@@ -266,8 +272,8 @@ class Entity : public Base {
    */
   template <typename... Components, typename Func>
   void ForEach(Func&& func) {
-    auto view = registry_.view<Components...>();
-    view.each(std::forward<Func>(func));
+    auto L_view = registry_.view<Components...>();
+    L_view.each(std::forward<Func>(func));
   }
 
   /**
@@ -309,12 +315,13 @@ class Entity : public Base {
    * @return Количество сущностей
    */
   std::size_t GetEntityCount() const {
-    // Подсчет через итерацию всех сущностей
-    std::size_t count = 0;
-    for (auto entity : registry_.view<entt::entity>()) {
-      ++count;
+    // <- [WARNING] алгоритмическая сложность O(n), подсчет через итерацию всех сущностей
+    std::size_t L_count = 0;
+    for (auto L_entity : registry_.view<entt::entity>()) {
+      (void)L_entity;  // подавление предупреждения о неиспользуемой переменной
+      ++L_count;
     }
-    return count;
+    return L_count;
   }
 
   /**

@@ -37,6 +37,7 @@ enum ResourceType {
 
 */
 class Resource : public Managers::Base {
+  private:
   struct ImgData {
     std::string name;
     int width = 0;
@@ -45,8 +46,6 @@ class Resource : public Managers::Base {
     stbi_uc* data = nullptr;
   };
 
- public:
- private:
   // std::map<std::string, sf::Texture> textures_;  // хранилище текстур
   std::unordered_map<ResourceType, std::string> search_paths_ = {{ResourceType::Animation, ""},
                                                                  {ResourceType::Audio, ""},
@@ -67,6 +66,9 @@ class Resource : public Managers::Base {
    * @brief Initialization of a resource manager
    * @param args List of arguments for initialization (local resource paths)
    */
+  // <- [WARNING]
+  //       высокая сложность инициализации (50+ строк), множественные ответственности,
+  //       использование abort() критично для стабильности, отсутствует обработка исключений
   virtual void Init(std::vector<std::any> args) override {
     LOG::Debug() << "Resource manager initialized.";
     if (args.size() < 1) {
@@ -89,6 +91,9 @@ class Resource : public Managers::Base {
           << "Resource manager initialization failed. No texture path provided.";
       abort();
     }
+    // <- [WARNING]
+    //       алгоритмическая сложность O(n*m), где n - типы ресурсов, m - файлы в директории,
+    //       блокирующая загрузка всех ресурсов может замедлить инициализацию
     for (const auto& [type, path] : search_paths_) {
       switch (type) {
         case ResourceType::Animation:
@@ -146,35 +151,39 @@ class Resource : public Managers::Base {
   void LoadScript(const std::string& path) {}
   void LoadShader(const std::string& path) {}
 
+  // <- [WARNING]
+  //       отсутствует проверка расширений файлов, может загружать неподходящие файлы,
+  //       алгоритмическая сложность O(n) для recursive_directory_iterator,
+  //       потенциальные утечки памяти при неудачной загрузке stbi_load
   void LoadTexture(const std::string& path) {
     namespace fs = std::filesystem;
     if (!fs::exists(path) || !fs::is_directory(path)) {
       LOG::Warning() << "Texture path does not exist or is not a directory: " << path;
       return;
     }
-    std::list<std::string> file_list;
-    for (const auto& entry : fs::recursive_directory_iterator(path)) {
-      if (entry.is_regular_file()) {
-        file_list.push_back(entry.path().string());
+    std::list<std::string> L_file_list;
+    for (const auto& L_entry : fs::recursive_directory_iterator(path)) {
+      if (L_entry.is_regular_file()) {
+        L_file_list.push_back(L_entry.path().string());
       }
     }
-    if (file_list.empty()) {
+    if (L_file_list.empty()) {
       LOG::Warning() << "No texture files found in directory: " << path;
       return;
     }
-    for (const auto& file_path : file_list) {
+    for (const auto& L_file_path : L_file_list) {
       ImgData L_img_data;
 
       L_img_data.data = stbi_load(
-          file_path.c_str(), &L_img_data.width, &L_img_data.height, &L_img_data.channels, 0);
+          L_file_path.c_str(), &L_img_data.width, &L_img_data.height, &L_img_data.channels, 0);
       if (!L_img_data.data) {
-        LOG::Warning() << "Failed to load texture: " << file_path;
+        LOG::Warning() << "Failed to load texture: " << L_file_path;
         continue;
       }
-      L_img_data.name = NormalizeFileName(file_path);
-      images_.insert({file_path, L_img_data});
+      L_img_data.name = NormalizeFileName(L_file_path);
+      images_.insert({L_file_path, L_img_data});
       //!
-      LOG::Info() << "Loaded texture: " << file_path << " ("
+      LOG::Info() << "Loaded texture: " << L_file_path << " ("
                   << "Width: " << L_img_data.width << ", Height: " << L_img_data.height
                   << ", Channels: " << L_img_data.channels << ")";
     }
@@ -185,6 +194,9 @@ class Resource : public Managers::Base {
    * @param path File Path
    * @return std::string Normalized file name
    */
+  // <- [WARNING]
+  //       отсутствует проверка валидности path, потенциальный std::string::npos при find_last_of,
+  //       неэффективные множественные substr операции, не учитывает Windows пути с '\'
   std::string NormalizeFileName(const std::string& path) {
     std::string L_texture_name = path.substr(path.find_last_of('/') + 1);
     L_texture_name = L_texture_name.substr(0, L_texture_name.find_last_of('.'));

@@ -13,9 +13,9 @@ bool Settings::LoadSettings(SettingsType type) {
   }
   if (type == ALL_SETTINGS) {
     bool all_ok = true;
-    for (const auto &[key, value] : settings_paths_) {
-      if (key == NONE_TYPE || key == ALL_SETTINGS) continue;
-      if (!LoadSettings(key)) {
+    for (const auto &[L_key, L_value] : settings_paths_) {
+      if (L_key == NONE_TYPE || L_key == ALL_SETTINGS) continue;
+      if (!LoadSettings(L_key)) {
         all_ok = false;
       }
     }
@@ -50,8 +50,8 @@ bool Settings::SaveSettings(SettingsType type) {
     }
     return L_all_ok;
   }
-  auto L_it = settings_map_.find(type);
-  if (L_it == settings_map_.end()) {
+  auto it = settings_map_.find(type);
+  if (it == settings_map_.end()) {
     LOG::Error() << "No settings loaded for type";
     return false;
   }
@@ -60,7 +60,7 @@ bool Settings::SaveSettings(SettingsType type) {
     LOG::Error() << "Failed to open file for write: " << settings_paths_.at(type);
     return false;
   }
-  L_ofs << L_it->second.dump(4) << '\n';
+  L_ofs << it->second.dump(4) << '\n';
   if (!L_ofs.good()) {
     LOG::Error() << "Write error: " << settings_paths_.at(type);
     return false;
@@ -81,27 +81,27 @@ bool Settings::SetValue(SettingsType type,
     return false;
   }
 
-  auto &root = settings_map_.find(type)->second;
-  if (!root.is_object()) {
+  auto &L_root = settings_map_.find(type)->second;
+  if (!L_root.is_object()) {
     LOG::Error() << "GetValue: root json is not object";
     return false;
   }
-  if (!root.contains(key)) {
+  if (!L_root.contains(key)) {
     LOG::Error() << "GetValue: key not found: " << key;
     return false;
   }
-  const nlohmann::json &node = root.at(key);
-  if (!node.is_object()) {
+  const nlohmann::json &L_node = L_root.at(key);
+  if (!L_node.is_object()) {
     LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not object";
     return false;
   }
 
-  if (!node.contains("value")) {
+  if (!L_node.contains("value")) {
     LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not contains \"value\"";
     return false;
   }
-  settings_map_.find(type)->second[key]["value"] = AnyToJson(value,
-                                                             node["type"].get<std::string>());
+  settings_map_.find(type)->second[key]["value"] = AnyToJson(
+      value, L_node["type"].get<std::string>());
   return true;
 }
 
@@ -114,20 +114,20 @@ std::any Settings::GetValue(SettingsType type, const std::string &key) {
     LOG::Error() << "GetValue: key is not bee empty";
     return {};
   }
-  auto it_type = settings_map_.find(type);
-  auto &root = it_type->second;
+  auto L_it_type = settings_map_.find(type);
+  auto &L_root = L_it_type->second;
 
-  const nlohmann::json &node = root.at(key);
+  const nlohmann::json &L_node = L_root.at(key);
 
-  if (!node.is_object()) {
+  if (!L_node.is_object()) {
     LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not object";
   }
 
-  if (!node.contains("value")) {
+  if (!L_node.contains("value")) {
     LOG::Error(__PRETTY_FUNCTION__, __LINE__) << " GetValue: node is not contains \"value\"";
   }
 
-  return JsonToAny(node["value"], node["type"].get<std::string>());
+  return JsonToAny(L_node["value"], L_node["type"].get<std::string>());
 }
 void Settings::Update()  {}
 void Settings::Init(std::vector<std::any> args)  {
@@ -139,6 +139,10 @@ void Settings::FreeResources()  {
   SaveSettings(SettingsType::ALL_SETTINGS);
 }
 
+// <- [WARNING]
+//       чрезмерная сложность метода (150+ строк), высокая цикломатическая сложность,
+//       множественные nested lambdas затрудняют чтение, нарушение принципа единственной
+//       ответственности
 nlohmann::json Settings::AnyToJson(const std::any &value, const std::string &expected_type) {
   nlohmann::json j = nullptr;
   if (!value.has_value()) return j;

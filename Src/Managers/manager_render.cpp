@@ -9,50 +9,55 @@
 #include "EngineError/engine_logging.h"
 
 struct Vertex {
+  //! Удалить нужен для отладки
   glm::vec2 pos;
   glm::vec3 color;
 
   static VkVertexInputBindingDescription GetBindingDescription() {
-    VkVertexInputBindingDescription binding_description{};
-    binding_description.binding = 0;
-    binding_description.stride = sizeof(Vertex);
-    binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    VkVertexInputBindingDescription L_binding_description{};
+    L_binding_description.binding = 0;
+    L_binding_description.stride = sizeof(Vertex);
+    L_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    return binding_description;
+    return L_binding_description;
   }
 
-  static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+  static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
+    std::array<VkVertexInputAttributeDescription, 2> L_attributeDescriptions{};
 
-    attributeDescriptions[0].binding = 0;
-    attributeDescriptions[0].location = 0;
-    attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[0].offset = offsetof(Vertex, pos);
+    L_attributeDescriptions[0].binding = 0;
+    L_attributeDescriptions[0].location = 0;
+    L_attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+    L_attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
-    attributeDescriptions[1].binding = 0;
-    attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Vertex, color);
+    L_attributeDescriptions[1].binding = 0;
+    L_attributeDescriptions[1].location = 1;
+    L_attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    L_attributeDescriptions[1].offset = offsetof(Vertex, color);
 
-    return attributeDescriptions;
+    return L_attributeDescriptions;
   }
 };
-static std::vector<char> readFile(const std::string& filename) {
-  std::ifstream file(filename, std::ios::ate | std::ios::binary);
+// <- [WARNING]
+//       отсутствует проверка размера файла, потенциальный integer overflow при больших файлах,
+//       неэффективная аллокация памяти для крупных шейдеров, нет проверки read() результата
+static std::vector<char> ReadFile(const std::string& filename) {
+  //! Удалить нужен для отладки
+  std::ifstream L_file(filename, std::ios::ate | std::ios::binary);
 
-  if (!file.is_open()) {
+  if (!L_file.is_open()) {
     throw std::runtime_error("failed to open file!");
   }
 
-  size_t fileSize = static_cast<size_t>(file.tellg());
-  std::vector<char> buffer(fileSize);
+  size_t L_fileSize = static_cast<size_t>(L_file.tellg());
+  std::vector<char> L_buffer(L_fileSize);
 
-  file.seekg(0);
-  file.read(buffer.data(), static_cast<std::streamsize>(fileSize));
+  L_file.seekg(0);
+  L_file.read(L_buffer.data(), static_cast<std::streamsize>(L_fileSize));
 
-  file.close();
+  L_file.close();
 
-  return buffer;
+  return L_buffer;
 }
 
 namespace EDD::Managers {
@@ -90,31 +95,43 @@ void Render::Update() {
   CleanupFrame();
 }
 
+// <- [WARNING]
+//       высокая сложность освобождения ресурсов, отсутствует обработка ошибок при cleanup,
+//       порядок освобождения критичен для Vulkan, рассмотреть RAII подход
 void Render::FreeResources() {
   if (!initialized_) return;
-  for (auto L_fence : in_flight_fences_) {
-    vkDestroyFence(device_, L_fence, nullptr);
+  for (auto fence : in_flight_fences_) {
+    vkDestroyFence(device_, fence, nullptr);
   }
-  for (auto L_semaphore : render_finished_semaphores_) {
-    vkDestroySemaphore(device_, L_semaphore, nullptr);
+  for (auto semaphore : render_finished_semaphores_) {
+    vkDestroySemaphore(device_, semaphore, nullptr);
   }
-  for (auto L_semaphore : image_available_semaphores_) {
-    vkDestroySemaphore(device_, L_semaphore, nullptr);
+  for (auto semaphore : image_available_semaphores_) {
+    vkDestroySemaphore(device_, semaphore, nullptr);
   }
   vkDestroyCommandPool(device_, command_pool_, nullptr);
-  for (size_t L_i = 0; L_i < framebuffers_.size(); ++L_i) {
-    for (auto L_framebuffer : framebuffers_[L_i]) {
-      vkDestroyFramebuffer(device_, L_framebuffer, nullptr);
+  for (size_t i = 0; i < framebuffers_.size(); ++i) {
+    for (auto framebuffer : framebuffers_[i]) {
+      vkDestroyFramebuffer(device_, framebuffer, nullptr);
     }
   }
   vkDestroyRenderPass(device_, render_pass_, nullptr);
-  for (size_t L_i = 0; L_i < swapchain_image_views_.size(); ++L_i) {
-    for (auto L_imageView : swapchain_image_views_[L_i]) {
-      vkDestroyImageView(device_, L_imageView, nullptr);
+  for (size_t i = 0; i < swapchain_image_views_.size(); ++i) {
+    for (auto imageView : swapchain_image_views_[i]) {
+      vkDestroyImageView(device_, imageView, nullptr);
     }
   }
-  for (auto L_swapchain : swapchains_) {
-    vkDestroySwapchainKHR(device_, L_swapchain, nullptr);
+  for (auto swapchain : swapchains_) {
+    vkDestroySwapchainKHR(device_, swapchain, nullptr);
+  }
+  for (auto view : multisample_image_views_) {
+    vkDestroyImageView(device_, view, nullptr);
+  }
+  for (auto image : multisample_images_) {
+    vkDestroyImage(device_, image, nullptr);
+  }
+  for (auto memory : multisample_image_memories_) {
+    vkFreeMemory(device_, memory, nullptr);
   }
   vkDestroyBuffer(device_, vertex_buffer_, nullptr);
   vkFreeMemory(device_, vertex_buffer_memory_, nullptr);
@@ -123,13 +140,16 @@ void Render::FreeResources() {
   vkDestroyShaderModule(device_, frag_shader_module_, nullptr);
   vkDestroyShaderModule(device_, vert_shader_module_, nullptr);
   vkDestroyDevice(device_, nullptr);
-  for (auto L_surface : surfaces_) {
-    vkDestroySurfaceKHR(instance_, L_surface, nullptr);
+  for (auto surface : surfaces_) {
+    vkDestroySurfaceKHR(instance_, surface, nullptr);
   }
   vkDestroyInstance(instance_, nullptr);
   initialized_ = false;
 }
 
+// <- [WARNING]
+//       высокая сложность инициализации, метод выполняет более 12 различных задач,
+//       нарушение принципа единственной ответственности, рассмотреть разделение
 bool Render::InitVulkan() {
   if (!CreateInstance()) {
     LOG::Fatal(__PRETTY_FUNCTION__, __LINE__) << "Failed to create Vulkan instance";
@@ -210,8 +230,8 @@ bool Render::IsDeviceSuitable(VkPhysicalDevice device) {
       device, nullptr, &L_extensionCount, L_availableExtensions.data());
 
   bool L_swapchainSupported = false;
-  for (const auto& L_extension : L_availableExtensions) {
-    if (strcmp(L_extension.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
+  for (const auto& extension : L_availableExtensions) {
+    if (strcmp(extension.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
       L_swapchainSupported = true;
       break;
     }
@@ -247,12 +267,11 @@ inline bool Render::CreateInstance() {
 
 inline bool Render::CreateSurface() {
   surfaces_.resize(viewports_.size());
-  for (size_t L_i = 0; L_i < viewports_.size(); ++L_i) {
+  for (size_t i = 0; i < viewports_.size(); ++i) {
     if (glfwCreateWindowSurface(
-            instance_, viewports_[L_i]->viewport_window, nullptr, &surfaces_[L_i]) !=
-        VK_SUCCESS) {
+            instance_, viewports_[i]->viewport_window, nullptr, &surfaces_[i]) != VK_SUCCESS) {
       LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-          << "Failed to create window surface for viewport " << L_i;
+          << "Failed to create window surface for viewport " << i;
       return false;
     }
   }
@@ -272,11 +291,11 @@ inline bool Render::PickPhysicalDevice() {
   std::vector<VkPhysicalDevice> L_devices(L_deviceCount);
   vkEnumeratePhysicalDevices(instance_, &L_deviceCount, L_devices.data());
 
-  for (const auto& L_device : L_devices) {
-    if (IsDeviceSuitable(L_device)) {
-      physical_device_ = L_device;
+  for (const auto& device : L_devices) {
+    if (IsDeviceSuitable(device)) {
+      physical_device_ = device;
       VkPhysicalDeviceProperties L_props;
-      vkGetPhysicalDeviceProperties(L_device, &L_props);
+      vkGetPhysicalDeviceProperties(device, &L_props);
       LOG::Debug(__PRETTY_FUNCTION__) << "Selected suitable device: " << L_props.deviceName;
       break;
     }
@@ -304,15 +323,14 @@ inline bool Render::FindQueueFamilies() {
   vkGetPhysicalDeviceQueueFamilyProperties(
       physical_device_, &L_queueFamilyCount, L_queueFamilies.data());
 
-  for (uint32_t L_i = 0; L_i < L_queueFamilyCount; ++L_i) {
-    if (L_queueFamilies[L_i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      graphics_queue_family_index_ = L_i;
+  for (uint32_t i = 0; i < L_queueFamilyCount; ++i) {
+    if (L_queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+      graphics_queue_family_index_ = i;
     }
     VkBool32 L_presentSupport = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(
-        physical_device_, L_i, surfaces_[0], &L_presentSupport);
+    vkGetPhysicalDeviceSurfaceSupportKHR(physical_device_, i, surfaces_[0], &L_presentSupport);
     if (L_presentSupport) {
-      present_queue_family_index_ = L_i;
+      present_queue_family_index_ = i;
     }
     if (graphics_queue_family_index_ != UINT32_MAX &&
         present_queue_family_index_ != UINT32_MAX)
@@ -332,10 +350,10 @@ inline bool Render::CreateLogicalDevice() {
   std::set<uint32_t> L_uniqueQueueFamilies = {graphics_queue_family_index_,
                                               present_queue_family_index_};
   float L_queuePriority = 1.0f;
-  for (uint32_t L_queueFamily : L_uniqueQueueFamilies) {
+  for (uint32_t queueFamily : L_uniqueQueueFamilies) {
     VkDeviceQueueCreateInfo L_queueCreateInfo{};
     L_queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    L_queueCreateInfo.queueFamilyIndex = L_queueFamily;
+    L_queueCreateInfo.queueFamilyIndex = queueFamily;
     L_queueCreateInfo.queueCount = 1;
     L_queueCreateInfo.pQueuePriorities = &L_queuePriority;
     L_queueCreateInfos.push_back(L_queueCreateInfo);
@@ -361,44 +379,48 @@ inline bool Render::CreateLogicalDevice() {
   return true;
 }
 
+// <- [WARNING]
+//       высокая цикломатическая сложность (>96 строк), обрабатывает множество Vulkan структур,
+//       алгоритмическая сложность O(n*m) где n - количество поверхностей, m - количество
+//       форматов
 inline bool Render::CreateSwapchain() {
   swapchains_.resize(surfaces_.size());
   swapchain_images_.resize(surfaces_.size());
   swapchainimage_formats_.resize(surfaces_.size());
   swapchain_extents_.resize(surfaces_.size());
 
-  for (size_t L_idx = 0; L_idx < surfaces_.size(); ++L_idx) {
+  for (size_t idx = 0; idx < surfaces_.size(); ++idx) {
     VkSurfaceCapabilitiesKHR L_capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-        physical_device_, surfaces_[L_idx], &L_capabilities);
+        physical_device_, surfaces_[idx], &L_capabilities);
 
     uint32_t L_formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(
-        physical_device_, surfaces_[L_idx], &L_formatCount, nullptr);
+        physical_device_, surfaces_[idx], &L_formatCount, nullptr);
     std::vector<VkSurfaceFormatKHR> L_formats(L_formatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(
-        physical_device_, surfaces_[L_idx], &L_formatCount, L_formats.data());
+        physical_device_, surfaces_[idx], &L_formatCount, L_formats.data());
 
     VkSurfaceFormatKHR L_surfaceFormat = L_formats[0];
-    for (const auto& L_availableFormat : L_formats) {
-      if (L_availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
-          L_availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-        L_surfaceFormat = L_availableFormat;
+    for (const auto& availableFormat : L_formats) {
+      if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+          availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+        L_surfaceFormat = availableFormat;
         break;
       }
     }
 
     uint32_t L_presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(
-        physical_device_, surfaces_[L_idx], &L_presentModeCount, nullptr);
+        physical_device_, surfaces_[idx], &L_presentModeCount, nullptr);
     std::vector<VkPresentModeKHR> L_presentModes(L_presentModeCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(
-        physical_device_, surfaces_[L_idx], &L_presentModeCount, L_presentModes.data());
+        physical_device_, surfaces_[idx], &L_presentModeCount, L_presentModes.data());
 
     VkPresentModeKHR L_presentMode = VK_PRESENT_MODE_FIFO_KHR;
-    for (const auto& L_availablePresentMode : L_presentModes) {
-      if (L_availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-        L_presentMode = L_availablePresentMode;
+    for (const auto& availablePresentMode : L_presentModes) {
+      if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+        L_presentMode = availablePresentMode;
         break;
       }
     }
@@ -408,7 +430,7 @@ inline bool Render::CreateSwapchain() {
       L_extent = L_capabilities.currentExtent;
     } else {
       int L_width, L_height;
-      glfwGetFramebufferSize(viewports_[L_idx]->viewport_window, &L_width, &L_height);
+      glfwGetFramebufferSize(viewports_[idx]->viewport_window, &L_width, &L_height);
       L_extent.width = std::clamp(static_cast<uint32_t>(L_width),
                                   L_capabilities.minImageExtent.width,
                                   L_capabilities.maxImageExtent.width);
@@ -424,7 +446,7 @@ inline bool Render::CreateSwapchain() {
 
     VkSwapchainCreateInfoKHR L_swapchainCreateInfo{};
     L_swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    L_swapchainCreateInfo.surface = surfaces_[L_idx];
+    L_swapchainCreateInfo.surface = surfaces_[idx];
     L_swapchainCreateInfo.minImageCount = L_imageCount;
     L_swapchainCreateInfo.imageFormat = L_surfaceFormat.format;
     L_swapchainCreateInfo.imageColorSpace = L_surfaceFormat.colorSpace;
@@ -450,34 +472,41 @@ inline bool Render::CreateSwapchain() {
     L_swapchainCreateInfo.clipped = VK_TRUE;
     L_swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if (vkCreateSwapchainKHR(device_, &L_swapchainCreateInfo, nullptr, &swapchains_[L_idx]) !=
+    if (vkCreateSwapchainKHR(device_, &L_swapchainCreateInfo, nullptr, &swapchains_[idx]) !=
         VK_SUCCESS) {
       LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-          << "Failed to create swapchain for viewport " << L_idx;
+          << "Failed to create swapchain for viewport " << idx;
       return false;
     }
 
-    vkGetSwapchainImagesKHR(device_, swapchains_[L_idx], &L_imageCount, nullptr);
-    swapchain_images_[L_idx].resize(L_imageCount);
+    vkGetSwapchainImagesKHR(device_, swapchains_[idx], &L_imageCount, nullptr);
+    swapchain_images_[idx].resize(L_imageCount);
     vkGetSwapchainImagesKHR(
-        device_, swapchains_[L_idx], &L_imageCount, swapchain_images_[L_idx].data());
+        device_, swapchains_[idx], &L_imageCount, swapchain_images_[idx].data());
 
-    swapchainimage_formats_[L_idx] = L_surfaceFormat.format;
-    swapchain_extents_[L_idx] = L_extent;
+    swapchainimage_formats_[idx] = L_surfaceFormat.format;
+    swapchain_extents_[idx] = L_extent;
   }
   return true;
 }
 
 inline bool Render::CreateImageViews() {
+  // <- [WARNING]
+  // высокая цикломатическая сложность, функция обрабатывает несколько ресурсов в
+  // циклах, рассмотреть разделение на подфункции
   swapchain_image_views_.resize(swapchains_.size());
-  for (size_t L_idx = 0; L_idx < swapchains_.size(); ++L_idx) {
-    swapchain_image_views_[L_idx].resize(swapchain_images_[L_idx].size());
-    for (size_t L_i = 0; L_i < swapchain_images_[L_idx].size(); ++L_i) {
+  multisample_images_.resize(surfaces_.size());
+  multisample_image_memories_.resize(surfaces_.size());
+  multisample_image_views_.resize(surfaces_.size());
+
+  for (size_t idx = 0; idx < swapchains_.size(); ++idx) {
+    swapchain_image_views_[idx].resize(swapchain_images_[idx].size());
+    for (size_t i = 0; i < swapchain_images_[idx].size(); ++i) {
       VkImageViewCreateInfo L_viewCreateInfo{};
       L_viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-      L_viewCreateInfo.image = swapchain_images_[L_idx][L_i];
+      L_viewCreateInfo.image = swapchain_images_[idx][i];
       L_viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-      L_viewCreateInfo.format = swapchainimage_formats_[L_idx];
+      L_viewCreateInfo.format = swapchainimage_formats_[idx];
       L_viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
       L_viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
       L_viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -489,12 +518,77 @@ inline bool Render::CreateImageViews() {
       L_viewCreateInfo.subresourceRange.layerCount = 1;
 
       if (vkCreateImageView(
-              device_, &L_viewCreateInfo, nullptr, &swapchain_image_views_[L_idx][L_i]) !=
+              device_, &L_viewCreateInfo, nullptr, &swapchain_image_views_[idx][i]) !=
           VK_SUCCESS) {
         LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-            << "Failed to create image view for viewport " << L_idx << " image " << L_i;
+            << "Failed to create image view for viewport " << idx << " image " << i;
         return false;
       }
+    }
+
+    // Create multisample image
+    VkImageCreateInfo L_imageCreateInfo{};
+    L_imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    L_imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    L_imageCreateInfo.extent.width = swapchain_extents_[idx].width;
+    L_imageCreateInfo.extent.height = swapchain_extents_[idx].height;
+    L_imageCreateInfo.extent.depth = 1;
+    L_imageCreateInfo.mipLevels = 1;
+    L_imageCreateInfo.arrayLayers = 1;
+    L_imageCreateInfo.format = swapchainimage_formats_[idx];
+    L_imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    L_imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    L_imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
+                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    L_imageCreateInfo.samples = VK_SAMPLE_COUNT_4_BIT;
+    L_imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateImage(device_, &L_imageCreateInfo, nullptr, &multisample_images_[idx]) !=
+        VK_SUCCESS) {
+      LOG::Error(__PRETTY_FUNCTION__, __LINE__)
+          << "Failed to create multisample image for viewport " << idx;
+      return false;
+    }
+
+    VkMemoryRequirements L_memRequirements;
+    vkGetImageMemoryRequirements(device_, multisample_images_[idx], &L_memRequirements);
+
+    VkMemoryAllocateInfo L_allocInfo{};
+    L_allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    L_allocInfo.allocationSize = L_memRequirements.size;
+    L_allocInfo.memoryTypeIndex = FindMemoryType(L_memRequirements.memoryTypeBits,
+                                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (vkAllocateMemory(device_, &L_allocInfo, nullptr, &multisample_image_memories_[idx]) !=
+        VK_SUCCESS) {
+      LOG::Error(__PRETTY_FUNCTION__, __LINE__)
+          << "Failed to allocate multisample image memory for viewport " << idx;
+      return false;
+    }
+
+    vkBindImageMemory(device_, multisample_images_[idx], multisample_image_memories_[idx], 0);
+
+    VkImageViewCreateInfo L_msViewCreateInfo{};
+    L_msViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    L_msViewCreateInfo.image = multisample_images_[idx];
+    L_msViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    L_msViewCreateInfo.format = swapchainimage_formats_[idx];
+    L_msViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    L_msViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    L_msViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    L_msViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    L_msViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    L_msViewCreateInfo.subresourceRange.baseMipLevel = 0;
+    L_msViewCreateInfo.subresourceRange.levelCount = 1;
+    L_msViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    L_msViewCreateInfo.subresourceRange.layerCount = 1;
+
+    if (vkCreateImageView(
+            device_, &L_msViewCreateInfo, nullptr, &multisample_image_views_[idx]) !=
+        VK_SUCCESS) {
+      LOG::Error(__PRETTY_FUNCTION__, __LINE__)
+          << "Failed to create multisample image view for viewport " << idx;
+      return false;
     }
   }
   return true;
@@ -503,27 +597,44 @@ inline bool Render::CreateImageViews() {
 inline bool Render::CreateRenderPass() {
   VkAttachmentDescription L_colorAttachment{};
   L_colorAttachment.format = swapchainimage_formats_[0];  // assume all same
-  L_colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  L_colorAttachment.samples = VK_SAMPLE_COUNT_4_BIT;      // MSAA samples
   L_colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   L_colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   L_colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   L_colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   L_colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  L_colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+  L_colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentDescription L_resolveAttachment{};
+  L_resolveAttachment.format = swapchainimage_formats_[0];
+  L_resolveAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  L_resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  L_resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  L_resolveAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  L_resolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  L_resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  L_resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentDescription L_attachments[2] = {L_colorAttachment, L_resolveAttachment};
 
   VkAttachmentReference L_colorAttachmentRef{};
   L_colorAttachmentRef.attachment = 0;
   L_colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+  VkAttachmentReference L_resolveAttachmentRef{};
+  L_resolveAttachmentRef.attachment = 1;
+  L_resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
   VkSubpassDescription L_subpass{};
   L_subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   L_subpass.colorAttachmentCount = 1;
   L_subpass.pColorAttachments = &L_colorAttachmentRef;
+  L_subpass.pResolveAttachments = &L_resolveAttachmentRef;
 
   VkRenderPassCreateInfo L_renderPassInfo{};
   L_renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  L_renderPassInfo.attachmentCount = 1;
-  L_renderPassInfo.pAttachments = &L_colorAttachment;
+  L_renderPassInfo.attachmentCount = 2;
+  L_renderPassInfo.pAttachments = L_attachments;
   L_renderPassInfo.subpassCount = 1;
   L_renderPassInfo.pSubpasses = &L_subpass;
 
@@ -536,25 +647,25 @@ inline bool Render::CreateRenderPass() {
 
 inline bool Render::CreateFramebuffers() {
   framebuffers_.resize(swapchains_.size());
-  for (size_t L_idx = 0; L_idx < swapchains_.size(); ++L_idx) {
-    framebuffers_[L_idx].resize(swapchain_image_views_[L_idx].size());
-    for (size_t L_i = 0; L_i < swapchain_image_views_[L_idx].size(); ++L_i) {
-      VkImageView L_attachments[] = {swapchain_image_views_[L_idx][L_i]};
+  for (size_t idx = 0; idx < swapchains_.size(); ++idx) {
+    framebuffers_[idx].resize(swapchain_image_views_[idx].size());
+    for (size_t i = 0; i < swapchain_image_views_[idx].size(); ++i) {
+      VkImageView L_attachments[] = {multisample_image_views_[idx],
+                                     swapchain_image_views_[idx][i]};
 
       VkFramebufferCreateInfo L_framebufferInfo{};
       L_framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
       L_framebufferInfo.renderPass = render_pass_;
-      L_framebufferInfo.attachmentCount = 1;
+      L_framebufferInfo.attachmentCount = 2;
       L_framebufferInfo.pAttachments = L_attachments;
-      L_framebufferInfo.width = swapchain_extents_[L_idx].width;
-      L_framebufferInfo.height = swapchain_extents_[L_idx].height;
+      L_framebufferInfo.width = swapchain_extents_[idx].width;
+      L_framebufferInfo.height = swapchain_extents_[idx].height;
       L_framebufferInfo.layers = 1;
 
-      if (vkCreateFramebuffer(
-              device_, &L_framebufferInfo, nullptr, &framebuffers_[L_idx][L_i]) !=
+      if (vkCreateFramebuffer(device_, &L_framebufferInfo, nullptr, &framebuffers_[idx][i]) !=
           VK_SUCCESS) {
         LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-            << "Failed to create framebuffer for viewport " << L_idx << " image " << L_i;
+            << "Failed to create framebuffer for viewport " << idx << " image " << i;
         return false;
       }
     }
@@ -578,13 +689,13 @@ inline bool Render::CreateCommandPool() {
 inline bool Render::CreateCommandBuffers() {
   command_buffers_.resize(swapchains_.size());
 
-  VkCommandBufferAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  allocInfo.commandPool = command_pool_;
-  allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  allocInfo.commandBufferCount = static_cast<uint32_t>(command_buffers_.size());
+  VkCommandBufferAllocateInfo L_allocInfo{};
+  L_allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  L_allocInfo.commandPool = command_pool_;
+  L_allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  L_allocInfo.commandBufferCount = static_cast<uint32_t>(command_buffers_.size());
 
-  if (vkAllocateCommandBuffers(device_, &allocInfo, command_buffers_.data()) != VK_SUCCESS) {
+  if (vkAllocateCommandBuffers(device_, &L_allocInfo, command_buffers_.data()) != VK_SUCCESS) {
     LOG::Error(__PRETTY_FUNCTION__, __LINE__) << "Failed to allocate command buffers";
     return false;
   }
@@ -603,16 +714,16 @@ inline bool Render::CreateSyncObjects() {
   L_fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   L_fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-  for (size_t L_i = 0; L_i < swapchains_.size(); ++L_i) {
+  for (size_t i = 0; i < swapchains_.size(); ++i) {
     if (vkCreateSemaphore(
-            device_, &L_semaphoreInfo, nullptr, &image_available_semaphores_[L_i]) !=
+            device_, &L_semaphoreInfo, nullptr, &image_available_semaphores_[i]) !=
             VK_SUCCESS ||
         vkCreateSemaphore(
-            device_, &L_semaphoreInfo, nullptr, &render_finished_semaphores_[L_i]) !=
+            device_, &L_semaphoreInfo, nullptr, &render_finished_semaphores_[i]) !=
             VK_SUCCESS ||
-        vkCreateFence(device_, &L_fenceInfo, nullptr, &in_flight_fences_[L_i]) != VK_SUCCESS) {
+        vkCreateFence(device_, &L_fenceInfo, nullptr, &in_flight_fences_[i]) != VK_SUCCESS) {
       LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-          << "Failed to create sync objects for viewport " << L_i;
+          << "Failed to create sync objects for viewport " << i;
       return false;
     }
   }
@@ -622,142 +733,158 @@ inline bool Render::CreateSyncObjects() {
 void Render::DrawFrame() {
   if (!initialized_) return;
 
-  auto L_entities = entity_manager_->GetAllEntities();
-  LOG::Debug(__PRETTY_FUNCTION__) << "Rendering " << L_entities.size() << " entities";
+  for (size_t idx = 0; idx < viewports_.size(); ++idx) {
+    RenderScreen(idx);
+  }
+}
 
-  for (size_t L_idx = 0; L_idx < viewports_.size(); ++L_idx) {
-    vkWaitForFences(device_, 1, &in_flight_fences_[L_idx], VK_TRUE, UINT64_MAX);
-    vkResetFences(device_, 1, &in_flight_fences_[L_idx]);
+// <- [WARNING]
+//       отсутствует обработка ошибок Vulkan API (vkAcquireNextImageKHR может вернуть
+//       VK_ERROR_*), потенциальные блокировки при UINT64_MAX таймауте, высокая сложность
+//       метода (80+ строк)
+void Render::RenderScreen(size_t viewport_index) {
+  // Ждем завершения предыдущего кадра для этого viewport
+  vkWaitForFences(device_, 1, &in_flight_fences_[viewport_index], VK_TRUE, UINT64_MAX);
 
-    uint32_t L_imageIndex;
-    vkAcquireNextImageKHR(device_,
-                          swapchains_[L_idx],
-                          UINT64_MAX,
-                          image_available_semaphores_[L_idx],
-                          VK_NULL_HANDLE,
-                          &L_imageIndex);
+  // Сбрасываем fence для повторного использования
+  vkResetFences(device_, 1, &in_flight_fences_[viewport_index]);
 
-    vkResetCommandBuffer(command_buffers_[L_idx], 0);
+  // Получаем следующий доступный image из swapchain
+  uint32_t L_imageIndex;
+  vkAcquireNextImageKHR(device_,
+                        swapchains_[viewport_index],
+                        UINT64_MAX,
+                        image_available_semaphores_[viewport_index],
+                        VK_NULL_HANDLE,
+                        &L_imageIndex);
 
-    VkCommandBufferBeginInfo L_beginInfo{};
-    L_beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  // Сбрасываем command buffer для записи новых команд
+  vkResetCommandBuffer(command_buffers_[viewport_index], 0);
 
-    if (vkBeginCommandBuffer(command_buffers_[L_idx], &L_beginInfo) != VK_SUCCESS) {
-      LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-          << "Failed to begin recording command buffer for viewport " << L_idx;
-      return;
+  // Начинаем запись команд в command buffer
+  VkCommandBufferBeginInfo L_beginInfo{};
+  L_beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+  if (vkBeginCommandBuffer(command_buffers_[viewport_index], &L_beginInfo) != VK_SUCCESS) {
+    LOG::Error(__PRETTY_FUNCTION__, __LINE__)
+        << "Failed to begin recording command buffer for viewport " << viewport_index;
+    return;
+  }
+
+  // Начинаем render pass для рисования на framebuffer
+  VkRenderPassBeginInfo L_renderPassInfo{};
+  L_renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+  L_renderPassInfo.renderPass = render_pass_;
+  L_renderPassInfo.framebuffer = framebuffers_[viewport_index][L_imageIndex];
+  L_renderPassInfo.renderArea.offset = {0, 0};
+  L_renderPassInfo.renderArea.extent = swapchain_extents_[viewport_index];
+
+  VkClearValue L_clearColor = {{{0.0f, 0.0f, 0.0f, 0.0f}}};  // Black color
+  L_renderPassInfo.clearValueCount = 1;
+  L_renderPassInfo.pClearValues = &L_clearColor;
+
+  vkCmdBeginRenderPass(
+      command_buffers_[viewport_index], &L_renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+  // Рисуем все сущности для этого viewport
+  RenderEntities(command_buffers_[viewport_index], viewport_index);
+
+  // Заканчиваем render pass
+  vkCmdEndRenderPass(command_buffers_[viewport_index]);
+
+  // Заканчиваем запись command buffer
+  if (vkEndCommandBuffer(command_buffers_[viewport_index]) != VK_SUCCESS) {
+    LOG::Error(__PRETTY_FUNCTION__, __LINE__)
+        << "Failed to record command buffer for viewport " << viewport_index;
+    return;
+  }
+
+  // Отправляем command buffer в очередь выполнения
+  VkSubmitInfo L_submitInfo{};
+  L_submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+  VkSemaphore L_waitSemaphores[] = {image_available_semaphores_[viewport_index]};
+  VkPipelineStageFlags L_waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  L_submitInfo.waitSemaphoreCount = 1;
+  L_submitInfo.pWaitSemaphores = L_waitSemaphores;
+  L_submitInfo.pWaitDstStageMask = L_waitStages;
+
+  L_submitInfo.commandBufferCount = 1;
+  L_submitInfo.pCommandBuffers = &command_buffers_[viewport_index];
+
+  VkSemaphore L_signalSemaphores[] = {render_finished_semaphores_[viewport_index]};
+  L_submitInfo.signalSemaphoreCount = 1;
+  L_submitInfo.pSignalSemaphores = L_signalSemaphores;
+
+  if (vkQueueSubmit(graphics_queue_, 1, &L_submitInfo, in_flight_fences_[viewport_index]) !=
+      VK_SUCCESS) {
+    LOG::Error(__PRETTY_FUNCTION__, __LINE__)
+        << "Failed to submit draw command buffer for viewport " << viewport_index;
+    return;
+  }
+
+  // Представляем готовый image на экран
+  VkPresentInfoKHR L_presentInfo{};
+  L_presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+  L_presentInfo.waitSemaphoreCount = 1;
+  L_presentInfo.pWaitSemaphores = L_signalSemaphores;
+
+  VkSwapchainKHR L_swapChains[] = {swapchains_[viewport_index]};
+  L_presentInfo.swapchainCount = 1;
+  L_presentInfo.pSwapchains = L_swapChains;
+
+  L_presentInfo.pImageIndices = &L_imageIndex;
+
+  vkQueuePresentKHR(present_queue_, &L_presentInfo);
+}
+
+void Render::RenderEntities(VkCommandBuffer command_buffer, size_t viewport_index) {
+  if (!entity_manager_->GetAllEntities().empty()) {
+    auto L_view = entity_manager_->GetEntitiesByCoord();
+    for (auto entity : L_view) {
+      auto& L_coord = L_view.get<Coord>(entity);
+      // For simplicity, render a square with the entity's color
+      // Note: Position is not used yet, just color
+
+      VkViewport L_viewport{};
+      L_viewport.x = 0.0f;
+      L_viewport.y = 0.0f;
+      L_viewport.width = static_cast<float>(swapchain_extents_[viewport_index].width);
+      L_viewport.height = static_cast<float>(swapchain_extents_[viewport_index].height);
+      L_viewport.minDepth = 0.0f;
+      L_viewport.maxDepth = 1.0f;
+      vkCmdSetViewport(command_buffer, 0, 1, &L_viewport);
+
+      VkRect2D L_scissor{};
+      L_scissor.offset = {0, 0};
+      L_scissor.extent = swapchain_extents_[viewport_index];
+      vkCmdSetScissor(command_buffer, 0, 1, &L_scissor);
+
+      vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_);
+
+      VkBuffer L_vertexBuffers[] = {vertex_buffer_};
+      VkDeviceSize L_offsets[] = {0};
+      vkCmdBindVertexBuffers(command_buffer, 0, 1, L_vertexBuffers, L_offsets);
+
+      // Push color from coord
+      glm::vec3 L_color(
+          L_coord.color_.r / 255.0f, L_coord.color_.g / 255.0f, L_coord.color_.b / 255.0f);
+      vkCmdPushConstants(command_buffer,
+                         pipeline_layout_,
+                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                         0,
+                         sizeof(glm::vec3),
+                         &L_color);
+
+      vkCmdDraw(command_buffer, 4, 1, 0, 0);
     }
-
-    VkRenderPassBeginInfo L_renderPassInfo{};
-    L_renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    L_renderPassInfo.renderPass = render_pass_;
-    L_renderPassInfo.framebuffer = framebuffers_[L_idx][L_imageIndex];
-    L_renderPassInfo.renderArea.offset = {0, 0};
-    L_renderPassInfo.renderArea.extent = swapchain_extents_[L_idx];
-
-    VkClearValue L_clearColor = {{{0.0f, 0.0f, 0.0f, 0.0f}}};  // Black color
-    L_renderPassInfo.clearValueCount = 1;
-    L_renderPassInfo.pClearValues = &L_clearColor;
-
-    vkCmdBeginRenderPass(
-        command_buffers_[L_idx], &L_renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-    // Render entities
-    if (!L_entities.empty()) {
-      auto L_view = entity_manager_->GetEntitiesByCoord();
-      for (auto L_entity : L_view) {
-        auto& L_coord = L_view.get<Coord>(L_entity);
-        // For simplicity, render a square with the entity's color
-        // Note: Position is not used yet, just color
-
-        VkViewport L_viewport{};
-        L_viewport.x = 0.0f;
-        L_viewport.y = 0.0f;
-        L_viewport.width = static_cast<float>(swapchain_extents_[L_idx].width);
-        L_viewport.height = static_cast<float>(swapchain_extents_[L_idx].height);
-        L_viewport.minDepth = 0.0f;
-        L_viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(command_buffers_[L_idx], 0, 1, &L_viewport);
-
-        VkRect2D L_scissor{};
-        L_scissor.offset = {0, 0};
-        L_scissor.extent = swapchain_extents_[L_idx];
-        vkCmdSetScissor(command_buffers_[L_idx], 0, 1, &L_scissor);
-
-        vkCmdBindPipeline(
-            command_buffers_[L_idx], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_);
-
-        VkBuffer L_vertexBuffers[] = {vertex_buffer_};
-        VkDeviceSize L_offsets[] = {0};
-        vkCmdBindVertexBuffers(command_buffers_[L_idx], 0, 1, L_vertexBuffers, L_offsets);
-
-        // Push color from coord
-        glm::vec3 L_color(
-            L_coord.color_.r / 255.0f, L_coord.color_.g / 255.0f, L_coord.color_.b / 255.0f);
-        vkCmdPushConstants(command_buffers_[L_idx],
-                           pipeline_layout_,
-                           VK_SHADER_STAGE_FRAGMENT_BIT,
-                           0,
-                           sizeof(glm::vec3),
-                           &L_color);
-
-        vkCmdDraw(command_buffers_[L_idx], 4, 1, 0, 0);
-
-        // Only render the first entity for now
-        break;
-      }
-    }
-
-    vkCmdEndRenderPass(command_buffers_[L_idx]);
-
-    if (vkEndCommandBuffer(command_buffers_[L_idx]) != VK_SUCCESS) {
-      LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-          << "Failed to record command buffer for viewport " << L_idx;
-      return;
-    }
-
-    VkSubmitInfo L_submitInfo{};
-    L_submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    VkSemaphore L_waitSemaphores[] = {image_available_semaphores_[L_idx]};
-    VkPipelineStageFlags L_waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    L_submitInfo.waitSemaphoreCount = 1;
-    L_submitInfo.pWaitSemaphores = L_waitSemaphores;
-    L_submitInfo.pWaitDstStageMask = L_waitStages;
-
-    L_submitInfo.commandBufferCount = 1;
-    L_submitInfo.pCommandBuffers = &command_buffers_[L_idx];
-
-    VkSemaphore L_signalSemaphores[] = {render_finished_semaphores_[L_idx]};
-    L_submitInfo.signalSemaphoreCount = 1;
-    L_submitInfo.pSignalSemaphores = L_signalSemaphores;
-
-    if (vkQueueSubmit(graphics_queue_, 1, &L_submitInfo, in_flight_fences_[L_idx]) !=
-        VK_SUCCESS) {
-      LOG::Error(__PRETTY_FUNCTION__, __LINE__)
-          << "Failed to submit draw command buffer for viewport " << L_idx;
-      return;
-    }
-
-    VkPresentInfoKHR L_presentInfo{};
-    L_presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-    L_presentInfo.waitSemaphoreCount = 1;
-    L_presentInfo.pWaitSemaphores = L_signalSemaphores;
-
-    VkSwapchainKHR L_swapChains[] = {swapchains_[L_idx]};
-    L_presentInfo.swapchainCount = 1;
-    L_presentInfo.pSwapchains = L_swapChains;
-
-    L_presentInfo.pImageIndices = &L_imageIndex;
-
-    vkQueuePresentKHR(present_queue_, &L_presentInfo);
   }
 }
 
 inline bool Render::CreateShaderModules() {
-  auto L_vertShaderCode = readFile("Assets/Shaders/simple.vert.spv");
-  auto L_fragShaderCode = readFile("Assets/Shaders/simple.frag.spv");
+  auto L_vertShaderCode = ReadFile("Assets/Shaders/simple.vert.spv");
+  auto L_fragShaderCode = ReadFile("Assets/Shaders/simple.frag.spv");
 
   VkShaderModuleCreateInfo L_createInfo{};
   L_createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -782,118 +909,122 @@ inline bool Render::CreateShaderModules() {
   return true;
 }
 
+// <- [WARNING]
+//       чрезмерная длина метода (125+ строк), высокая сложность настройки пайплайна,
+//       нарушение принципа единственной ответственности, разделить на подметоды
 inline bool Render::CreateGraphicsPipeline() {
-  VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-  vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-  vertShaderStageInfo.module = vert_shader_module_;
-  vertShaderStageInfo.pName = "main";
+  VkPipelineShaderStageCreateInfo L_vertShaderStageInfo{};
+  L_vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  L_vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+  L_vertShaderStageInfo.module = vert_shader_module_;
+  L_vertShaderStageInfo.pName = "main";
 
-  VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-  fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-  fragShaderStageInfo.module = frag_shader_module_;
-  fragShaderStageInfo.pName = "main";
+  VkPipelineShaderStageCreateInfo L_fragShaderStageInfo{};
+  L_fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  L_fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  L_fragShaderStageInfo.module = frag_shader_module_;
+  L_fragShaderStageInfo.pName = "main";
 
-  VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+  VkPipelineShaderStageCreateInfo L_shaderStages[] = {L_vertShaderStageInfo,
+                                                      L_fragShaderStageInfo};
 
-  VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-  vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  VkPipelineVertexInputStateCreateInfo L_vertexInputInfo{};
+  L_vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-  auto bindingDescription = Vertex::GetBindingDescription();
-  auto attributeDescriptions = Vertex::getAttributeDescriptions();
+  auto L_bindingDescription = Vertex::GetBindingDescription();
+  auto L_attributeDescriptions = Vertex::GetAttributeDescriptions();
 
-  vertexInputInfo.vertexBindingDescriptionCount = 1;
-  vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(
-      attributeDescriptions.size());
-  vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-  vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+  L_vertexInputInfo.vertexBindingDescriptionCount = 1;
+  L_vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(
+      L_attributeDescriptions.size());
+  L_vertexInputInfo.pVertexBindingDescriptions = &L_bindingDescription;
+  L_vertexInputInfo.pVertexAttributeDescriptions = L_attributeDescriptions.data();
 
-  VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-  inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-  inputAssembly.primitiveRestartEnable = VK_FALSE;
+  VkPipelineInputAssemblyStateCreateInfo L_inputAssembly{};
+  L_inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  L_inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  L_inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-  VkPipelineViewportStateCreateInfo viewportState{};
-  viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-  viewportState.viewportCount = 1;
-  viewportState.scissorCount = 1;
+  VkPipelineViewportStateCreateInfo L_viewportState{};
+  L_viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+  L_viewportState.viewportCount = 1;
+  L_viewportState.scissorCount = 1;
 
-  VkPipelineRasterizationStateCreateInfo rasterizer{};
-  rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-  rasterizer.depthClampEnable = VK_FALSE;
-  rasterizer.rasterizerDiscardEnable = VK_FALSE;
-  rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-  rasterizer.lineWidth = 1.0f;
-  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-  rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-  rasterizer.depthBiasEnable = VK_FALSE;
+  VkPipelineRasterizationStateCreateInfo L_rasterizer{};
+  L_rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+  L_rasterizer.depthClampEnable = VK_FALSE;
+  L_rasterizer.rasterizerDiscardEnable = VK_FALSE;
+  L_rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+  L_rasterizer.lineWidth = 1.0f;
+  L_rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+  L_rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+  L_rasterizer.depthBiasEnable = VK_FALSE;
 
-  VkPipelineMultisampleStateCreateInfo multisampling{};
-  multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-  multisampling.sampleShadingEnable = VK_FALSE;
-  multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+  VkPipelineMultisampleStateCreateInfo L_multisampling{};
+  L_multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+  L_multisampling.sampleShadingEnable = VK_FALSE;
+  L_multisampling.rasterizationSamples = VK_SAMPLE_COUNT_4_BIT;
 
-  VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-  colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-  colorBlendAttachment.blendEnable = VK_FALSE;
+  VkPipelineColorBlendAttachmentState L_colorBlendAttachment{};
+  L_colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+  L_colorBlendAttachment.blendEnable = VK_FALSE;
 
-  VkPipelineColorBlendStateCreateInfo colorBlending{};
-  colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-  colorBlending.logicOpEnable = VK_FALSE;
-  colorBlending.logicOp = VK_LOGIC_OP_COPY;
-  colorBlending.attachmentCount = 1;
-  colorBlending.pAttachments = &colorBlendAttachment;
-  colorBlending.blendConstants[0] = 0.0f;
-  colorBlending.blendConstants[1] = 0.0f;
-  colorBlending.blendConstants[2] = 0.0f;
-  colorBlending.blendConstants[3] = 0.0f;
+  VkPipelineColorBlendStateCreateInfo L_colorBlending{};
+  L_colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  L_colorBlending.logicOpEnable = VK_FALSE;
+  L_colorBlending.logicOp = VK_LOGIC_OP_COPY;
+  L_colorBlending.attachmentCount = 1;
+  L_colorBlending.pAttachments = &L_colorBlendAttachment;
+  L_colorBlending.blendConstants[0] = 0.0f;
+  L_colorBlending.blendConstants[1] = 0.0f;
+  L_colorBlending.blendConstants[2] = 0.0f;
+  L_colorBlending.blendConstants[3] = 0.0f;
 
-  std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
-                                               VK_DYNAMIC_STATE_SCISSOR};
-  VkPipelineDynamicStateCreateInfo dynamicState{};
-  dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-  dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-  dynamicState.pDynamicStates = dynamicStates.data();
+  std::vector<VkDynamicState> L_dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
+                                                 VK_DYNAMIC_STATE_SCISSOR};
+  VkPipelineDynamicStateCreateInfo L_dynamicState{};
+  L_dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+  L_dynamicState.dynamicStateCount = static_cast<uint32_t>(L_dynamicStates.size());
+  L_dynamicState.pDynamicStates = L_dynamicStates.data();
 
-  VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-  pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 0;
+  VkPipelineLayoutCreateInfo L_pipelineLayoutInfo{};
+  L_pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  L_pipelineLayoutInfo.setLayoutCount = 0;
 
-  VkPushConstantRange pushConstantRange{};
-  pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-  pushConstantRange.offset = 0;
-  pushConstantRange.size = sizeof(glm::vec3);
+  VkPushConstantRange L_pushConstantRange{};
+  L_pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+  L_pushConstantRange.offset = 0;
+  L_pushConstantRange.size = sizeof(glm::vec3);
 
-  pipelineLayoutInfo.pushConstantRangeCount = 1;
-  pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+  L_pipelineLayoutInfo.pushConstantRangeCount = 1;
+  L_pipelineLayoutInfo.pPushConstantRanges = &L_pushConstantRange;
 
-  if (vkCreatePipelineLayout(device_, &pipelineLayoutInfo, nullptr, &pipeline_layout_) !=
+  if (vkCreatePipelineLayout(device_, &L_pipelineLayoutInfo, nullptr, &pipeline_layout_) !=
       VK_SUCCESS) {
     LOG::Error(__PRETTY_FUNCTION__, __LINE__) << "Failed to create pipeline layout";
     return false;
   }
 
-  VkGraphicsPipelineCreateInfo pipelineInfo{};
-  pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-  pipelineInfo.stageCount = 2;
-  pipelineInfo.pStages = shaderStages;
-  pipelineInfo.pVertexInputState = &vertexInputInfo;
-  pipelineInfo.pInputAssemblyState = &inputAssembly;
-  pipelineInfo.pViewportState = &viewportState;
-  pipelineInfo.pRasterizationState = &rasterizer;
-  pipelineInfo.pMultisampleState = &multisampling;
-  pipelineInfo.pDepthStencilState = nullptr;
-  pipelineInfo.pColorBlendState = &colorBlending;
-  pipelineInfo.pDynamicState = &dynamicState;
-  pipelineInfo.layout = pipeline_layout_;
-  pipelineInfo.renderPass = render_pass_;
-  pipelineInfo.subpass = 0;
-  pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+  VkGraphicsPipelineCreateInfo L_pipelineInfo{};
+  L_pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  L_pipelineInfo.stageCount = 2;
+  L_pipelineInfo.pStages = L_shaderStages;
+  L_pipelineInfo.pVertexInputState = &L_vertexInputInfo;
+  L_pipelineInfo.pInputAssemblyState = &L_inputAssembly;
+  L_pipelineInfo.pViewportState = &L_viewportState;
+  L_pipelineInfo.pRasterizationState = &L_rasterizer;
+  L_pipelineInfo.pMultisampleState = &L_multisampling;
+  L_pipelineInfo.pDepthStencilState = nullptr;
+  L_pipelineInfo.pColorBlendState = &L_colorBlending;
+  L_pipelineInfo.pDynamicState = &L_dynamicState;
+  L_pipelineInfo.layout = pipeline_layout_;
+  L_pipelineInfo.renderPass = render_pass_;
+  L_pipelineInfo.subpass = 0;
+  L_pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
   if (vkCreateGraphicsPipelines(
-          device_, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphics_pipeline_) !=
+          device_, VK_NULL_HANDLE, 1, &L_pipelineInfo, nullptr, &graphics_pipeline_) !=
       VK_SUCCESS) {
     LOG::Error(__PRETTY_FUNCTION__, __LINE__) << "Failed to create graphics pipeline";
     return false;
@@ -903,14 +1034,14 @@ inline bool Render::CreateGraphicsPipeline() {
 }
 
 inline bool Render::CreateVertexBuffer() {
-  const std::vector<Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                                        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-                                        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
+  const std::vector<Vertex> L_vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                          {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                                          {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                          {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
 
   VkBufferCreateInfo L_bufferInfo{};
   L_bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-  L_bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+  L_bufferInfo.size = sizeof(L_vertices[0]) * L_vertices.size();
   L_bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
   L_bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -925,7 +1056,7 @@ inline bool Render::CreateVertexBuffer() {
   VkMemoryAllocateInfo L_allocInfo{};
   L_allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   L_allocInfo.allocationSize = L_memRequirements.size;
-  L_allocInfo.memoryTypeIndex = findMemoryType(L_memRequirements.memoryTypeBits,
+  L_allocInfo.memoryTypeIndex = FindMemoryType(L_memRequirements.memoryTypeBits,
                                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
@@ -938,20 +1069,20 @@ inline bool Render::CreateVertexBuffer() {
 
   void* L_data;
   vkMapMemory(device_, vertex_buffer_memory_, 0, L_bufferInfo.size, 0, &L_data);
-  memcpy(L_data, vertices.data(), static_cast<size_t>(L_bufferInfo.size));
+  memcpy(L_data, L_vertices.data(), static_cast<size_t>(L_bufferInfo.size));
   vkUnmapMemory(device_, vertex_buffer_memory_);
 
   return true;
 }
 
-uint32_t Render::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+uint32_t Render::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
   VkPhysicalDeviceMemoryProperties L_memProperties;
   vkGetPhysicalDeviceMemoryProperties(physical_device_, &L_memProperties);
 
-  for (uint32_t L_i = 0; L_i < L_memProperties.memoryTypeCount; L_i++) {
-    if ((typeFilter & (1 << L_i)) &&
-        (L_memProperties.memoryTypes[L_i].propertyFlags & properties) == properties) {
-      return L_i;
+  for (uint32_t i = 0; i < L_memProperties.memoryTypeCount; i++) {
+    if ((typeFilter & (1 << i)) &&
+        (L_memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+      return i;
     }
   }
 
@@ -960,6 +1091,11 @@ uint32_t Render::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 
 // ---- Cleanup ---------------------------------------------------------------
 
-void Render::CleanupFrame() {}
+void Render::CleanupFrame() {
+  /*
+  удалить временные ресурсы (например, динамические буферы, текстуры или промежуточные данные),
+  их нужно освобождать здесь для избежания утечек памяти.
+  */
+}
 
 } // namespace EDD::Managers
