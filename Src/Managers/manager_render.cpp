@@ -38,27 +38,6 @@ struct Vertex {
     return L_attributeDescriptions;
   }
 };
-// <- [WARNING]
-//       отсутствует проверка размера файла, потенциальный integer overflow при больших файлах,
-//       неэффективная аллокация памяти для крупных шейдеров, нет проверки read() результата
-static std::vector<char> ReadFile(const std::string& filename) {
-  //! Удалить нужен для отладки
-  std::ifstream L_file(filename, std::ios::ate | std::ios::binary);
-
-  if (!L_file.is_open()) {
-    throw std::runtime_error("failed to open file!");
-  }
-
-  size_t L_fileSize = static_cast<size_t>(L_file.tellg());
-  std::vector<char> L_buffer(L_fileSize);
-
-  L_file.seekg(0);
-  L_file.read(L_buffer.data(), static_cast<std::streamsize>(L_fileSize));
-
-  L_file.close();
-
-  return L_buffer;
-}
 
 namespace EDD::Managers {
 
@@ -883,8 +862,8 @@ void Render::RenderEntities(VkCommandBuffer command_buffer, size_t viewport_inde
 }
 
 inline bool Render::CreateShaderModules() {
-  auto L_vertShaderCode = ReadFile("Assets/Shaders/simple.vert.spv");
-  auto L_fragShaderCode = ReadFile("Assets/Shaders/simple.frag.spv");
+  std::vector<uint32_t> L_vertShaderCode;
+  std::vector<uint32_t> L_fragShaderCode;
 
   VkShaderModuleCreateInfo L_createInfo{};
   L_createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

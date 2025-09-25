@@ -111,6 +111,8 @@ class GameLoop {
 
     // Инициализация всех менеджеров
 
+    managers_["resource"]->Init();
+    managers_["entity"]->Init();
     managers_["scene"]->Init(
         //! надо подумать как передавать параметры что бы было явно и безопасно по типизации
         //! !!!
@@ -126,29 +128,8 @@ class GameLoop {
         {static_cast<Managers::Scene *>(managers_["scene"])->GetAllViewports(),
          static_cast<Managers::Entity *>(managers_["entity"]),
          Managers::RenderType::RENDER_2D});
-    managers_["resource"]->Init(std::vector<std::any>{
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Animation,
-                                                        "Assets/Animations/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Audio,
-                                                        "Assets/Audio/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Font,
-                                                        "Assets/Fonts/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Image,
-                                                        "Assets/Images/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Mesh,
-                                                        "Assets/Meshes/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Model,
-                                                        "Assets/Models/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Script,
-                                                        "Assets/Scripts/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Shader,
-                                                        "Assets/Shaders/"}},
-        {std::pair<Managers::ResourceType, std::string>{Managers::ResourceType::Texture,
-                                                        "Assets/Textures/"}},
-    });
-    // <- [WARNING] дублирование кода managers_["entity"]->Init() вызывается дважды
-    managers_["entity"]->Init();
-    managers_["entity"]->Init();
+    // <- [WARNING] дублирование кода managers_["entity"]->Init()
+    // вызывается дважды
     managers_["physics"]->Init();
 
     // Подписска на `input` события
