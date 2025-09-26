@@ -1,7 +1,8 @@
 // Managers/manager.h
 #pragma once
-#include "../Tools/delegate.h"
-#include "../Tools/interface.h"
+#include <any>
+#include <vector>
+
 namespace EDD::Managers {
 /**
  * @brief Базовый класс менеджеров
@@ -17,13 +18,17 @@ class Base {
   virtual void Update() = 0;
 
   /**
-   * @brief Инициализация менеджера (При старте)
+   * @brief Инициализация менеджера (При старте), инициализация не должна вызываться в
+   * конструкторе
+   * @param args Список указателей на контекст инициализации
    */
-  virtual void Init() = 0;
+  virtual void Init(std::vector<std::any> args = {}) = 0;
 
   /**
-   * @brief Освобождение ресурсов
+   * @brief Освобождение ресурсов вызывается при завершении работы менеджера или в деструкторе
    */
   virtual void FreeResources() = 0;
+
+  virtual ~Base() {};
 };
 }  // namespace EDD::Managers
