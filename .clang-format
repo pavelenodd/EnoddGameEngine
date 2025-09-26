@@ -1,0 +1,13 @@
+---
+Language: Cpp
+BasedOnStyle: Google  # Базовый стиль форматирования
+ColumnLimit: 95  # Установить ширину строки до 95 символов
+BinPackArguments: false  # Не упаковывать аргументы, переносить каждый на новую строку
+BinPackParameters: false # Не упаковывать параметры, переносить каждый на новую строку
+AllowShortFunctionsOnASingleLine: Empty # Разрешать только пустые функции на одной строке
+PenaltyBreakAssignment: 1000000  # Большой штраф за перенос присваивания (отключить переносы)
+PenaltyBreakBeforeFirstCallParameter: 30  # Минимальная ширина 30 символов перед переносом параметров
+PenaltyExcessCharacter: 1000000  # Большой штраф за превышение ColumnLimit
+PenaltyBreakString: 1000  # Штраф за перенос строковых литералов
+AlignTrailingComments: true  # Выравнивание комментариев в конце строки
+    

@@ -1,46 +1,68 @@
-// Managers/manager_inputs.h
-
 #pragma once
-#include <SDL3/SDL_events.h>
-#include <list>
-#include "manager_base.h"
-/**
- * @brief Менеджер отвечающий за обработку ввода
- *
- */
-namespace EDD::Managers {
+#include <GLFW/glfw3.h>
 
-class Inputs : public Managers::Base, public Tools::Interface<SDL_Event> {
+#include <unordered_set>
+
+#include "EngineData/event_type.h"
+#include "Tools/interface.h"
+#include "Managers/manager_base.h"
+
+namespace EDD {
+
+#ifdef DEBUG
+
+namespace Tests {
+struct InputsInspector;
+}
+#endif
+
+namespace Managers {
+
+/*
+  Менеджер ввода отвечает за обработку событий ввода от пользователя.
+  все события, которые он принимает передаётся в интерфейс Tools::Interface<KeyEvent>.
+  */
+// <- [WARNING] класс объединяет Observer и Subject паттерны, рассмотреть разделение
+// обязанностей
+using InterfaceKeyEvent = Tools::Interface<EDD::Tools::EventTypes::KeyEvent>;
+class Inputs : public Base, public InterfaceKeyEvent {
  private:
-  std::list<SDL_Event> events_;
+#ifdef DEBUG
+
+  friend struct ::EDD::Tests::InputsInspector;
+#endif
+  // Подписчики на события инпута
+  std::unordered_set<InterfaceKeyEvent*> observers_;
 
  public:
   Inputs() {}
-  ~Inputs() {}
+  ~Inputs() {
+    FreeResources();
+  }
 
- public:
+  virtual void Update() override;
+
   /**
-   * @brief Отслеживание нажатий клавиш
+   * @brief Subscribe to key event notifications.
+   *        If observers is nullptr, subscribe the current instance.
    *
+   * @param observers Pointer to the observer to subscribe.
    */
-  virtual void Update() override {
-    SDL_Event L_event;
-    while (SDL_PollEvent(&L_event)) {
-      events_.push_front(L_event);
-    }
-  }
-  // Реализация метода интерфейса
-  virtual std::optional<SDL_Event> Send() const override {
-    if (!events_.empty()) {
-      return events_.front();
-    }
-    return std::nullopt;
-  }
+  void Subscribe(InterfaceKeyEvent* observers = nullptr);
 
-    virtual void Init() override {}
-  virtual void FreeResources() override {}
+  /**
+   * @brief Unsubscribe from key event notifications.
+   *        If observers is nullptr, unsubscribe the current instance.
+   *
+   * @param observers Pointer to the observer to unsubscribe.
+   */
+  void Unsubscribe(InterfaceKeyEvent* observers = nullptr);
+
+  virtual void Init(std::vector<std::any> args) override;
 
  private:
+  // Освобождение ресурсов
+  virtual void FreeResources() override {}
 };
-
+}  // namespace Managers
 }  // namespace EDD

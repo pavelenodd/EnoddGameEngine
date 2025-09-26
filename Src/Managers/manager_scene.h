@@ -1,115 +1,118 @@
-// Managers/manager_scene.h
-
+// manager_scene.h
 #pragma once
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3_image/SDL_image.h>
+#include <GLFW/glfw3.h>
 
-#include <cassert>
+#include <any>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
-#include "../EngineData/engine_data.h"
-#include "manager_base.h"
-/**
- * @brief Менеджер отвечающий за создание и обновление сцены
- *
- */
-namespace EDD::Managers {
+#include "EngineData/engine_data.h"
+#include "EngineData/event_type.h"
+#include "Tools/interface.h"
+#include "Managers/manager_base.h"
 
-class Scene : public Managers::Base {
+namespace EDD {
+
+#if defined(DEBUG)
+namespace Tests {
+struct SceneInspector;  // forward declaration
+}
+#endif
+
+namespace Managers {
+using InterfaceKeyEvent = Tools::Interface<Tools::EventTypes::KeyEvent>;
+// <- [WARNING]
+//       множественное наследование может привести к Diamond Problem,
+//       высокое связывание с GLFW API, статическое состояние затрудняет тестирование
+class Scene : public Base, public InterfaceKeyEvent {
+#if defined(DEBUG)
+  friend struct EDD::Tests::SceneInspector;
+#endif
+
  private:
-  SDL_Window* window_ = nullptr;
-  SDL_Renderer* renderer_ = nullptr;
-  Data::Viewport viewport_data_;
-  bool* is_gameloop_enabled_;
-  const Tools::Interface<SDL_Event>*
-      event_provider_;  // указатель на интерфейс Inputs
+  std::vector<EDD::Data::Viewport*> viewports_;  // List of created viewports
+  inline static bool glfw_initialized_ = false;  // Track if GLFW is initialized
+  std::unordered_map<int, bool> key_states_;
+  // <- [WARNING]
+  //       глобальное статическое состояние через указатель, потенциальные race conditions,
+  //       нарушение инкапсуляции - внешний код управляет внутренним состоянием
+  inline static bool* is_gameloop_enabled_ = nullptr;
 
  public:
-  Scene(Data::Viewport viewport_data,
-        const Tools::Interface<SDL_Event>* event_provider,
-        bool* is_gameloop_enabled)
-      : viewport_data_(viewport_data),
-        event_provider_(event_provider),
-        is_gameloop_enabled_(is_gameloop_enabled) {}
-  ~Scene() {}
+  Scene() = default;
+  ~Scene() override = default;
 
- public:
   /**
-   * @brief Обновление Вьюпорта
+   * @brief Initialize the scene with the given parameters
+   *
+   * @param args A vector of any type containing initialization parameters
+   */
+  void Init(std::vector<std::any> args = {}) override;
+
+  /**
+   * @brief Not used in the scene manager
    *
    */
-  virtual void Update() override {
-    // Задаём цвет очистки (чёрный)
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, SDL_ALPHA_OPAQUE);
+  void Update() override;
 
-    // Очистка экрана
-    SDL_RenderClear(renderer_);
+  /**
+   * @brief Free all resources used by the scene manager
+   *
+   */
+  void FreeResources() override;
 
-    // TODO: здесь будут вызовы функций отрисовки объектов сцены
+  /**
+   * @brief Destroy a viewport by its title
+   *
+   * @param title The title of the viewport to destroy
+   */
+  void DestroyViewport(const std::string& title);
 
-    // Обработка событий ввода (нажатие клавиш)
-    if (auto event = event_provider_->Send()) {
-      // Если нажата клавиша ESC, то выходим из игрового цикла
-      if (event->key.key == SDLK_ESCAPE) {
-        *is_gameloop_enabled_ = false;
-            }
-    }
+  /**
+   * @brief Destroy all created viewports
+   *
+   */
+  void DestroyAllViewport();
 
-    SDL_RenderPresent(renderer_);
-    }
+  /**
+   * @brief Get the Window Ref object
+   *
+   * @return EDD::Data::Viewport* or nullptr if no viewport exists
+   */
+  EDD::Data::Viewport* GetViewportRef(const std::string& title) const;
+
+  /**
+   * @brief Get all created viewports
+   *
+   * @return std::vector<EDD::Data::Viewport*>
+   */
+  std::vector<EDD::Data::Viewport*> GetAllViewports() const;
+
+  /**
+   * @brief Create a Viewport object
+   *
+   * @param title std::string
+   * @param width uint16_t
+   * @param height uint16_t
+   * @return EDD::Data::Viewport*
+   */
+  EDD::Data::Viewport* CreateViewport(std::string& title, uint16_t width, uint16_t height);
 
  private:
-  /**
-   * @brief Инициализация окна и рендерера.
-   */
-  virtual void Init() override { CreateScene(); }
-
-  /**
-   * @brief Освобождаем ресурсы SDL.
-   */
-  virtual void FreeResources() override {
-    if (renderer_) {
-      SDL_DestroyRenderer(renderer_);
-      renderer_ = nullptr;
-    }
-
-    if (window_) {
-      SDL_DestroyWindow(window_);
-      window_ = nullptr;
-    }
-
-    SDL_Quit();
-  }
-
-  /**
-   * @brief Создание окна и рендерера.
-   */
-  bool CreateScene() {
-    // Создание окна
-    window_ =
-        SDL_CreateWindow(viewport_data_.viewport_name.c_str(),  // имя окна
-                         viewport_data_.w,                      // размеры окна
-                         viewport_data_.h,
-                         SDL_WINDOW_VULKAN  // флаги окна
-        );
-
-    if (!window_) {
-      SDL_Log("Ошибка при создании окна: %s", SDL_GetError());
-      return false;
-    }
-
-    // Создание рендерера
-    renderer_ = SDL_CreateRenderer(window_, nullptr);
-
-    if (!renderer_) {
-      SDL_Log("Ошибка при создании рендерера: %s", SDL_GetError());
-      SDL_DestroyWindow(window_);
-      window_ = nullptr;
-      return false;
-    }
-
-    return true;
-  }
+  // <- [WARNING]
+  //       статические callback функции усложняют доступ к состоянию объекта,
+  //       отсутствует типобезопасность при glfwSetWindowUserPointer/glfwGetWindowUserPointer
+  // GLFW Callbacks
+  static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+  static void WindowCloseCallback(GLFWwindow* window);
+  static void WindowFocusCallback(GLFWwindow* window, int focused);
+  static void CursorPosCallback(GLFWwindow* window, double x_pos, double y_pos);
+  static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+  static void ScrollCallback(GLFWwindow* window, double x_offset, double y_offset);
+  static void CharModsCallback(GLFWwindow* window, unsigned int code_point, int mods);
+  static void DropCallback(GLFWwindow* window, int count, const char** paths);
 };
-}  // namespace EDD::Managers
+
+}  // namespace Managers
+}  // namespace EDD

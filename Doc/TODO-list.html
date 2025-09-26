@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html lang='ru'>
+<head>
+<meta charset='UTF-8' />
+<title>TODO List - EnoddGameEngine</title>
+<style>
+    body { font-family: Arial, sans-serif; line-height: 1.4; }
+    h1 { margin-bottom: 0.4em; }
+    h2 { margin-top: 1em; }
+    ul { list-style: none; padding-left: 0; }
+    li { margin: 4px 0; }
+    label { cursor: pointer; }
+    .muted { color: #666; font-size: 0.95em; }
+</style>
+</head>
+<body>
+<h1>EnoddGameEngine TODO List</h1>
+
+<p class="muted">MVP = базовый фреймворк ядра движка (без GUI). Далее — развитие GUI и работа во вьюпорте.</p>
+
+<h2>Развитие ядра движка</h2>
+
+<h3>Минимальный MVP ядра</h3>
+<ul>
+    <li><label><input type='checkbox' checked /> Инициализировать окно <span class="muted">(есть реализация; переход на GLFW
+                в процессе)</span></label></li>
+    <li><label><input type='checkbox' /> Реализовать рендерер с помощью BGFX</label></li>
+    <li><label><input type='checkbox' checked /> Реализовать базовый цикл рендеринга (clear / draw / display)</label></li>
+    <li><label><input type='checkbox' checked /> Реализовать ядро ECS: сущности, компоненты, системы</label></li>
+    <li><label><input type='checkbox' checked /> Реализовать систему интерфейсов (передача данных подписчикам, без
+            выполнения)</label></li>
+    <li><label><input type='checkbox' /> Реализовать систему делегатов (передача данных подписчикам, с обязательным
+            выполнением)</label></li>
+    <li><label><input type='checkbox' /> Реализовать систему передачи лямбд в интерфейсе</label></li>
+    <li><label><input type='checkbox' /> Реализовать систему передачи лямбд в делегатах</label></li>
+    
+    ```
+    <li>
+        <label><input type='checkbox' /> Реализовать систему загрузки/выгрузки ресурсов</label>
+        <ul>
+            <li><label><input type='checkbox' checked /> Загрузка текстур (Resource::LoadTexture / GetTexture)</label></li>
+            <li><label><input type='checkbox' /> Выгрузка/очистка текстур</label></li>
+            <li><label><input type='checkbox' /> Загрузка шрифтов / аудио / моделей / шейдеров</label></li>
+        </ul>
+</li>
+
+<li>
+    <label><input type='checkbox' /> Реализовать рендер загруженных ресурсов из игры</label>
+    <ul>
+    <li><label><input type='checkbox' checked /> Тестовая загрузка и вывод изображения через ENTT (текстура →
+            RectangleShape)</label></li>
+    </ul>
+    </li>
+    
+    <li><label><input type='checkbox' checked /> Реализовать систему рендера объектов на экране (с помощью ECS)</label></li>
+    <li><label><input type='checkbox' /> Реализовать систему управления объектами на сцене</label></li>
+    <li><label><input type='checkbox' /> Реализовать систему управления камерой на сцене</label></li>
+    <li><label><input type='checkbox' /> Реализовать систему управления вводом с клавиатуры и мыши <span
+                class="muted">(перевод на GLFW: в процессе)</span></label></li>
+    <li><label><input type='checkbox' /> Реализовать ребинд клавиш</label></li>
+    <li><label><input type='checkbox' /> Реализовать скрипты для объектов на сцене</label></li>
+    <li><label><input type='checkbox' /> Реализовать систему загрузки звуков и их проигрывание</label></li>
+    <li><label><input type='checkbox' /> <strong>Тестовая сцена: движущийся объект из примитивов для
+                проверки</strong></label></li>
+    
+    <li>
+        <label><input type='checkbox' /> Логгер (MVP)</label>
+        <ul>
+    <li><label><input type='checkbox' checked /> StreamLogger с поддержкой __FILE__/__LINE__</label></li>
+    <li><label><input type='checkbox' /> Выбор уровней вывода / фильтрация по уровню</label></li>
+    <li><label><input type='checkbox' /> Вывод в файл (ротация логов)</label></li>
+    <li><label><input type='checkbox' /> Перевести логгирование на std::source_location вместо макросов</label></li>
+    <li><label><input type='checkbox' /> LOG::Fatal по умолчанию вызывает abort()</label></li>
+    <li><label><input type='checkbox' /> Возможность передавать в логгер лямбда-функции</label></li>
+    <li><label><input type='checkbox' /> Возможность отключать отдельные уровни логов</label></li>
+    </ul>
+    </li>
+    
+    <li><label><input type='checkbox' /> Вырезать SFML <span class="muted">(полный переход на GLFW)</span></label></li>
+    ```
+    
+    </ul>
+    
+    <h3>Базовый рендер 3D</h3>
+    <ul>
+    <li><label><input type='checkbox' /> <strong>Тестовая сцена: движущийся 3D объект (Vulkan/OpenGL) из
+                примитивов</strong></label></li>
+    </ul>
+    
+    <h3>Вывод звука</h3>
+    <ul>
+    <li><label><input type='checkbox' /> <strong>Тестовая сцена: проигрывание звуковых эффектов на нажатие
+                кнопок</strong></label></li>
+    </ul>
+    
+    <h3>Обработка физики</h3>
+    <ul>
+    <li><label><input type='checkbox' /> <strong>Тестовая сцена: два объекта сталкиваются и отскакивают</strong></label>
+    </li>
+    </ul>
+    
+    <h2>Доработки (после MVP)</h2>
+    <h3>Тестирование</h3>
+    <ul>
+    <li><label><input type='checkbox' /> Разработать систему автотестов для менеджеров</label></li>
+    <li><label><input type='checkbox' /> Поддержка unit-тестов (GoogleTest / Catch2)</label></li>
+    </ul>
+    
+    <h3>Работа во вьюпорте и GUI</h3>
+    <ul>
+    <li><label><input type='checkbox' /> Базовый GUI (панели, кнопки, меню)</label></li>
+    <li><label><input type='checkbox' /> Виджеты для управления камерой и объектами</label></li>
+    <li><label><input type='checkbox' /> Отладочные оверлеи (FPS, графы, профилирование)</label></li>
+    </ul>
+    </body>
+    
+    </html>
