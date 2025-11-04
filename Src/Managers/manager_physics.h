@@ -6,7 +6,7 @@
 namespace EDD::Managers {
 
 /**
- * @brief Менеджер отвечающий за обработку физики
+ * @brief Менеджер отвечающий за обработку физических взаимодействий в игре.
  *
  */
 class Physics : public Managers::Base {
@@ -18,7 +18,7 @@ class Physics : public Managers::Base {
  public:
   virtual void Update() override {}
 
-  virtual void Init() override {}
+  virtual void Init(std::vector<std::any> args) override {}
   virtual void FreeResources() override {}
 };
 
